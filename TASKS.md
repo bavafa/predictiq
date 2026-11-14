@@ -26,3 +26,8 @@ Current stage: **Architecture.**
 - [ ] Project skeleton: repository layout, download script with hash check, empty app and data service, CI on pull requests.
 - [ ] Vercel deploy spike (decision gate for decision 41), on a new Hobby project. It passes only if: (1) `/api/v1/*` reaches FastAPI and everything else reaches Next.js in one project; (2) Python function plus bundle under 500 MB uncompressed, bytes recorded; (3) cold start over 10 requests, median under 3 s, worst under 10 s; (4) largest allowed response per endpoint under 256 KB; (5) a repeated GET is a cache HIT and the WAF rule returns 429; (6) owner confirms in writing that the demo is personal and non-commercial (Hobby terms). If 1–5 fail: fall back to Vercel frontend + Render free backend. If 6 fails: hosting goes back to the owner.
 - [ ] Data and model, screens, planner, launch: wait for approval.
+
+## Known issues from the architecture re-check (tracked; the one fix round was used)
+- [ ] Medium: the cache contract conflicts with itself. URLs are "immutable per model version", yet a stale version returns 404, and browsers keep a 200 for an hour. Decide whether old versions stay servable, and define cache behaviour at release.
+- [ ] Low: the event-lookback sentence mixes populations. 3 of the 110 test events lack a full lookback; the other 4 fall after the test window.
+- [ ] Low: the architecture document is about 2,580 words against a target of about two pages.
