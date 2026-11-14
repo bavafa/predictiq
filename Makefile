@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-.PHONY: help setup lint typecheck test e2e build dev data validate labels features splits test-realdata export-requirements screenshots train evaluate verify replay bundle fetch-bundle
+.PHONY: help setup lint typecheck test e2e e2e-real build dev data validate labels features splits test-realdata export-requirements screenshots train evaluate verify replay bundle fetch-bundle
 
 help:
 	@echo "Targets: setup lint typecheck test e2e build dev data validate labels features splits screenshots export-requirements"
@@ -27,9 +27,13 @@ test:
 build:
 	cd frontend && npm run build
 
-# Playwright smoke test against `next start`. Locally: PLAYWRIGHT_CHROME_PATH=/usr/bin/google-chrome
-e2e: build
+# End-to-end: real uvicorn data service on a synthetic bundle + `next start`, then the no-model-data run.
+e2e:
 	cd frontend && npm run e2e
+
+# Opt-in: the same specs against the real local bundle in artifacts/<version>/bundle.
+e2e-real:
+	cd frontend && npm run e2e:real
 
 # Data service on :8000 and the web app on :3000 (which proxies /api/v1 to it).
 dev:
