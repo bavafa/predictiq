@@ -116,6 +116,29 @@ def test_asset_matches_the_saved_scores_and_history(client: TestClient, served: 
                         assert at - timedelta(days=7) <= datetime.fromisoformat(rec["time"]) < at
 
 
+def test_fleet_latest_error_matches_the_saved_records(client: TestClient, served: reader.Bundle) -> None:
+    """Each row's latest error is the newest error record stamped strictly before `at` (independent scan of
+    records.json), or null when the machine has none yet."""
+    records = json.loads((served.root / "records.json").read_text())["errors"]
+    for hour in sample_hours(served):
+        at = served.hour_at(hour)
+        body = client.get(url(served, "fleet", at=at_text(served, hour))).json()
+        for row in body["rows"]:
+            mine = [
+                (served.tel_hour_at(int(h)), str(v))
+                for m, h, v in records
+                if int(m) == row["machine_id"] and served.tel_hour_at(int(h)) < at
+            ]
+            if not mine:
+                assert row["latest_error"] is None, (hour, row["machine_id"])
+                continue
+            newest = max(t for t, _ in mine)
+            got = row["latest_error"]
+            assert datetime.fromisoformat(got["time"]) == newest, (hour, row["machine_id"])
+            assert newest < at
+            assert got["error"] in {v for t, v in mine if t == newest}
+
+
 def test_asset_and_fleet_agree_on_the_same_machine(client: TestClient, served: reader.Bundle) -> None:
     hour = (served.first_index + served.last_index) // 2
     fleet = client.get(url(served, "fleet", at=at_text(served, hour), cutoff=40)).json()
