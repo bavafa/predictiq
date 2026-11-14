@@ -28,6 +28,13 @@ Current stage: **Architecture.**
 - [ ] Data and model, screens, planner, launch: wait for approval.
 
 ## Known issues from the architecture re-check (tracked; the one fix round was used)
-- [ ] Medium: the cache contract conflicts with itself. URLs are "immutable per model version", yet a stale version returns 404, and browsers keep a 200 for an hour. Decide whether old versions stay servable, and define cache behaviour at release.
-- [ ] Low: the event-lookback sentence mixes populations. 3 of the 110 test events lack a full lookback; the other 4 fall after the test window.
+- [x] Medium (fixed 13 Nov, only the latest version is served): the cache contract conflicts with itself. URLs are "immutable per model version", yet a stale version returns 404, and browsers keep a 200 for an hour. Decide whether old versions stay servable, and define cache behaviour at release.
+- [x] Low (fixed 13 Nov): the event-lookback sentence mixes populations. 3 of the 110 test events lack a full lookback; the other 4 fall after the test window.
 - [ ] Low: the architecture document is about 2,580 words against a target of about two pages.
+
+## Build stage, story 1: project skeleton (started 13 Nov 2026, 10:05 PM ET)
+- [ ] Scaffold: website, data service as a Vercel Python function, machine-learning package skeleton, Makefile stubs
+- [ ] Lint, type checks, tests (pytest, Vitest, one Playwright smoke test) and continuous integration
+- [ ] App shell: navigation, disclosure banner, "Historical replay" badge, honest "not built yet" states
+- [ ] Trial deploy on Vercel as a protected preview, measuring the six checks
+- [ ] Independent review and one fix round

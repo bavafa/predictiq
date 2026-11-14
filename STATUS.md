@@ -3,6 +3,9 @@
 _Updated 2026-11-13, after the architecture fix round._
 
 ## Current stage
+**13 Nov 2026, 10:05 PM ET: the architecture gate is approved by Meysam (Owner). Build stage, story 1: the project skeleton is in progress on branch `skeleton` (stacked on `architecture`, PR #22).** The older notes below are history.
+
+### Previous stage
 Architecture (branch `architecture`). Data check, requirements, stories and user-experience design are **approved by Meysam (Owner)** (design gate: 13 Nov 2026, 9:26 PM ET). The independent review returned FAIL with 1 High, 3 Medium and 1 Low finding (`docs/QA_REPORTS/architecture-codex-review.md`). All five are fixed in the working tree (not committed). The fixes wait for the reviewer to verify them and for owner approval. Nothing is built or deployed.
 
 ## Done
