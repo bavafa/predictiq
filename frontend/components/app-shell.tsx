@@ -31,7 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
-  const panel = useRef<HTMLElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
 
   const close = useCallback((restoreFocus: boolean) => {
     setOpen(false);
@@ -82,12 +82,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div onKeyDown={onKeyDown}>
       <a
         href="#main"
+        inert={open}
         className="absolute left-2 top-2 z-50 -translate-y-20 rounded-md bg-card px-3 py-2 text-sm font-semibold text-link focus:translate-y-0"
       >
         Skip to content
       </a>
 
-      <div role="note" className="bg-disclosure-bg px-4 py-2 text-[13px] leading-5 font-semibold text-disclosure-text">
+      <div role="note" inert={open} className="bg-disclosure-bg px-4 py-2 text-[13px] leading-5 font-semibold text-disclosure-text">
         <span aria-hidden="true">ⓘ </span>
         {DISCLOSURE}
       </div>
@@ -95,15 +96,19 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-[calc(100vh-36px)]">
         {open && <div className="fixed inset-0 z-10 bg-black/45 lg:hidden" aria-hidden="true" onClick={() => close(true)} />}
 
-        <nav
+        {/* While open (below 1024px only) this panel is a modal dialog: the rest of the page is inert. */}
+        <div
           ref={panel}
           id="site-nav"
-          aria-label="Main"
+          role={open ? "dialog" : undefined}
+          aria-modal={open ? true : undefined}
+          aria-label={open ? "Main menu" : undefined}
           className={cn(
             "flex-col bg-sidebar py-4 text-sidebar-text lg:flex lg:w-60 lg:flex-none",
             open ? "fixed inset-y-0 left-0 z-20 flex w-70 overflow-y-auto" : "hidden",
           )}
         >
+        <nav aria-label="Main" className="flex flex-1 flex-col">
           <div className="px-5 pb-4 text-lg font-bold text-white">PredictIQ</div>
           <Button
             ref={closeButton}
@@ -130,8 +135,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             Data: Microsoft sample data (simulated), 2015
           </div>
         </nav>
+        </div>
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div inert={open} className="flex min-w-0 flex-1 flex-col">
           <header className="flex min-h-14 flex-wrap items-center gap-3 border-b border-line bg-card px-3 py-2 sm:px-5">
             <Button
               ref={menuButton}

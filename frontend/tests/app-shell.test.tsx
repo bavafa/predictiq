@@ -98,4 +98,26 @@ describe("AppShell", () => {
       expect(nav.contains(document.activeElement)).toBe(true);
     }
   });
+
+  it("is a labelled modal dialog while open, with the rest of the page inert, and plain navigation when closed", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<AppShell>content</AppShell>);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(container.querySelectorAll("[inert]")).toHaveLength(0);
+
+    const menu = screen.getByRole("button", { name: /^Menu$/ });
+    await user.click(menu);
+    const dialog = screen.getByRole("dialog", { name: "Main menu" });
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(dialog.querySelector("nav")).toBeInTheDocument();
+    expect(menu.closest("[inert]")).not.toBeNull();
+    expect(screen.getByRole("note").closest("[inert]")).not.toBeNull();
+    expect(screen.getByText("content").closest("[inert]")).not.toBeNull();
+    expect(dialog.closest("[inert]")).toBeNull();
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(container.querySelectorAll("[inert]")).toHaveLength(0);
+    expect(menu).toHaveFocus();
+  });
 });
