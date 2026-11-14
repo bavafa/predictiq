@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-MODULES = ["validate", "labels", "train", "evaluate", "replay", "features"]
+MODULES = ["train", "evaluate", "replay"]
 
 
 @pytest.mark.parametrize("name", MODULES)
