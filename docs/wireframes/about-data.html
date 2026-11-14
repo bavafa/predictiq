@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About &amp; Data — PredictIQ wireframe</title>
+<style>
+/* ===== shared wireframe shell (copied in every screen file; keep in sync) ===== */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font:14px/20px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111;background:#f2f2f2;overflow-x:hidden}
+a{color:#111}
+button,select,input{font:inherit;color:#111}
+.skip{position:absolute;left:-999px}
+.banner{background:#d9d9d9;border-bottom:1px solid #999;padding:6px 16px;font-size:13px;font-weight:600}
+.app{display:flex;min-height:calc(100vh - 32px)}
+.sidebar{width:240px;flex:0 0 240px;background:#2b2b2b;color:#eee;padding:16px 0;display:flex;flex-direction:column}
+.sidebar .brand{font-weight:700;font-size:18px;padding:0 20px 16px}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar li a{display:block;padding:10px 20px;color:#eee;text-decoration:none;min-height:44px}
+.sidebar li a[aria-current=page]{background:#555;color:#fff;font-weight:600;border-left:4px solid #fff;padding-left:16px}
+.sidebar .sep{border-top:1px solid #555;margin:8px 20px}
+.sidebar .foot{margin-top:auto;padding:16px 20px;font-size:12px;color:#ccc;line-height:16px}
+.sidebar .close{display:none}
+.maincol{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid #bbb;padding:8px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:56px}
+.topbar h1{font-size:22px;line-height:28px;margin:0;flex:1 1 auto}
+.menu-btn,.brand-m{display:none}
+.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #666;background:#eee;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}
+.replaybar{background:#fafafa;border-bottom:1px solid #bbb;padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.replaybar .time{font-weight:700;font-variant-numeric:tabular-nums;margin-right:8px}
+.btn{border:1px solid #555;background:#fff;border-radius:6px;padding:6px 12px;min-height:36px;cursor:pointer;white-space:nowrap}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.link{border:none;background:none;text-decoration:underline;padding:6px 4px}
+.sel{border:1px solid #555;background:#fff;border-radius:4px;padding:6px 8px;min-height:36px}
+.slider{display:inline-flex;align-items:center;gap:8px}
+.track{position:relative;width:180px;height:6px;background:#ccc;border:1px solid #777;border-radius:3px}
+.track .thumb{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;background:#333;border:2px solid #fff;box-shadow:0 0 0 1px #333}
+.timeline{flex:1 1 220px;min-width:160px}
+.timeline .track{width:100%}
+main{padding:20px;display:flex;flex-direction:column;gap:16px;max-width:1440px}
+.card{background:#fff;border:1px solid #aaa;border-radius:8px;padding:16px 20px}
+.card h2{font-size:18px;line-height:28px;margin:0 0 4px}
+.card h3{font-size:16px;margin:0 0 4px}
+.cap{font-size:12px;line-height:16px;color:#444}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid4>*,.grid3>*,.grid2>*,.plan>*{min-width:0}
+table.wrap th,table.wrap td{white-space:normal}
+.metric .label{font-size:13px;font-weight:600}
+.metric .value{font-size:30px;line-height:36px;font-weight:600;font-variant-numeric:tabular-nums;margin:6px 0}
+/* value-type labels: word + edge style (solid / dashed / dotted) */
+.vt{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.02em;border:1.5px solid #333;border-radius:4px;padding:0 5px;line-height:16px;background:#fff;white-space:nowrap;vertical-align:middle}
+.vt-h{border-style:solid}
+.vt-p{border-style:dashed}
+.vt-i{border-style:dotted;border-width:2px}
+/* risk tags: word + icon */
+.tag{display:inline-flex;gap:4px;align-items:center;font-size:12px;font-weight:600;border-radius:4px;padding:1px 6px;border:1px solid #555;white-space:nowrap}
+.tag-alert{background:#ddd;border:2px solid #222}
+.tag-below{background:#fff}
+.tag-fail{background:#222;color:#fff;border-color:#222}
+.chart{border:1px dashed #888;border-radius:6px;background:#fcfcfc;height:180px;position:relative;margin-top:8px}
+.chart svg{position:absolute;inset:24px 12px 28px 44px;width:calc(100% - 56px);height:calc(100% - 52px)}
+.chart .yl{position:absolute;left:4px;top:6px;font-size:11px;color:#333}
+.chart .xl{position:absolute;right:8px;bottom:6px;font-size:11px;color:#333}
+.chart .note{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;color:#333;background:#fff;padding:2px 6px;text-align:center}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ccc;white-space:nowrap}
+th{background:#eee;font-size:13px}
+th button{border:none;background:none;font-weight:700;padding:0;cursor:pointer}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.cardlist{display:none;list-style:none;margin:0;padding:0}
+.cardlist li{border-bottom:1px solid #ccc;padding:10px 0}
+.cardlist a{display:flex;justify-content:space-between;gap:8px;text-decoration:none;min-height:44px;align-items:center}
+.notice{border:1px solid #777;border-left:6px solid #555;background:#fff;border-radius:6px;padding:10px 14px}
+.problem{border:2px solid #333;border-left:8px solid #333;background:#fff;border-radius:6px;padding:12px 16px}
+.skel{background:repeating-linear-gradient(90deg,#ddd 0 40%,#e9e9e9 40% 100%);border-radius:4px;height:14px;margin:6px 0}
+.skel.big{height:32px;width:60%}
+.skel.block{height:140px}
+.empty{border:1px dashed #777;border-radius:8px;background:#fff;padding:28px;text-align:center}
+.wfnote{font-size:12px;color:#333;background:#e6e6e6;border-top:1px solid #aaa;padding:8px 20px}
+.example{font-size:11px;font-weight:600;border:1px solid #777;border-radius:3px;padding:0 4px;background:#fff;color:#333}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;margin-top:6px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-weight:600;font-size:13px}
+.field input{border:1px solid #555;border-radius:4px;padding:6px 8px;min-height:36px;width:100%}
+.field .err{font-size:12px;font-weight:600}
+.field input[aria-invalid=true]{border:2px solid #111}
+.bar{height:14px;background:#888;border-radius:2px}
+details summary{cursor:pointer;font-weight:600}
+[hidden]{display:none!important}
+@media (max-width:1023px){
+  .sidebar{display:none}
+  .menu-btn{display:inline-flex}
+  .brand-m{display:inline;font-weight:700}
+  .topbar h1{flex-basis:100%;order:3;font-size:20px}
+  body[data-state=nav-open] .sidebar{display:flex;position:fixed;inset:0 auto 0 0;width:280px;z-index:10;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
+  body[data-state=nav-open] .sidebar .close{display:block;margin:0 20px 12px;background:#444;color:#fff;border-color:#888}
+}
+@media (max-width:760px){
+  main{padding:12px;gap:12px}
+  .topbar,.replaybar{padding:8px 12px}
+  .grid4{grid-template-columns:1fr 1fr;gap:12px}
+  .grid3,.grid2{grid-template-columns:1fr;gap:12px}
+  .card{padding:12px 14px}
+  .metric .value{font-size:24px;line-height:30px}
+  .desk-only{display:none!important}
+  .cardlist{display:block}
+  .track{width:120px}
+  .timeline{flex-basis:100%}
+  .chart{height:160px}
+}
+@media (min-width:761px){.mob-only{display:none!important}}
+/* ===== end shared shell ===== */
+
+</style>
+</head>
+<body data-state="default">
+<a class="skip" href="#main">Skip to content</a>
+<div class="banner" role="note">ⓘ Portfolio demo — historical sample data; estimated economics are illustrative.</div>
+<div class="app">
+  <nav class="sidebar" aria-label="Main">
+    <div class="brand">PredictIQ</div>
+    <button class="btn close" type="button">✕ Close menu</button>
+    <ul>
+      <li><a href="fleet-overview.html">Fleet Overview</a></li>
+      <li><a href="asset-details.html">Asset Details</a></li>
+      <li><a href="maintenance-planner.html">Maintenance Planner</a></li>
+      <li><a href="model-performance.html">Model Performance</a></li>
+      <li class="sep" aria-hidden="true"></li>
+      <li><a href="about-data.html" aria-current="page">About &amp; Data</a></li>
+    </ul>
+    <div class="foot">Model version: —<br>Data: Microsoft sample data (simulated), 2015</div>
+  </nav>
+  <div class="maincol">
+    <header class="topbar">
+      <button class="btn menu-btn" type="button" aria-expanded="false">☰ Menu</button>
+      <span class="brand-m">PredictIQ</span>
+      <h1>About &amp; Data</h1>
+      <span class="badge">⏱ Historical replay</span>
+    </header>
+    <div class="replaybar"><span class="cap">Replay time on other pages: <b>2015-11-14 06:00</b> <span class="example">example</span>. Replay controls are hidden here because this page does not change with time.</span></div>
+
+    <main id="main">
+      <section class="card">
+        <h2>What this is</h2>
+        <p style="margin:0">PredictIQ is a prototype asset-intelligence application built on a public predictive-maintenance sample dataset. It predicts recorded component failures over a 24-hour horizon and links model outputs to transparent, assumption-based maintenance prioritization. It is a demonstration of industrial analytics and product design, not a deployed production system.</p>
+      </section>
+
+      <section class="card" aria-labelledby="lab">
+        <h2 id="lab">How to read the labels</h2>
+        <div class="grid3">
+          <div><span class="vt vt-h">Historical</span><p class="cap">Simulated sample data: sensor readings, errors, maintenance and failures as recorded in the sample. Not real plant, fleet or mine data.</p></div>
+          <div><span class="vt vt-p">Predicted</span><p class="cap">Model estimate: the chance of a recorded failure in the next 24 hours, and what pushed it up or down.</p></div>
+          <div><span class="vt vt-i">Illustrative</span><p class="cap">Assumption you can change: costs, crew slots and how much maintenance lowers risk. Not real costs.</p></div>
+        </div>
+        <p class="cap">"Historical replay" steps through old records in order. Nothing on this site is live.</p>
+      </section>
+
+      <section class="card">
+        <h2>Data source</h2>
+        <p style="margin:0">Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e). Microsoft states content in that repository is licensed under CC BY 4.0; the repository's license file is MIT.</p>
+        <ul class="cap" style="padding-left:18px">
+          <li>100 machines, hourly sensor readings, 2015-01-01 06:00 to 2016-01-01 06:00.</li>
+          <li>Also: error logs, maintenance records, failure records, machine model and age.</li>
+          <li>Sensor units are not stated by the source.</li>
+          <li>The replay covers — to —, the period the model never saw while training.</li>
+        </ul>
+        <a href="#">Full data record (source, file checks, license notes) ↗</a>
+      </section>
+
+      <section class="grid2">
+        <div class="card"><h2>Known limitations</h2><ul style="margin:0;padding-left:20px"><li>Simulated data; results may look better than on real machines.</li><li>Tested on the same machines at a later time only.</li><li>Explanations are patterns, not causes.</li><li>Costs are illustrative. No savings are claimed.</li></ul></div>
+        <div class="card"><h2>Not part of this demo</h2><ul style="margin:0;padding-left:20px"><li>Live sensor feeds or control of any equipment.</li><li>Real maintenance costs or work orders.</li><li>Accounts, personal data, chatbots.</li></ul></div>
+      </section>
+
+      <p class="cap">Model version: <span data-hide="metadata-failed">—</span><span data-show="metadata-failed" hidden>— (couldn't load right now; the rest of this page still applies)</span></p>
+    </main>
+    <div class="wfnote">Low-fidelity wireframe. "—" = value comes from the saved model results later. Items marked <span class="example">example</span> are made-up placeholders, not data. Greyscale on purpose.</div>
+  </div>
+</div>
+<script>
+/* wireframe-only: ?state=metadata-failed */
+(function(){var s=new URLSearchParams(location.search).get('state')||'default';document.body.dataset.state=s;
+document.querySelectorAll('[data-show]').forEach(function(e){e.hidden=e.dataset.show.split(' ').indexOf(s)<0});
+document.querySelectorAll('[data-hide]').forEach(function(e){if(e.dataset.hide.split(' ').indexOf(s)>=0)e.hidden=true});
+document.querySelectorAll('[data-disable]').forEach(function(e){if(e.dataset.disable.split(' ').indexOf(s)>=0)e.disabled=true});
+document.querySelectorAll('[data-enable]').forEach(function(e){e.disabled=e.dataset.enable.split(' ').indexOf(s)<0&&e.hasAttribute('disabled')?true:false;if(e.dataset.enable.split(' ').indexOf(s)>=0)e.disabled=false});
+document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var th=document.querySelector('.timeline .thumb');if(th&&s==='replay-end')th.style.left='calc(100% - 18px)';if(th&&s==='replay-start')th.style.left='0';
+})();
+</script>
+</body>
+</html>
