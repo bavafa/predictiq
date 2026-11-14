@@ -28,41 +28,50 @@ Plain log of decisions. Newest last. Owner approval is noted where given; otherw
 
 ## 2026-11-13, user-experience design (proposed)
 
-**11. Model alerts are amber; red means a recorded failure only.** The brief reserves red for verified risk. A prediction is not verified, so the "Alert" tag is amber. Red marks failures that really appear in the data. Error messages also use amber, with an icon. *Status: proposed.*
+**11. Model alerts are amber; red means a recorded failure only.** The brief reserves red for verified risk. A prediction is not verified, so the "Alert" tag is amber. Red marks failures that really appear in the data. Error messages also use amber, with an icon. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**12. Two status levels: "Alert" and "Below cut-off".** A middle "watch" level would need a second, arbitrary cut-off. *Status: proposed.*
+**12. Two status levels: "Alert" and "Below cut-off".** A middle "watch" level would need a second, arbitrary cut-off. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**13. One shared alert cut-off.** The same value drives Fleet Overview, Asset Details tags, the Planner and the Model Performance explorer, and sits in the web address. Its default is chosen on validation data. *Status: proposed.*
+**13. One shared alert cut-off.** The same value drives Fleet Overview, Asset Details tags, the Planner and the Model Performance explorer, and sits in the web address. Its default is chosen on validation data. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**14. Fleet and Asset Details show the main model only.** The baseline appears only on Model Performance. We read "filter by model" in the brief as the machine model (model1–model4). *Status: proposed; owner to confirm.*
+**14. Fleet and Asset Details show the main model only.** The baseline appears only on Model Performance. We read "filter by model" in the brief as the machine model (model1–model4). *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.; owner to confirm.*
 
-**15. Controls appear only where they do something.** Replay controls are read-only on Model Performance (it covers the whole test period) and on About & Data. *Status: proposed.*
+**15. Controls appear only where they do something.** Replay controls are read-only on Model Performance (it covers the whole test period) and on About & Data. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**16. Planner costs can be set per machine model.** With one cost for every machine, ranking by exposure equals ranking by risk. An optional per-model cost makes the cost lever visibly matter. Net benefit appears only after the user sets an assumed risk reduction. *Status: proposed.*
+**16. Planner costs can be set per machine model.** With one cost for every machine, ranking by exposure equals ranking by risk. An optional per-model cost makes the cost lever visibly matter. Net benefit appears only after the user sets an assumed risk reduction. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**17. Asset Details is a full page, not a drawer.** It can be linked and shared, and works the same on mobile. *Status: proposed.*
+**17. Asset Details is a full page, not a drawer.** It can be linked and shared, and works the same on mobile. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**18. Light surfaces only in the first release; wireframes are greyscale.** Colour lives in the tokens. *Status: proposed.*
+**18. Light surfaces only in the first release; wireframes are greyscale.** Colour lives in the tokens. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**19. Model comparison colours: teal (main, solid) and violet (baseline, dashed).** A slate-grey baseline failed the colour-blind separation check; teal and violet pass. *Status: proposed.*
+**19. Model comparison colours: teal (main, solid) and violet (baseline, dashed).** A slate-grey baseline failed the colour-blind separation check; teal and violet pass. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**20. Input edge colour darkened to #768295.** The earlier #8792A2 measured 2.94:1 on the page background, below the 3:1 minimum. *Status: proposed.*
+**20. Input edge colour darkened to #768295.** The earlier #8792A2 measured 2.94:1 on the page background, below the 3:1 minimum. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**21. (2026-11-13) Exactly what each Planner input changes.** Only per-model costs change the order; one shared failure cost scales exposure; planned cost, crew slots and the risk-reduction assumption change spend, shortlist or net benefit, not the order; the cut-off and "also list below" change which machines are listed. The experience spec holds the full table, and each input says what it changes on screen. *Status: proposed. Responds to design review finding 2.*
+**21. (2026-11-13) Exactly what each Planner input changes.** Only per-model costs change the order; one shared failure cost scales exposure; planned cost, crew slots and the risk-reduction assumption change spend, shortlist or net benefit, not the order; the cut-off and "also list below" change which machines are listed. The experience spec holds the full table, and each input says what it changes on screen. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET. Responds to design review finding 2.*
 
-**22. (2026-11-13) The visitor guide demonstrates a per-model cost change.** Step 3 now asks the visitor to raise one machine model's failure cost, which really reorders the list and shows "Moved" marks. *Status: proposed.*
+**22. (2026-11-13) The visitor guide demonstrates a per-model cost change.** Step 3 now asks the visitor to raise one machine model's failure cost, which really reorders the list and shows "Moved" marks. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**23. (2026-11-13) Machines below the cut-off are never shortlisted.** "Also list below the cut-off" shows them for context only. Spare crew slots stay empty and the summary says so. *Status: proposed.*
+**23. (2026-11-13) Machines below the cut-off are never shortlisted.** "Also list below the cut-off" shows them for context only. Spare crew slots stay empty and the summary says so. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET.*
 
-**24. (2026-11-13) Model Performance leads with one main-vs-baseline table at the shared cut-off.** It covers precision, recall, precision–recall area, the four right/wrong counts, false alerts per 100 machine-days, share of failure events caught and calibration gap, with the held-out test period and cut-off stated above it. It replaces the four headline cards and the separate right/wrong table. *Status: proposed. Responds to finding 3.*
+**24. (2026-11-13) Model Performance leads with one main-vs-baseline table at the shared cut-off.** It covers precision, recall, precision–recall area, the four right/wrong counts, false alerts per 100 machine-days, share of failure events caught and calibration gap, with the held-out test period and cut-off stated above it. It replaces the four headline cards and the separate right/wrong table. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET. Responds to finding 3.*
 
-**25. (2026-11-13) Filtered-to-nothing shows zeros, not dashes or old shapes.** Every Fleet card and chart describes the filtered population of 0 machines. *Status: proposed. Responds to finding 1.*
+**25. (2026-11-13) Filtered-to-nothing shows zeros, not dashes or old shapes.** Every Fleet card and chart describes the filtered population of 0 machines. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET. Responds to finding 1.*
 
-**26. (2026-11-13) Sliders are native range inputs; mobile controls are at least 44px.** Each slider shows its label, minimum, maximum and current value; keyboard steps are written in the experience spec. *Status: proposed. Responds to finding 5.*
+**26. (2026-11-13) Sliders are native range inputs; mobile controls are at least 44px.** Each slider shows its label, minimum, maximum and current value; keyboard steps are written in the experience spec. *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET. Responds to finding 5.*
 
-**27. (2026-11-13) "Full data record" opens the public data provenance page in the repository.** *Status: proposed. Responds to finding 6.*
+**27. (2026-11-13) "Full data record" opens the public data provenance page in the repository.** *Status: Approved by Meysam (Owner) with the design gate, 2026-11-13 9:26 PM ET. Responds to finding 6.*
+
+## 2026-11-13, owner decisions (9:26 PM ET)
+
+**28. Planner design accepted; requirements wording updated to match.** Only different failure costs per machine model reorder the list. Crew slots change the shortlist, and the alert cut-off changes which machines are listed. The requirements now say exactly that. *Status: Approved by Meysam (Owner), 2026-11-13 9:26 PM ET.*
+
+**29. The baseline appears only on the Model Performance page.** Fleet Overview and Asset Details show the main model only. *Status: Approved by Meysam (Owner), 2026-11-13 9:26 PM ET.*
+
+**30. The replay starts at an hour where a machine is already in Alert, chosen by a fixed rule.** Rule, written before any results exist: the first hour of the held-out test period at which at least one machine's main-model score is at or above the default alert cut-off. The default cut-off is set on validation data only. If no hour qualifies, the replay starts at the first test hour and says so. The screen states how the start hour was chosen. *Status: Approved by Meysam (Owner), 2026-11-13 9:26 PM ET (rule wording by the orchestrator, per the owner's instruction).*
+
+**31. Design gate approved.** The architecture stage may start. *Status: Approved by Meysam (Owner), 2026-11-13 9:26 PM ET.*
 
 ## Pending owner decisions
-- Design gate approval, after independent review.
-- Decision 14 (main model only on Fleet and Asset Details).
-- Open questions in the experience spec: starting replay time, illustrative cost defaults.
+- Illustrative cost defaults (can wait until the planner is built).
+- Architecture gate approval, after independent review.
