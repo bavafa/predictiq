@@ -79,5 +79,6 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [x] (14 Nov 2026) Stage 4 fix round 2: shared costs apply to all models (decision 65), guide/About/screenshot wording corrected.
 - [x] Stage 4 independent review, rounds 1 to 7 (`docs/QA_REPORTS/stage4-codex-review-round2.md` to `round7.md`; round 1 in the PR log): final PASS WITH KNOWN ISSUES.
 - [x] Live planner size check on a protected box-built preview: 25,466 bytes (`docs/QA_REPORTS/stage4-live-checks.md`).
-- [ ] Owner: Stage 4 gate decision and merge of PR #31.
-- [ ] After Stage 4: test dependency-update PRs #24 to #28 together on a separate branch (decision 62).
+- [x] Owner: Stage 4 gate approved, PR #31 merged (3:26 PM ET, 14 Nov 2026).
+- [x] Dependency updates #24 to #28 tested together on branch `deps-nov14`: four included, TypeScript 7 left out (`docs/QA_REPORTS/deps-nov14-checks.md`).
+- [ ] Owner: merge the dependency branch; close Dependabot #25 to #28 (superseded); decide on #24 (TypeScript 7).

@@ -1,0 +1,5 @@
+health -> 200 78 {"status":"ok","model_version":"piq-20261114-efc9c243","model_available":true}
+metadata -> 200 7204 {"app_name":"PredictIQ","version":"0.1.0","dataset":{"name":"Predictive Maintena
+fleet?at=2015-11-01T00:00:00&mv=piq-20261114-efc9c243 -> 200 13828 {"model_version":"piq-20261114-efc9c243","at":"2015-11-01T00:00:00","cutoff_perc
+fleet?at=2015-11-01T00:00:00&mv=piq-00000000-deadbeef -> 404 100 {"type":"about:blank","title":"Not found","status":404,"detail":"This model vers
+nope -> 404 55 {"type":"about:blank","title":"Not found","status":404}
