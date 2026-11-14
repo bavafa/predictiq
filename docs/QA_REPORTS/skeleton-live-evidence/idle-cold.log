@@ -1,0 +1,2 @@
+run=1 idle_s=720 COLD 00:17:26 /api/v1/health status=200 cache=MISS age=0 cc="no-store" TIME_TOTAL=1.452374 TTFB=1.452250 SIZE=36 id=iad1::iad1::qv6jk-1794633445658-fa1f61abf766
+run=1 WARM 00:17:28 /api/v1/health status=200 cache=MISS age=0 cc="no-store" TIME_TOTAL=0.355930 TTFB=0.355756 SIZE=36 id=iad1::iad1::q4tcp-1794633448426-4ffb18a835de
