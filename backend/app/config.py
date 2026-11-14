@@ -17,3 +17,22 @@ REPLAY_WINDOW_END = "2015-12-30T06:00:00"
 # Cache-Control values (docs/architecture.md, "Data service contract").
 CACHE_NO_STORE = "no-store"
 CACHE_METADATA = "public, max-age=0, s-maxage=60, stale-while-revalidate=300"
+# Data endpoints (with the current `mv`): safe to cache, one deployment serves one model version.
+CACHE_DATA = "public, max-age=3600, s-maxage=31536000, stale-while-revalidate=86400"
+
+# Size limits (docs/architecture.md, "Validation"): at most 168 time points, 100 machines per response.
+MAX_POINTS = 168
+N_MACHINES = 100
+MACHINE_MODELS = ("model1", "model2", "model3", "model4")
+STATUSES = ("alert", "below_cutoff")
+
+# EXAMPLE planner costs. ILLUSTRATIVE, NOT REAL: the dataset has no money figures. Proposed, owner to
+# confirm (DECISIONS.md, decision 55). Shown with the word "illustrative" wherever they appear.
+# The planner itself (POST /plan) is built in a later stage.
+PLANNER_DEFAULTS: dict[str, str | int | dict[str, int]] = {
+    "label": "illustrative",
+    "unit": "illustrative currency units",
+    "failure_cost": {"model1": 10_000, "model2": 8_000, "model3": 12_000, "model4": 9_000},
+    "planned_repair_cost": {"model1": 2_500, "model2": 2_000, "model3": 3_000, "model4": 2_250},
+    "crew_slots": 5,
+}

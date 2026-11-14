@@ -10,6 +10,8 @@ fastapi==0.136.1
     # via predictiq
 idna==3.20
     # via anyio
+numpy==2.5.4
+    # via predictiq
 pydantic==2.13.4
     # via
     #   fastapi
