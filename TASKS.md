@@ -42,4 +42,4 @@ Current stage: **Build, story 1: project skeleton.**
 - [x] Independent review (`docs/QA_REPORTS/skeleton-codex-review.md`): PASS WITH KNOWN ISSUES
 - [x] Fix round (13 Nov 2026): gitleaks 403 (`pull-requests: read`); axe accessibility checks in e2e (5 routes × desktop/mobile + open menu); actions pinned to commit SHAs; mobile menu is a modal dialog with inert background; stale notes updated; `.github/dependabot.yml` added
 - [x] CI green on GitHub after the fix round (commit 554e106, all 4 jobs on push and pull request)
-- [ ] Low (tracked): move focus sensibly after choosing a mobile menu link
+- [x] Low (fixed 13 Nov): after choosing a mobile menu link, focus moves to the main landmark; Escape and Close still return it to Menu. Vitest test added.

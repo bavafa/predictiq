@@ -32,6 +32,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const menuButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
+  const main = useRef<HTMLElement>(null);
+  const focusMainOnClose = useRef(false);
 
   const close = useCallback((restoreFocus: boolean) => {
     setOpen(false);
@@ -41,6 +43,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Move focus into the panel when it opens.
   useEffect(() => {
     if (open) closeButton.current?.focus();
+    else if (focusMainOnClose.current) {
+      // After a menu link is used the page content is no longer inert: move focus to it.
+      focusMainOnClose.current = false;
+      main.current?.focus();
+    }
   }, [open]);
 
   // The panel only exists as a panel below 1024px; if the window grows, reset.
@@ -76,7 +83,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   const title = titleFor(pathname);
-  const onNavigate = () => setOpen(false);
+  const onNavigate = () => {
+    if (open) focusMainOnClose.current = true;
+    setOpen(false);
+  };
 
   return (
     <div onKeyDown={onKeyDown}>
@@ -158,7 +168,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
           </header>
 
-          <main id="main" tabIndex={-1} className="flex max-w-[1440px] flex-col gap-4 p-3 sm:p-5">
+          <main ref={main} id="main" tabIndex={-1} className="flex max-w-[1440px] flex-col gap-4 p-3 sm:p-5">
             {children}
           </main>
         </div>

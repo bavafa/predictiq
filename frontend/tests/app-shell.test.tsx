@@ -88,6 +88,17 @@ describe("AppShell", () => {
     expect(menu).toHaveFocus();
   });
 
+  it("moves focus to the main landmark when a menu link is activated", async () => {
+    const user = userEvent.setup();
+    render(<AppShell>content</AppShell>);
+    await user.click(screen.getByRole("button", { name: /^Menu$/ }));
+    const link = screen.getByRole("link", { name: "Asset Details" });
+    link.addEventListener("click", (e) => e.preventDefault());
+    await user.click(link);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveFocus();
+  });
+
   it("keeps Tab focus inside the open menu", async () => {
     const user = userEvent.setup();
     render(<AppShell>content</AppShell>);
