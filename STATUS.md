@@ -1,13 +1,16 @@
 # Status
 
-_Updated 2026-11-14 5:55 PM ET, Stage 5 on branch `model-perf` (PR #33, targets main)._
+_Updated 2026-11-14 6:35 PM ET, Stage 5 ready for Meysam's gate decision (PR #33, base main)._
 
 ## Current stage
-**Stage 5, launch preparation, on branch `model-perf` (PR #33, base main).** PR #32 (dependency updates) was merged by Meysam at 3:49 PM ET. Dependabot #25 to #28 are closed and #24 stays open (decision 69). The repo stays private, protection stays on, and there is no production deployment or domain change until Meysam's go-ahead at the launch gate.
-- Built: the Model Performance page; full testing, including the Stage 3 accessibility coverage gap; launch preparation (limitations, README, model card, launch checklist, production bundle download with hash check, and history scan).
-- Reviews so far: rounds 1 to 5 (`docs/QA_REPORTS/stage5-codex-review-round*.md`). All High and Medium findings are fixed, except the history items, which need an owner decision.
-- Next: protected preview live checks, final review, then the GATE M4 report.
-- Needs Meysam: launch go-ahead; the personal author email in commit 874a686 and older path names in history; a licence for the code; decisions 70 and 71.
+**Stage 5, launch preparation: built, checked and reviewed. Waiting for Meysam's GATE M4 decision and launch go-ahead.** PR #32 was merged at 3:49 PM ET. Dependabot #25 to #28 are closed; #24 stays open (decision 69). The repo is still private, protection is still on, and nothing has been deployed to production.
+- Built: the Model Performance page; full testing (contrast, target size, keyboard, axe, notice, release hygiene, fresh copy), which closes the Stage 3 accessibility coverage gap within its documented automated scope; launch preparation (limitations, README, model card, CLAUDE.md, production bundle download with hash check, launch checklist, history scan).
+- Evidence:
+  - fresh-copy check passed on a clean clone, including the real-bundle and real-data checks;
+  - the bundle-download proof passed all nine cases;
+  - live checks on the protected preview `dpl_7zzg8naq7yXKrrYFNXRyD2AZfM6M` all passed;
+  - review rounds 1 to 8, with a final verdict of PASS WITH KNOWN ISSUES.
+- Needs Meysam: the launch go-ahead; the history items (a personal author email in 874a686, and older internal path names); a licence for the code; decisions 70 and 71.
 
 - 4:40 PM ET process check: an Opus `claude -p` process (pid 921100) was running at the same time. It belongs to a different project on the build machine (NeuroGate), not PredictIQ, and had no PredictIQ files open, so it was left alone. Only one PredictIQ builder (Sonnet) ran at a time. No Opus was used for PredictIQ.
 
