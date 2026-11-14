@@ -14,6 +14,7 @@ class PlanAssumptions(_Strict):
     failure_cost: int
     failure_cost_by_model: dict[str, int]
     planned_cost: int
+    planned_cost_by_model: dict[str, int]
     crew_slots: int
     risk_reduction_percent: int | None
     include_below_cutoff: bool
@@ -27,6 +28,7 @@ class PlanRowOut(_Strict):
     score: float
     status: Literal["alert", "below_cutoff"]
     failure_cost: int
+    planned_cost: int
     expected_exposure: float
     listing: Literal["shortlisted", "over_capacity", "below_cutoff"]
     slot: int | None

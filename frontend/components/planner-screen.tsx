@@ -158,7 +158,7 @@ function Assumptions({
   isDefault: boolean;
   onReset: () => void;
 }) {
-  const modelError = MODELS.some((m) => errors[m]);
+  const modelError = MODELS.some((m) => errors[m] || errors[`planned_${m}` as const]);
   const [open, setOpen] = useState(false);
   const modelsOpen = open || modelError;
   const slotId = useId();
@@ -178,7 +178,7 @@ function Assumptions({
           onChange={(failureCost) => set({ failureCost })}
           error={errors.failureCost}
           testId="failure-cost"
-          help="Illustrative default. Applies to every machine unless set per model below. On its own it scales exposure but cannot change the order."
+          help="Illustrative. Used for any machine model whose own cost below is blank. On its own it scales exposure but cannot change the order."
         />
 
         <details
@@ -189,18 +189,27 @@ function Assumptions({
         >
           <summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold">Set cost per machine model (optional)</summary>
           <p className="mt-1 mb-2 text-xs leading-5 text-ink-2">
-            Blank = use the cost above. Different costs per machine model change the order. Illustrative.
+            Starts with the example costs for each machine model. Blank = use the shared cost. Different failure costs per machine
+            model change the order; planned maintenance costs change spend only. Illustrative.
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-3">
             {MODELS.map((m) => (
-              <TextField
-                key={m}
-                label={`${m} (${unit})`}
-                value={fields.byModel[m]}
-                onChange={(text) => set({ byModel: { ...fields.byModel, [m]: text } })}
-                error={errors[m]}
-                testId={`cost-${m}`}
-              />
+              <div key={m} className="grid grid-cols-2 gap-3">
+                <TextField
+                  label={`${m}: cost if a failure happens (${unit})`}
+                  value={fields.byModel[m]}
+                  onChange={(text) => set({ byModel: { ...fields.byModel, [m]: text } })}
+                  error={errors[m]}
+                  testId={`cost-${m}`}
+                />
+                <TextField
+                  label={`${m}: planned maintenance cost (${unit})`}
+                  value={fields.plannedByModel[m]}
+                  onChange={(text) => set({ plannedByModel: { ...fields.plannedByModel, [m]: text } })}
+                  error={errors[`planned_${m}` as const]}
+                  testId={`planned-${m}`}
+                />
+              </div>
             ))}
           </div>
         </details>
@@ -211,7 +220,7 @@ function Assumptions({
           onChange={(plannedCost) => set({ plannedCost })}
           error={errors.plannedCost}
           testId="planned-cost"
-          help="Changes planned spend only. Does not change the order."
+          help="Used for any machine model whose own planned cost above is blank. Changes planned spend only. Does not change the order."
         />
 
         <div>
@@ -628,7 +637,7 @@ function RankedList({ plan, unit }: { plan: PlanResponse; unit: string }) {
                 <td className="tabular px-2 py-2 text-right text-sm" data-testid="exposure">
                   {money(r.expected_exposure)}
                 </td>
-                <td className="tabular px-2 py-2 text-right text-sm">{r.listing === "shortlisted" ? money(plan.assumptions.planned_cost) : "—"}</td>
+                <td className="tabular px-2 py-2 text-right text-sm">{r.listing === "shortlisted" ? money(r.planned_cost) : "—"}</td>
                 {showMoved && (
                   <td className="px-2 py-2 text-sm whitespace-nowrap" data-testid="moved">
                     {movedText(r.moved)}
@@ -664,7 +673,7 @@ function RankedList({ plan, unit }: { plan: PlanResponse; unit: string }) {
             <p className="m-0 text-xs leading-5 text-ink-2">
               model {r.model} (historical) · chance {percent(r.score)} (predicted) · cost if failure {money(r.failure_cost)}
               {plan.assumptions.failure_cost_by_model?.[r.model as MachineModel] !== undefined ? ` (${r.model}'s own)` : ""} · exposure{" "}
-              {money(r.expected_exposure)} · planned {r.listing === "shortlisted" ? money(plan.assumptions.planned_cost) : "—"} (illustrative)
+              {money(r.expected_exposure)} · planned {r.listing === "shortlisted" ? money(r.planned_cost) : "—"} (illustrative)
               {r.moved !== null ? ` · moved ${movedText(r.moved)}` : ""}
               {showNet && r.net_benefit !== null ? ` · net benefit (estimate) ${signedMoney(r.net_benefit)}` : ""}
             </p>

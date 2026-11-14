@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal, cast
 
+from fastapi import Request
+
 from app import config
 from app.bundle import Bundle
 from app.problems import ProblemError
@@ -105,6 +107,7 @@ PLAN_FIELDS = (
     "failure_cost",
     "failure_cost_by_model",
     "planned_cost",
+    "planned_cost_by_model",
     "crew_slots",
     "risk_reduction_percent",
     "include_below_cutoff",
@@ -122,11 +125,34 @@ def _whole(value: object, name: str, low: int, high: int) -> int:
     return value
 
 
+def too_large() -> ProblemError:
+    return ProblemError(413, "Request too large", f"The request body can be at most {MAX_BODY_BYTES} bytes.")
+
+
+def check_declared_length(content_length: str | None) -> None:
+    """Refuse early when the declared Content-Length is already over the limit."""
+    declared = content_length is not None and content_length.isascii() and content_length.isdigit()
+    if declared and int(cast(str, content_length)) > MAX_BODY_BYTES:
+        raise too_large()
+
+
+async def read_limited_body(request: Request) -> bytes:
+    """Read the body while enforcing the limit: a long declared length is refused before reading, and the
+    stream is abandoned as soon as more than the limit has arrived (chunked or undeclared lengths too)."""
+    check_declared_length(request.headers.get("content-length"))
+    chunks: list[bytes] = []
+    size = 0
+    async for chunk in request.stream():
+        size += len(chunk)
+        if size > MAX_BODY_BYTES:
+            raise too_large()
+        chunks.append(chunk)
+    return b"".join(chunks)
+
+
 def parse_json_object(raw: bytes) -> dict[str, object]:
     if len(raw) > MAX_BODY_BYTES:
-        raise ProblemError(
-            413, "Request too large", f"The request body can be at most {MAX_BODY_BYTES} bytes."
-        )
+        raise too_large()
 
     def refuse_constant(_: str) -> object:
         raise ValueError("not a JSON number")
@@ -138,6 +164,18 @@ def parse_json_object(raw: bytes) -> dict[str, object]:
     if not isinstance(body, dict):
         raise _bad("The request body must be a JSON object")
     return body
+
+
+def _by_model(body: dict[str, object], name: str) -> dict[str, int]:
+    out: dict[str, int] = {}
+    raw = body.get(name, {})
+    if not isinstance(raw, dict):
+        raise _bad(f"Invalid field: {name} must be an object keyed by machine model")
+    for key, value in raw.items():
+        if key not in config.MACHINE_MODELS:
+            raise _bad(f"Invalid field: {name} keys must be model1 to model4")
+        out[key] = _whole(value, f"{name}.{key}", 0, COST_MAX)
+    return out
 
 
 @dataclass(frozen=True)
@@ -168,14 +206,8 @@ def parse_plan_body(bundle: Bundle, body: dict[str, object]) -> PlanRequest:
     planned_cost = _whole(body["planned_cost"], "planned_cost", 0, COST_MAX)
     slots = _whole(body["crew_slots"], "crew_slots", 0, SLOTS_MAX)
 
-    by_model: dict[str, int] = {}
-    raw_models = body.get("failure_cost_by_model", {})
-    if not isinstance(raw_models, dict):
-        raise _bad("Invalid field: failure_cost_by_model must be an object keyed by machine model")
-    for key, value in raw_models.items():
-        if key not in config.MACHINE_MODELS:
-            raise _bad("Invalid field: failure_cost_by_model keys must be model1 to model4")
-        by_model[key] = _whole(value, f"failure_cost_by_model.{key}", 0, COST_MAX)
+    by_model = _by_model(body, "failure_cost_by_model")
+    planned_by_model = _by_model(body, "planned_cost_by_model")
 
     reduction: int | None = None
     if body.get("risk_reduction_percent") is not None:
@@ -193,6 +225,7 @@ def parse_plan_body(bundle: Bundle, body: dict[str, object]) -> PlanRequest:
             failure_cost=failure_cost,
             failure_cost_by_model=by_model,
             planned_cost=planned_cost,
+            planned_cost_by_model=planned_by_model,
             crew_slots=slots,
             risk_reduction_percent=reduction,
             include_below_cutoff=below,

@@ -13,7 +13,7 @@ from app import config
 from app.api.data import BundleDep, Mv
 from app.schemas.plan import PlanAssumptions, PlanOut, PlanRowOut, PlanSummaryOut
 from app.services.planner import MICRO, MachineScore, Plan, PlanInputs, compute_plan
-from app.validation import check_mv, parse_json_object, parse_plan_body
+from app.validation import check_mv, parse_json_object, parse_plan_body, read_limited_body
 
 router = APIRouter()
 
@@ -35,7 +35,10 @@ FORMULAS = {
         "where N is the crew slots. Machines below the cut-off are never shortlisted. "
         "Spare slots stay empty."
     ),
-    "planned_spend": "Planned spend = shortlisted machines x planned maintenance cost. Illustrative.",
+    "planned_spend": (
+        "Planned spend = the sum, over the shortlisted machines, of the planned maintenance cost for "
+        "each one's machine model (the shared cost where a model has none set). Illustrative."
+    ),
     "net_benefit": (
         "Estimate, shown only when a risk reduction is assumed: expected exposure of the shortlisted "
         "machines x the assumed reduction - planned spend. It depends entirely on that assumption."
@@ -77,6 +80,7 @@ def _response(model_version: str, at: str, inputs: PlanInputs, plan: Plan) -> Pl
             failure_cost=inputs.failure_cost,
             failure_cost_by_model=dict(inputs.failure_cost_by_model),
             planned_cost=inputs.planned_cost,
+            planned_cost_by_model=dict(inputs.planned_cost_by_model),
             crew_slots=inputs.crew_slots,
             risk_reduction_percent=inputs.risk_reduction_percent,
             include_below_cutoff=inputs.include_below_cutoff,
@@ -103,6 +107,7 @@ def _response(model_version: str, at: str, inputs: PlanInputs, plan: Plan) -> Pl
                 score=r.score,
                 status="alert" if r.at_or_above_cutoff else "below_cutoff",
                 failure_cost=r.failure_cost,
+                planned_cost=r.planned_cost,
                 expected_exposure=r.expected_exposure,
                 listing=r.listing,
                 slot=r.slot,
@@ -119,7 +124,7 @@ def _response(model_version: str, at: str, inputs: PlanInputs, plan: Plan) -> Pl
 async def plan(request: Request, response: Response, b: BundleDep, mv: Mv = None) -> PlanOut:
     response.headers["Cache-Control"] = config.CACHE_NO_STORE
     check_mv(b, mv)
-    req = parse_plan_body(b, parse_json_object(await request.body()))
+    req = parse_plan_body(b, parse_json_object(await read_limited_body(request)))
     scores = np.round(np.asarray(b.scores["main"][:, req.at_index], dtype=np.float64), 6)
     machines = _machine_scores(b.meta["machines"], scores)
     result = compute_plan(machines, req.inputs, config.MACHINE_MODELS)

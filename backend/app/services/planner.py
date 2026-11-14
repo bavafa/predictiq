@@ -10,7 +10,8 @@ Rules (docs/ux-spec.md, "Maintenance Planner" and "What each Planner input chang
   never shortlisted, decision 23);
 - the shortlist is the first `crew_slots` machines at or above the cut-off going down the list; the rest of
   those are "over capacity"; spare slots stay empty;
-- planned spend = shortlisted machines x planned cost;
+- planned spend = sum over shortlisted machines of their machine model's planned cost (decision 55; the
+  shared planned cost where a model has none); each net benefit uses its own model's planned cost;
 - net benefit exists ONLY when a risk-reduction assumption is set: shortlisted exposure x reduction - planned
   spend. It is an estimate under that assumption, not a measured result;
 - when per-model costs differ, each row's `moved` is its rank in the order by predicted chance alone minus its
@@ -43,7 +44,8 @@ class PlanInputs:
     cutoff_percent: int
     failure_cost: int  # shared cost, whole units
     failure_cost_by_model: Mapping[str, int]  # overrides for some machine models
-    planned_cost: int  # per shortlisted machine, whole units
+    planned_cost: int  # shared planned cost per shortlisted machine, whole units
+    planned_cost_by_model: Mapping[str, int]  # overrides (decision 55)
     crew_slots: int
     risk_reduction_percent: int | None  # None = off
     include_below_cutoff: bool = False
@@ -58,6 +60,7 @@ class PlanRow:
     score: float
     at_or_above_cutoff: bool
     failure_cost: int
+    planned_cost: int
     expected_exposure: float
     listing: Listing
     slot: int | None
@@ -94,6 +97,10 @@ def cost_for(model: str, inputs: PlanInputs) -> int:
     return inputs.failure_cost_by_model.get(model, inputs.failure_cost)
 
 
+def planned_for(model: str, inputs: PlanInputs) -> int:
+    return inputs.planned_cost_by_model.get(model, inputs.planned_cost)
+
+
 def compute_plan(machines: Sequence[MachineScore], inputs: PlanInputs, models: Sequence[str]) -> Plan:
     """`models` is every machine model that exists (to decide whether per-model costs differ)."""
     cutoff_micro = inputs.cutoff_percent * (MICRO // 100)
@@ -113,9 +120,9 @@ def compute_plan(machines: Sequence[MachineScore], inputs: PlanInputs, models: S
     chance_rank = {m.machine_id: i for i, m in enumerate(sorted(listed, key=by_chance), start=1)}
 
     reduction = inputs.risk_reduction_percent
-    planned = inputs.planned_cost
     rows: list[PlanRow] = []
     slots_used = 0
+    planned_spend = 0
     shortlist_exposure = 0
     benefit_total = Fraction(0)
     for rank, m in enumerate(ordered, start=1):
@@ -131,6 +138,8 @@ def compute_plan(machines: Sequence[MachineScore], inputs: PlanInputs, models: S
                 listing = "over_capacity"
         net: float | None = None
         if listing == "shortlisted":
+            planned = planned_for(m.model, inputs)
+            planned_spend += planned
             shortlist_exposure += exposure[m.machine_id]
             if reduction is not None:
                 row_net = Fraction(exposure[m.machine_id] * reduction, 100) - planned * MICRO
@@ -145,6 +154,7 @@ def compute_plan(machines: Sequence[MachineScore], inputs: PlanInputs, models: S
                 score=m.score_micro / MICRO,
                 at_or_above_cutoff=above,
                 failure_cost=cost_for(m.model, inputs),
+                planned_cost=planned_for(m.model, inputs),
                 expected_exposure=_units(exposure[m.machine_id]),
                 listing=listing,
                 slot=slot,
@@ -159,7 +169,7 @@ def compute_plan(machines: Sequence[MachineScore], inputs: PlanInputs, models: S
         slots_used=slots_used,
         spare_slots=inputs.crew_slots - slots_used,
         shortlist_exposure=_units(shortlist_exposure),
-        planned_spend=slots_used * planned,
+        planned_spend=planned_spend,
         net_benefit=_units(benefit_total) if reduction is not None else None,
     )
     order_changed = any(r.moved for r in rows) if costs_differ else None

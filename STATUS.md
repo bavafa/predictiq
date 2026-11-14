@@ -165,3 +165,4 @@ Independent review: first pass FAIL (1 High: the test window included hours with
 **Next:** independent review of Stage 4; then Stage 5 (Model Performance, launch).
 **Blockers:** none.
 **Known limitations:** inputs reset on reload (not in the address); the wireframe's "USD" is "illustrative currency units" (the service's unit); the list shows at most 100 machines in one table (no paging; the service caps it); arrow-key chart stepping not applicable here.
+- **Stage 4 fix round (14 Nov 2026):** `/plan` now takes planned cost per machine model (decision 55; `planned_cost_by_model`, shared `planned_cost` as fallback) and the screen starts with decision 55's failure and planned costs per model (decision 64 rewritten); the 4,096-byte body limit is enforced while reading (declared length refused early, stream cut at the limit). Python 238 passed (+12 real-bundle), Vitest 138, Playwright 59 synthetic / 7 no-bundle / 62 real; stage 4 screenshots retaken.

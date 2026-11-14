@@ -24,6 +24,7 @@ BASE = PlanInputs(
     failure_cost=1000,
     failure_cost_by_model={},
     planned_cost=100,
+    planned_cost_by_model={},
     crew_slots=2,
     risk_reduction_percent=None,
 )

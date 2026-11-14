@@ -29,7 +29,8 @@ test("a cost per machine model reorders the list and shows Moved marks", async (
   const ms = await models(page);
   expect(new Set(ms).size).toBeGreaterThan(1); // the test bundle mixes machine models
   const lowest = ms[ms.length - 1]!; // the model of the last listed machine
-  expect(await page.getByTestId("moved").count()).toBe(0);
+  // decision 55: the per-model costs start filled in, so the Moved column is already there; the visitor RAISES one
+  await expect(page.getByTestId(`cost-${lowest}`)).not.toHaveValue("");
   await page.getByText("Set cost per machine model (optional)").click();
   await page.getByTestId(`cost-${lowest}`).fill("10000000");
   await expect(page.getByTestId("order-note")).toBeVisible();

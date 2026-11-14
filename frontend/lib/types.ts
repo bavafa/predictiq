@@ -117,8 +117,10 @@ export type PlanRequest = {
   failure_cost: number;
   /** Optional costs per machine model (same range); models left out use `failure_cost`. */
   failure_cost_by_model?: Partial<Record<MachineModel, number>>;
-  /** Per shortlisted machine, 0 to 10,000,000. */
+  /** Shared planned cost per shortlisted machine, 0 to 10,000,000. */
   planned_cost: number;
+  /** Optional planned costs per machine model (same range, decision 55); models left out use `planned_cost`. */
+  planned_cost_by_model?: Partial<Record<MachineModel, number>>;
   /** 0 to 100. */
   crew_slots: number;
   /** null / omitted = off; otherwise 0 to 90 in steps of 5. */
@@ -136,6 +138,7 @@ export type PlanRow = {
   score: number;
   status: Status;
   failure_cost: number;
+  planned_cost: number;
   expected_exposure: number;
   listing: PlanListing;
   /** 1..crew slots for shortlisted machines, otherwise null. */
@@ -156,6 +159,7 @@ export type PlanResponse = {
     failure_cost: number;
     failure_cost_by_model: Partial<Record<MachineModel, number>>;
     planned_cost: number;
+    planned_cost_by_model?: Partial<Record<MachineModel, number>>;
     crew_slots: number;
     risk_reduction_percent: number | null;
     include_below_cutoff: boolean;

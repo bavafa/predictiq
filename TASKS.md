@@ -74,5 +74,6 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 ## Stage 4: Maintenance planning (started 14 Nov 2026, branch `planner`)
 - [x] Session 1 (14 Nov 2026): planner service, `POST /plan` (decision 63), arithmetic / spec-table / determinism / bounds / saved-score tests (real bundle opt-in), largest `/plan` request through the adapter, typed `api.plan()` with `mv` retry.
 - [x] Session 2 (14 Nov 2026): Planner screen (assumptions panel, ranked list, summary, "How this is calculated", states), Fleet guide step restored, Vitest, Playwright synthetic + opt-in real, screenshots in `docs/QA_REPORTS/stage4-screenshots/`.
+- [x] Fix round (14 Nov 2026): planned cost per machine model in `/plan` and the screen (decision 55), per-model failure costs prefilled (decision 64 rewritten), `/plan` body limit enforced while streaming; tests and screenshots updated.
 - [ ] Owner: the screen has one planned cost, starting at 2,500 (decision 64; decision 55 lists one per model), and a shared failure cost starting at 10,000; confirm or override.
 - [ ] Stage 4 independent review.

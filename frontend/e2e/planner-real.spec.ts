@@ -6,12 +6,19 @@ import { readWindow } from "./support";
 // the shortlist POST /plan returns for the same request.
 test.skip(process.env.E2E_MODE !== "real", "needs the real bundle: npm run e2e:real");
 
-test("the Planner screen's shortlist equals POST /plan's shortlist for the default inputs (real bundle)", async ({ page, request }) => {
+test("the Planner screen's shortlist equals POST /plan's shortlist for the default inputs, per-model costs included (real bundle)", async ({ page, request }) => {
   const w = await readWindow(request);
   const meta = await (await request.get("/api/v1/metadata")).json();
   expect(meta.synthetic ?? false).toBe(false);
   const res = await request.post(`/api/v1/plan?mv=${meta.model_version}`, {
-    data: { at: w.start, failure_cost: 10000, planned_cost: 2500, crew_slots: 5 },
+    data: {
+      at: w.start,
+      failure_cost: 10000,
+      failure_cost_by_model: { model1: 10000, model2: 8000, model3: 12000, model4: 9000 },
+      planned_cost: 2500,
+      planned_cost_by_model: { model1: 2500, model2: 2000, model3: 3000, model4: 2250 },
+      crew_slots: 5,
+    },
   });
   expect(res.ok()).toBe(true);
   const api = await res.json();

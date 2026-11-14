@@ -9,7 +9,10 @@ export const MAX_REDUCTION = 90;
 export const REDUCTION_STEP = 5;
 /** The starting value of the risk-reduction slider when the assumption is turned on (illustrative). */
 export const DEFAULT_REDUCTION = 20;
-/** Planned maintenance cost default (decision 55 lists one per model; the screen has one input). */
+/** Decision 55's example costs per machine model (illustrative); used if /metadata does not supply them. */
+export const FALLBACK_FAILURE_BY_MODEL: Record<MachineModel, number> = { model1: 10_000, model2: 8_000, model3: 12_000, model4: 9_000 };
+export const FALLBACK_PLANNED_BY_MODEL: Record<MachineModel, number> = { model1: 2_500, model2: 2_000, model3: 3_000, model4: 2_250 };
+/** The shared costs are only the fallback for a machine model whose own field is blank (model1's values). */
 export const FALLBACK_PLANNED_COST = 2_500;
 export const FALLBACK_FAILURE_COST = 10_000;
 export const FALLBACK_CREW_SLOTS = 5;
@@ -21,6 +24,7 @@ export type PlannerFields = {
   failureCost: string;
   byModel: Record<MachineModel, string>;
   plannedCost: string;
+  plannedByModel: Record<MachineModel, string>;
   crewSlots: string;
   includeBelow: boolean;
   reductionOn: boolean;
@@ -29,9 +33,12 @@ export type PlannerFields = {
 
 export function defaultFields(meta: ReadyMetadata): PlannerFields {
   const d = meta.planner_defaults;
+  const perModel = (from: Record<string, number> | undefined, fallback: Record<MachineModel, number>) =>
+    Object.fromEntries(MODELS.map((m) => [m, String(from?.[m] ?? fallback[m])])) as Record<MachineModel, string>;
   return {
     failureCost: String(d.failure_cost?.model1 ?? FALLBACK_FAILURE_COST),
-    byModel: { model1: "", model2: "", model3: "", model4: "" },
+    byModel: perModel(d.failure_cost, FALLBACK_FAILURE_BY_MODEL),
+    plannedByModel: perModel(d.planned_repair_cost, FALLBACK_PLANNED_BY_MODEL),
     plannedCost: String(d.planned_repair_cost?.model1 ?? FALLBACK_PLANNED_COST),
     crewSlots: String(d.crew_slots ?? FALLBACK_CREW_SLOTS),
     includeBelow: false,
@@ -40,7 +47,8 @@ export function defaultFields(meta: ReadyMetadata): PlannerFields {
   };
 }
 
-export type FieldKey = "failureCost" | "plannedCost" | "crewSlots" | MachineModel;
+export type PlannedKey = `planned_${MachineModel}`;
+export type FieldKey = "failureCost" | "plannedCost" | "crewSlots" | MachineModel | PlannedKey;
 export type FieldErrors = Partial<Record<FieldKey, string>>;
 
 export const COST_RANGE_MESSAGE = `Enter a whole number from 0 to ${MAX_COST.toLocaleString("en-US")}.`;
@@ -77,6 +85,11 @@ export function check(fields: PlannerFields): Checked {
     const n = cost(fields.byModel[m], m, true);
     if (n !== undefined) byModel[m] = n;
   }
+  const plannedByModel: Partial<Record<MachineModel, number>> = {};
+  for (const m of MODELS) {
+    const n = cost(fields.plannedByModel[m], `planned_${m}`, true);
+    if (n !== undefined) plannedByModel[m] = n;
+  }
   const slots = wholeNumber(fields.crewSlots);
   if (slots === null || slots > MAX_SLOTS) errors.crewSlots = SLOT_RANGE_MESSAGE;
   if (Object.keys(errors).length > 0 || failure_cost === undefined || planned_cost === undefined || slots === null) {
@@ -90,6 +103,7 @@ export function check(fields: PlannerFields): Checked {
     risk_reduction_percent: fields.reductionOn ? fields.reduction : null,
   };
   if (Object.keys(byModel).length > 0) inputs.failure_cost_by_model = byModel;
+  if (Object.keys(plannedByModel).length > 0) inputs.planned_cost_by_model = plannedByModel;
   return { ok: true, inputs };
 }
 
@@ -110,13 +124,15 @@ export function signedMoney(n: number): string {
 export function answersInputs(a: PlanResponse["assumptions"], inputs: PlannerInputs): boolean {
   const want = inputs.failure_cost_by_model ?? {};
   const got = a.failure_cost_by_model ?? {};
+  const wantPlanned = inputs.planned_cost_by_model ?? {};
+  const gotPlanned = a.planned_cost_by_model ?? {};
   return (
     a.failure_cost === inputs.failure_cost &&
     a.planned_cost === inputs.planned_cost &&
     a.crew_slots === inputs.crew_slots &&
     a.include_below_cutoff === (inputs.include_below_cutoff ?? false) &&
     (a.risk_reduction_percent ?? null) === (inputs.risk_reduction_percent ?? null) &&
-    MODELS.every((m) => (want[m] ?? null) === (got[m] ?? null))
+    MODELS.every((m) => (want[m] ?? null) === (got[m] ?? null) && (wantPlanned[m] ?? null) === (gotPlanned[m] ?? null))
   );
 }
 
