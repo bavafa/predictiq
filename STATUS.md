@@ -8,7 +8,7 @@ _Updated 2026-11-14 3:55 PM ET, Stage 5 on branch `model-perf` (stacked on `deps
 - Then: full testing including the remaining accessibility coverage; launch preparation (limitations, README, model card, launch checklist, plan for getting the bundle to production); protected preview; review.
 - Blockers: none.
 
-- 4:40 PM ET process check: an Opus `claude -p` process (pid 921100) was running at the same time. It belongs to a different project (`/workspace/neurogate`, `private/pm/run_session.sh`), not PredictIQ, and had no PredictIQ files open, so it was left alone. Only one PredictIQ builder (Sonnet) ran at a time. No Opus was used for PredictIQ.
+- 4:40 PM ET process check: an Opus `claude -p` process (pid 921100) was running at the same time. It belongs to a different project on the build machine (NeuroGate), not PredictIQ, and had no PredictIQ files open, so it was left alone. Only one PredictIQ builder (Sonnet) ran at a time. No Opus was used for PredictIQ.
 
 ## Stage 5, sessions 1-2 and fix 2b: testing summary (14 Nov 2026)
 **Done:** full testing added (contrast pairs, 44 px target sizes, keyboard, axe on every page, the notice on every page, release hygiene, fresh-copy script). Round 1 review fixes: the page says "Model built" (the evaluation date is not saved), synthetic test counts scale with bundle size, and the top notice now says "simulated historical sample data" (decisions 68, 70). Report: `docs/QA_REPORTS/stage5-testing.md`.
