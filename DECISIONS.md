@@ -122,15 +122,17 @@ Full detail in `docs/architecture.md`.
 
 ## 2026-11-14
 
-**53. Hosting decision 41 passes: website and data service both on one Vercel Hobby project.** All six trial checks were met on the protected preview:
-- one project serves both parts;
-- the data service is about 6.5 MB;
-- cold start median is 1.50 s and worst 1.66 s (n=10);
-- the largest response is 10,879 bytes;
-- the cache serves HITs and MISSes as designed, and the rate-limit rule returns 429;
-- non-commercial use is confirmed.
+**53. Hosting decision 41: stays on Vercel. Every check the skeleton can test was met, and two are measured again later.**
+- One project serves both parts.
+- Cold start median is 1.50 s and worst is 1.66 s (n=10, end-to-end from the build machine).
+- The cache serves HITs and MISSes as designed.
+- The rate-limit rule returns 429. This was shown at a temporarily lowered limit.
+- Non-commercial use is confirmed.
+- **Measured again in the data-and-model stage**, because the real model bundle and data endpoints don't exist yet:
+  - the data service size, now about 6.5 MB;
+  - the largest response, now 10,879 bytes.
 
-The Render fallback is not needed. This supersedes decision 52. *Status: Lead record from measured evidence, 2026-11-14 1:15 AM ET; the owner can review it with the skeleton story.*
+The Render fallback is not used unless one of those later checks fails. This supersedes decision 52. *Status: Lead record from measured evidence, revised after independent review, 2026-11-14 1:20 AM ET; the owner can review it with the skeleton story.*
 
 **54. Vercel settings changed in the trial (all approved).**
 - One free firewall rate-limit rule on this project: paths starting with /api/, at most 300 requests per 60 seconds per address, otherwise 429. It was approved by Meysam (Owner) on 13 Nov 2026. For the 429 test it was lowered to 20 for about 30 seconds and then set back.
