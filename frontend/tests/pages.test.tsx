@@ -3,25 +3,10 @@ import { vi } from "vitest";
 import { describe, expect, it } from "vitest";
 
 import AboutDataPage from "@/app/about-data/page";
-import ModelPerformancePage from "@/app/model-performance/page";
 import { PROVENANCE_URL } from "@/lib/nav";
 import { fakeFetch, problem, readyMetadata, renderWithData } from "./helpers";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
-
-const emptyPages = [
-  ["Model Performance", ModelPerformancePage],
-] as const;
-
-describe.each(emptyPages)("%s", (_name, Page) => {
-  it("is an honest empty state: no numbers, charts, tables or controls", async () => {
-    const { container } = renderWithData(<Page />, fakeFetch(readyMetadata()));
-    expect(await screen.findByRole("heading", { level: 2 })).toHaveTextContent("Not built yet");
-    // The only digits allowed are the prose "24 hours" horizon; no values.
-    expect((container.textContent ?? "").replace(/24 hours/g, "")).not.toMatch(/\d/);
-    expect(container.querySelector("table, svg, canvas, input, button, a")).toBeNull();
-  });
-});
 
 describe("About & Data", () => {
   it("calls the data simulated, credits Microsoft and links the provenance document", () => {
@@ -37,7 +22,7 @@ describe("About & Data", () => {
     expect(container.textContent).not.toMatch(/skeleton only|No model has been trained|no model yet/i);
     expect(container.textContent).toMatch(/Two models were trained/);
     expect(container.textContent).toMatch(/Nothing on this site is live/);
-    expect(container.textContent).toMatch(/Maintenance Planner.*illustrative.*Model Performance page is not built yet/);
+    expect(container.textContent).toMatch(/Maintenance Planner.*illustrative.*Model Performance.*saved evaluation/);
   });
 
   it("reads the model version, date, cut-off and replay window from /metadata", async () => {

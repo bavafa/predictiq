@@ -16,6 +16,9 @@
 //   node scripts/screenshots.mjs --real --stage4     the Stage 4 set into docs/QA_REPORTS/stage4-screenshots/: Maintenance
 //                                                     Planner (desktop, mobile and key states) and the Fleet Overview
 //                                                     guide
+//   node scripts/screenshots.mjs --real --stage5     the Stage 5 set into docs/QA_REPORTS/stage5-screenshots/: Model Performance
+//                                                     (desktop and mobile default, a changed cut-off, loading, error,
+//                                                     results not available)
 //   --out <dir>   write somewhere else
 //
 // Env: PLAYWRIGHT_CORE (default /home/box/.local/lib/node_modules/playwright-core)
@@ -31,9 +34,10 @@ const args = process.argv.slice(2);
 const real = args.includes("--real");
 const stage3 = args.includes("--stage3");
 const stage4 = args.includes("--stage4");
+const stage5 = args.includes("--stage5");
 const fleetOnly = args.includes("--fleet") || stage3;
 const outArg = args.indexOf("--out");
-const outDir = outArg >= 0 ? resolve(args[outArg + 1]) : join(root, "docs", "QA_REPORTS", stage4 ? "stage4-screenshots" : fleetOnly ? "stage3-screenshots" : "skeleton-screenshots");
+const outDir = outArg >= 0 ? resolve(args[outArg + 1]) : join(root, "docs", "QA_REPORTS", stage5 ? "stage5-screenshots" : stage4 ? "stage4-screenshots" : fleetOnly ? "stage3-screenshots" : "skeleton-screenshots");
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_CORE ?? "/home/box/.local/lib/node_modules/playwright-core");
 
@@ -467,6 +471,58 @@ async function captureStage4() {
   }
 }
 
+async function captureStage5() {
+  const ready = async (page) => {
+    await page.getByTestId("comparison-table").waitFor();
+    await page.getByTestId("mp-charts").waitFor();
+    await page.waitForTimeout(500);
+  };
+  const metaOf = async () => (await fetch(`${API}/api/v1/metadata`)).json();
+  const meta = await metaOf();
+  const changed = meta.default_cutoff_percent === 30 ? 60 : 30;
+
+  for (const [label, viewport] of sizes) {
+    const [ctx, page] = await newPage(viewport);
+    await page.goto(WEB + "/model-performance", { waitUntil: "networkidle" });
+    await ready(page);
+    await save(page, `model-performance-${label}`);
+    await page.goto(WEB + `/model-performance?cutoff=${changed}`, { waitUntil: "networkidle" });
+    await ready(page);
+    await save(page, `model-performance-state-changed-cutoff-${label}`);
+    await ctx.close();
+  }
+  {
+    const [ctx, page] = await newPage(sizes[0][1]);
+    await page.route("**/api/v1/model/**", async (route) => {
+      await new Promise((r) => setTimeout(r, 5000));
+      await route.fallback().catch(() => {});
+    });
+    await page.goto(WEB + "/model-performance", { waitUntil: "domcontentloaded" });
+    await page.getByTestId("mp-loading").waitFor();
+    await page.waitForTimeout(400);
+    await save(page, "model-performance-state-loading-desktop");
+    await ctx.close();
+  }
+  {
+    const [ctx, page] = await newPage(sizes[0][1]);
+    await page.route("**/api/v1/model/**", (route) => route.fulfill(problem500));
+    await page.goto(WEB + "/model-performance", { waitUntil: "networkidle" });
+    await page.getByTestId("service-error").waitFor();
+    await save(page, "model-performance-state-error-desktop");
+    await ctx.close();
+  }
+  {
+    const [ctx, page] = await newPage(sizes[0][1]);
+    await page.route("**/api/v1/model/**", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ schema: 1, models: {} }) }),
+    );
+    await page.goto(WEB + "/model-performance", { waitUntil: "networkidle" });
+    await page.getByTestId("results-not-available").waitFor();
+    await save(page, "model-performance-state-not-available-desktop");
+    await ctx.close();
+  }
+}
+
 async function captureAbout() {
   for (const [label, viewport] of sizes) {
     const [ctx, page] = await newPage(viewport);
@@ -488,7 +544,10 @@ try {
   await waitFor(`${API}/api/v1/health`);
   await waitFor(WEB);
   browser = await chromium.launch({ executablePath: process.env.CHROME_PATH ?? "/usr/bin/google-chrome" });
-  if (stage4) {
+  if (stage5) {
+    if (!real) throw new Error("--stage5 needs --real");
+    await captureStage5();
+  } else if (stage4) {
     if (!real) throw new Error("--stage4 needs --real");
     await captureStage4();
   } else if (fleetOnly) {

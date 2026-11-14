@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Database, Loader } from "lucide-react";
+import { AlertTriangle, ClipboardList, Database, Loader } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -125,6 +125,21 @@ export function PanelError({ message, onRetry, testId }: { message: string; onRe
       <Button className="mt-3" onClick={onRetry}>
         Try again
       </Button>
+    </Notice>
+  );
+}
+
+/** The model has not been evaluated yet (or the saved evaluation is not in a usable form): no numbers at all. */
+export function ResultsNotAvailable() {
+  return (
+    <Notice
+      tone="info"
+      icon={<ClipboardList size={20} />}
+      title="Results appear after the model is evaluated"
+      testId="results-not-available"
+      role="status"
+    >
+      <p className="m-0">There are no saved evaluation results to show yet, so no numbers appear here rather than made-up ones.</p>
     </Notice>
   );
 }

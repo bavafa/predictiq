@@ -1,13 +1,17 @@
 # Status
 
-_Updated 2026-11-14 3:40 PM ET, dependency-update branch `deps-nov14`._
+_Updated 2026-11-14 3:55 PM ET, Stage 5 on branch `model-perf` (stacked on `deps-nov14`)._
 
 ## Current stage
-**Stage 4 approved and merged (PR #31, 3:26 PM ET). Now testing dependency updates on branch `deps-nov14` (decision 67). Stage 5 has not started; it waits for Meysam.**
-- Included: fastapi 0.162.4 (#28), pydantic 2.14.3 (#25), pydantic-core 2.50.4 (#27), eslint 10 (#26). Left out: TypeScript 7 (#24), because typescript-eslint does not support it yet.
-- Every test passes after two test-only fixes (pytest 239, or 255 with real data). The protected preview built on the box works. See `docs/QA_REPORTS/deps-nov14-checks.md`.
-- Next: CI, review, then Meysam merges and closes the Dependabot pull requests he chooses.
+**Stage 5, launch preparation, on branch `model-perf`, stacked on `deps-nov14` (PR #32, waiting for Meysam).** Meysam authorized Stage 5 at 3:47 PM ET. The repo stays private, protection stays on, and there is no production promotion or domain until his go-ahead at the launch gate.
+- Session 1 (Model Performance page): built; see the block below. Waiting for review.
+- Then: full testing including the remaining accessibility coverage; launch preparation (limitations, README, model card, launch checklist, plan for getting the bundle to production); protected preview; review.
 - Blockers: none.
+
+## Stage 5, session 1: Model Performance page (14 Nov 2026)
+**Done:** `/model-performance` is built as the experience spec describes: model version, evaluation date, held-out test period and the 24-hour target in words; the shared cut-off control above one "Main model vs simple baseline" table (precision, recall, precision-recall area, the four machine-hour counts, false alerts per 100 machine-days, share of failure events caught, calibration gap), every cut-off row read from the saved threshold analysis at the shared cut-off; charts for precision and recall by cut-off, alerts per day, precision-recall curves and calibration, each with a table view; "Why accuracy misleads when failures are rare" with the saved counts; limitations; loading, error, results-not-available and no-model states. The placeholder is gone and About & Data no longer says the page is not built. Screenshots: `docs/QA_REPORTS/stage5-screenshots/`.
+**Needs the owner:** decision 68 (the evaluation file has no date of its own, so the page shows the model's build date; alerts per day and the accuracy figures are arithmetic on saved counts).
+**Next:** review of this page, then full testing and launch preparation.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
 **Done:** the data checks now run and pass on the real files: 761 failure rows become 719 events, and everything matches the recorded counts. The 24-hour failure label, the past-only features (nothing from the scoring hour or later is used, proven by an automated test that scrambles the future) and the train / tuning / test split with a 24-hour gap between periods are built and tested. Twenty machines are set aside once, with a fixed seed, to test how the model does on machines it never saw. Building every feature for all 100 machines over the whole year takes about 1.5 seconds.

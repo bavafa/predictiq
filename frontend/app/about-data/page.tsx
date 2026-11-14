@@ -25,8 +25,8 @@ export default function AboutDataPage() {
           regression) and a main model (gradient-boosted trees). Their scores for every machine and every hour of a held-out
           later period are saved, and the data service reads only those saved scores. <strong>Fleet Overview</strong>,{" "}
           <strong>Asset Details</strong> and <strong>Maintenance Planner</strong> work on them (the Planner turns them into a ranked list
-          using cost assumptions you set; those costs are illustrative). The <strong>Model Performance</strong> page is not built yet,
-          and says so. Nothing is calculated live.
+          using cost assumptions you set; those costs are illustrative). <strong>Model Performance</strong> compares the two models
+          on the held-out period from the saved evaluation. Nothing is calculated live.
         </p>
         <ModelFacts />
       </section>
@@ -87,7 +87,7 @@ export default function AboutDataPage() {
           <ul className="m-0 list-disc pl-5 text-sm leading-6">
             <li>The data is simulated, so results may look better than on real machines.</li>
             <li>The scores are saved estimates for a held-out replay period, not forecasts for any real equipment.</li>
-            <li>The model was also tried on 20 machines it never saw, and results are in the model card; the Model Performance page is not built yet.</li>
+            <li>The model was also tried on 20 machines it never saw, and results are in the model card. The Model Performance page shows the saved results for all 100 machines.</li>
             <li>Explanations are patterns the model found, not causes.</li>
             <li>Costs in the maintenance list are illustrative assumptions you set. They are not real costs and promise no financial result.</li>
           </ul>

@@ -82,3 +82,9 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [x] Owner: Stage 4 gate approved, PR #31 merged (3:26 PM ET, 14 Nov 2026).
 - [x] Dependency updates #24 to #28 tested together on branch `deps-nov14`: four included, TypeScript 7 left out (`docs/QA_REPORTS/deps-nov14-checks.md`).
 - [ ] Owner: merge the dependency branch; close Dependabot #25 to #28 (superseded); decide on #24 (TypeScript 7).
+
+## Stage 5: Launch (started 14 Nov 2026, branch `model-perf`, stacked on `deps-nov14`)
+- [x] Session 1 (14 Nov 2026): Model Performance page built per the experience spec (header facts, shared cut-off control, one "Main model vs simple baseline" table read from the saved cut-off table, four charts with table views, "why accuracy misleads", limitations, loading / error / not-available / no-model states), NotBuilt placeholder removed, About & Data text updated, Vitest, Playwright synthetic + opt-in real, screenshots in `docs/QA_REPORTS/stage5-screenshots/` (`node scripts/screenshots.mjs --real --stage5`). Decision 68 records where the saved files differ from the spec's wording.
+- [ ] Owner: confirm or override decision 68 (evaluation date taken from the model build date; alerts per day and accuracy figures derived from saved counts).
+- [ ] Session 2: full testing including the remaining accessibility coverage (contrast pairs, target sizes site-wide).
+- [ ] Session 3: launch preparation (limitations, README, model card, launch checklist, plan for getting the bundle to production), protected preview, review.

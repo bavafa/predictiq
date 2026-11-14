@@ -194,5 +194,17 @@ Still Lead defaults: crew slots start at 5; the risk-reduction assumption is **o
 
 **67. Dependency updates tested together on branch `deps-nov14`** (decision 62): the five automatic update pull requests #24 to #28 are tested together on one branch: four are included (#25, #26, #27, #28) and TypeScript 7 (#24) is left out because typescript-eslint does not support it yet. The original pull requests are left for Meysam to close. *Status: Approved by Meysam (Owner) earlier; carried out 2026-11-14.*
 
+## 2026-11-14, Stage 5 session 1 (Model Performance page)
+
+**68. Where the saved evaluation does not match the spec's wording exactly, and what the page does (Lead default, owner may amend, 2026-11-14).** The page reads `/model/metrics` (evaluation.json) and `/model/threshold-analysis` (threshold_analysis.json) for the "all 100 machines" group and recomputes nothing from scores. Five places needed a choice:
+- **Evaluation date.** evaluation.json has no date of its own. The page shows the model's build date from `/metadata` (`model_created`, the date inside the version name) under the label "Evaluation date". This is accurate because the evaluation is written once per model version and never overwritten (decision 43), but the date is not a field of the evaluation file. If `model_created` is missing it shows "—".
+- **Precision at a cut-off with no alerts.** The saved cut-off table stores precision as null when no alert is raised (for example at 100%). The cell shows "—" with "(no alerts at this cut-off)". Recall and the other rows show their saved values. A cut-off that is missing from the saved table would show "—" with "(not in the saved cut-off table)" in every cut-off row; the real and the test bundles have all 101 cut-offs, so this only shows if the file is damaged.
+- **Alerts per day by cut-off** is not stored. The chart shows the saved alert count (runs of consecutive alert hours on one machine count once) divided by the days in the test period (saved hours ÷ 24), across all machines. Arithmetic on two saved numbers, stated in the chart's summary.
+- **Accuracy figures** ("why accuracy misleads") are not stored either. They are (caught + quiet and correct) ÷ all machine-hours at the shared cut-off, and (machine-hours − failure hours) ÷ machine-hours for a rule that always says "no failure", all from saved counts. If the four counts at a cut-off do not add up to the saved machine-hour total, the cell shows "—".
+- **Curves are drawn from the saved points**: the precision–recall curves from the 101 saved cut-offs per model (cut-offs with no precision are left out), the calibration chart from the 10 saved groups per model. Nothing is smoothed or interpolated beyond the straight line between saved points. The seen / unseen machine groups in the saved files are not shown on this page.
+*Status: Lead default, owner can override, 2026-11-14.*
+
+**69. Dependabot pull requests after the dependency branch.** PR #32 was merged by Meysam at 3:49 PM ET (merge eafd576). Dependabot #25, #26, #27 and #28 were closed with the comment "Superseded by #32 (merged), per owner decision." #24 (TypeScript 7) stays open until typescript-eslint supports TypeScript 7. The Stage 5 branch `model-perf` targets main. *Status: Approved by Meysam (Owner), 2026-11-14 3:48 PM ET; carried out 3:50 PM ET.*
+
 ## Pending owner decisions
 - None at present.
