@@ -10,6 +10,8 @@ node_modules/
 data/raw/
 artifacts/*
 !artifacts/README.md
+!artifacts/piq-*/
+artifacts/piq-*/test_scores.npz
 .env*
 !.env.example
 .vercel/

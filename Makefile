@@ -5,7 +5,7 @@ SHELL := /bin/bash
 
 help:
 	@echo "Targets: setup lint typecheck test e2e build dev data validate labels features splits screenshots export-requirements"
-	@echo "         train evaluate verify replay (stubs until the models are built)"
+	@echo "         train evaluate verify replay"
 
 setup: ## install Python (uv) and Node (npm ci) dependencies
 	uv sync --group ml
@@ -65,6 +65,15 @@ export-requirements:
 screenshots: build
 	node scripts/screenshots.mjs
 
-train evaluate verify replay:
-	@echo "$@: not implemented yet (data-and-model stage)" >&2
-	@exit 1
+# Models, then the one-time test evaluation, then the read-only re-check, then the replay start.
+train:
+	uv run --group ml python -m ml.train
+
+evaluate: ## once per model version; refuses if evaluation.json exists
+	uv run --group ml python -m ml.evaluate --write
+
+verify: ## read-only re-check of the saved test result
+	uv run --group ml python -m ml.evaluate --verify
+
+replay:
+	uv run --group ml python -m ml.replay
