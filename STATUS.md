@@ -1,16 +1,14 @@
 # Status
 
-_Updated 2026-11-13, after the architecture fix round._
+_Updated 2026-11-13, after the skeleton review fix round._
 
 ## Current stage
-**13 Nov 2026, 10:05 PM ET: the architecture gate is approved by Meysam (Owner). Build stage, story 1: the project skeleton is in progress on branch `skeleton` (stacked on `architecture`, PR #22).** The older notes below are history.
+**Build stage, story 1: the project skeleton, on branch `skeleton` (PR #23). The architecture gate is approved by Meysam (Owner) (13 Nov 2026, 10:05 PM ET).** The independent skeleton review passed with known issues; its fix round is done (see below). Sections further down that describe the architecture stage are history.
 
-### Previous stage
-Architecture (branch `architecture`). Data check, requirements, stories and user-experience design are **approved by Meysam (Owner)** (design gate: 13 Nov 2026, 9:26 PM ET). The independent review returned FAIL with 1 High, 3 Medium and 1 Low finding (`docs/QA_REPORTS/architecture-codex-review.md`). All five are fixed in the working tree (not committed). The fixes wait for the reviewer to verify them and for owner approval. Nothing is built or deployed.
-
-## Skeleton story (branch `skeleton`), 14 Nov 2026
-**Done:** Next.js shell with five routes, disclosure banner, "Historical replay" badge and honest empty states (no numbers); FastAPI `/api/v1/health` and `/api/v1/metadata` only; `ml/` placeholders that exit 1; hash-checked `scripts/download_data.py` (not run against the network); Makefile; ruff/mypy/pytest, Vitest, one Playwright smoke test; CI workflow; Vercel layout and `ignoreCommand` (`docs/DEPLOY.md`); screenshots.
-**Next:** open a PR for `skeleton`; run CI on GitHub; trial deploy on Vercel as a protected preview (spike, decision 41), which is the first real test of the Root Directory `frontend` + `api/index.py` + rewrite layout; independent review; then the data-and-model stage.
+## Skeleton story (branch `skeleton`)
+**Done:** Next.js shell with five routes, disclosure banner, "Historical replay" badge and honest empty states (no numbers); FastAPI `/api/v1/health` and `/api/v1/metadata` only; `ml/` placeholders that exit 1; hash-checked `scripts/download_data.py` (run against the live source on 13 Nov 2026: all 5 files matched; `data/raw` is gitignored); Makefile; ruff/mypy/pytest, Vitest, Playwright smoke test plus axe accessibility checks (5 routes, desktop and mobile, plus the open menu); CI workflow with actions pinned to commit SHAs; Dependabot; Vercel layout and `ignoreCommand` (`docs/DEPLOY.md`); screenshots.
+**Review fix round (done):** gitleaks permission, axe in e2e, pinned actions, modal mobile menu (dialog semantics, inert background), stale notes, Dependabot.
+**Next:** confirm CI is green on GitHub; trial deploy on Vercel as a protected preview (spike, decision 41), which is the first real test of the Root Directory `frontend` + `api/index.py` + rewrite layout; independent review; then the data-and-model stage.
 **Blockers:** none. The owner must create the Vercel project and hold credentials.
 **Known limitations:** Vercel layout untested; CI never run on GitHub; `make` not installed on the build machine, so the Makefile was not executed; `npm audit` shows 7 moderate dev-tool issues (minimatch via typescript-eslint, fix needs a breaking upgrade), none high; no replay controls by design.
 **How to run:** see `README.md` (`make setup`, `make dev`, `make test`).
@@ -51,9 +49,9 @@ Architecture (branch `architecture`). Data check, requirements, stories and user
 
 ## Taking over from another machine
 1. `git clone https://github.com/bavafa/predictiq.git`
-2. `git checkout architecture`
+2. `git checkout skeleton`
 3. Read this file first, then `TASKS.md`, `DECISIONS.md`, `docs/architecture.md`, `docs/PROJECT_BRIEF.md`, `docs/PRD.md`.
-4. Raw data is not in the repo. The download step with hash checks is built in the skeleton stage.
+4. Raw data is not in the repo. Fetch it with `python3 scripts/download_data.py` (hash-checked).
 5. Re-render wireframes: `node docs/wireframes/render.mjs`. Recheck contrast: `python3 -I docs/design/check-contrast.py`.
 
 ## Architecture review result (13 Nov 2026)

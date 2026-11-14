@@ -1,6 +1,6 @@
 # Tasks
 
-Current stage: **Architecture.**
+Current stage: **Build, story 1: project skeleton.**
 
 ## Done (approved by Meysam (Owner))
 - [x] Gate 0 data check, license accepted, credit line applied (13 Nov 2026, 8:41 PM ET).
@@ -39,4 +39,6 @@ Current stage: **Architecture.**
 - [x] Hash-checked download script and no-network test; `ignoreCommand` skipping `main` builds
 - [x] Screenshots in `docs/QA_REPORTS/skeleton-screenshots/`
 - [ ] Trial deploy on Vercel as a protected preview, measuring the six checks
-- [ ] Independent review and one fix round
+- [x] Independent review (`docs/QA_REPORTS/skeleton-codex-review.md`): PASS WITH KNOWN ISSUES
+- [x] Fix round (13 Nov 2026): gitleaks 403 (`pull-requests: read`); axe accessibility checks in e2e (5 routes × desktop/mobile + open menu); actions pinned to commit SHAs; mobile menu is a modal dialog with inert background; stale notes updated; `.github/dependabot.yml` added
+- [ ] CI green on GitHub after the fix round
