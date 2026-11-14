@@ -5,7 +5,15 @@ docs/design/tokens.json is the source of truth. This test checks:
    using the same formula as docs/design/check-contrast.py (it is loaded, not copied);
 2. every colour variable in frontend/app/globals.css equals the token it is named for;
 3. the chart colour constants in the chart components equal their tokens;
-4. no hex colour appears anywhere in the app source that is not a tokens.json value.
+4. no colour appears anywhere in the app source that is not a tokens.json value: 3/4/6/8-digit hex,
+   rgb()/rgba()/hsl()/hsla()/hwb()/lab()/lch()/oklab()/oklch()/color()/color-mix(), CSS colour names, named
+   Tailwind colour utilities (text-gray-500, bg-slate-100, border-black ...), opacity modifiers on colour
+   utilities (bg-ink/50) and arbitrary values (text-[#abc], bg-[rgb(...)]). The only exception is listed, with
+   its reason, in OFF_TOKEN_ALLOWED.
+
+What this scan does and does not do: it reads source text. It does not see colours built at run time (string
+concatenation), colours from node_modules (recharts defaults) or what the browser finally draws. The rendered
+pages are checked by frontend/e2e/contrast.spec.ts and axe's color-contrast rule.
 """
 
 from __future__ import annotations
@@ -13,6 +21,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -83,7 +92,43 @@ CHART_CONSTS = [
 ]
 
 SOURCE_DIRS = ["frontend/app", "frontend/components", "frontend/lib"]
-HEX = re.compile(r"#[0-9a-fA-F]{6}\b")
+
+# --- the source scan ----------------------------------------------------------------------------------------
+# 3, 4, 6 and 8 digit hex (not a URL fragment or a word that merely starts with #).
+HEX = re.compile(r"(?<![\w&/\-])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b")
+COLOUR_FUNC = re.compile(r"(?<![\w-])(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix|color)\(")
+PALETTES = (
+    "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|"
+    "purple|fuchsia|pink|rose|taupe|mauve|mist|olive"
+)
+COLOUR_UTILS = (
+    "text|bg|border|border-[trblxyse]|ring|ring-offset|outline|fill|stroke|from|via|to|divide|decoration|"
+    "placeholder|accent|caret|shadow|inset-ring|inset-shadow"
+)
+# text-gray-500, bg-slate-100/50, hover:border-black, ...
+TAILWIND_NAMED = re.compile(
+    rf"(?<![\w-])(?:{COLOUR_UTILS})-(?:(?:{PALETTES})-\d{{2,3}}|black|white|transparent|current|inherit)(?:/\d+)?(?![\w-])"
+)
+# An opacity modifier on any colour utility changes the colour: bg-ink/50, text-white/70, bg-[var(--x)]/20.
+OPACITY_MOD = re.compile(rf"(?<![\w-])(?:{COLOUR_UTILS})-(?:\[[^\]\s]+\]|[a-z][a-z0-9-]*)/\d+(?![\w-])")
+# Arbitrary colour values: bg-[rgb(0,0,0)], border-[color:...]. (Hex inside [] is caught by the hex pattern.)
+ARBITRARY = re.compile(rf"(?<![\w-])(?:{COLOUR_UTILS})-\[(?:color:|rgb|hsl|hwb|lab|lch|oklab|oklch)[^\]]*\]")
+CSS_NAMES = (
+    "black|silver|gray|grey|maroon|red|purple|fuchsia|green|lime|olive|yellow|navy|blue|teal|aqua|orange|pink|brown|"
+    "gold|cyan|magenta|indigo|violet|crimson|coral|salmon|tomato|khaki|plum|tan|beige|ivory|lavender|white"
+)
+NAMED_VALUE = re.compile(
+    rf"\b(?:color|background(?:-color)?|fill|stroke|border(?:-\w+)?-color|border-color|outline(?:-color)?|"
+    rf"stopColor|stop-color|floodColor)\s*[:=]\s*\{{?\s*[\"']?(?:{CSS_NAMES})\b",
+)
+
+# (file, text) pairs allowed although they are not tokens. Each needs a reason, and must still be present.
+OFF_TOKEN_ALLOWED = {
+    (
+        "frontend/components/app-shell.tsx",
+        "bg-black/45",
+    ): "the dimming scrim behind the open mobile menu: a translucent overlay with no text and no information",
+}
 
 
 def all_token_values() -> set[str]:
@@ -126,17 +171,96 @@ def test_chart_constants_equal_tokens(file: str, const: str, path: str) -> None:
     assert m.group(1).lower() == token(path), f"{file} {const} is {m.group(1)} but {path} is {token(path)}"
 
 
-def test_no_off_token_hex_in_app_source() -> None:
+def _scan_source() -> list[tuple[str, str, str]]:
+    """Every colour-looking thing in the app source: (relative file, kind, text)."""
     allowed = all_token_values()
-    stray: list[str] = []
+    found: list[tuple[str, str, str]] = []
     for d in SOURCE_DIRS:
         for f in sorted((ROOT / d).rglob("*")):
             if f.suffix not in {".ts", ".tsx", ".css"}:
                 continue
-            for hit in HEX.findall(f.read_text()):
-                if hit.lower() not in allowed:
-                    stray.append(f"{f.relative_to(ROOT)}: {hit}")
+            rel = str(f.relative_to(ROOT))
+            text = f.read_text()
+            for m in HEX.finditer(text):
+                digits = m.group(1).lower()
+                if len(digits) == 3:
+                    digits = "".join(c * 2 for c in digits)
+                if len(digits) in (4, 8) or "#" + digits not in allowed:
+                    found.append((rel, "hex", m.group(0)))
+            for m in COLOUR_FUNC.finditer(text):
+                found.append((rel, "colour function", m.group(0)))
+            for m in TAILWIND_NAMED.finditer(text):
+                word = m.group(0)
+                bare = word.split("/")[0]
+                plain = bare.rsplit("-", 1)[-1]
+                if "/" not in word and plain in {"transparent", "current", "inherit"}:
+                    continue  # not a colour
+                if "/" not in word and plain == "white" and "#ffffff" in allowed:
+                    continue  # white is a token (text.on-primary, surface.card)
+                found.append((rel, "named Tailwind colour", word))
+            for m in OPACITY_MOD.finditer(text):
+                found.append((rel, "opacity modifier", m.group(0)))
+            for m in ARBITRARY.finditer(text):
+                found.append((rel, "arbitrary colour", m.group(0)))
+            for m in NAMED_VALUE.finditer(text):
+                if not m.group(0).lower().rstrip("\"'").endswith("white"):
+                    found.append((rel, "CSS colour name", m.group(0)))
+    return found
+
+
+def test_no_off_token_colour_in_app_source() -> None:
+    found = _scan_source()
+    stray = sorted(
+        {f"{rel}: {kind} {text}" for rel, kind, text in found if (rel, text) not in OFF_TOKEN_ALLOWED}
+    )
     assert stray == [], "colours in app source that are not in tokens.json:\n" + "\n".join(stray)
+    # An allowance that no longer matches anything is stale: remove it.
+    seen = {(rel, text) for rel, _, text in found}
+    assert set(OFF_TOKEN_ALLOWED) <= seen, f"stale allowance: {set(OFF_TOKEN_ALLOWED) - seen}"
+
+
+@pytest.mark.parametrize(
+    "snippet,kind",
+    [
+        ('const c = "#abc";', "hex"),
+        ('const c = "#ABCD";', "hex"),
+        ('const c = "#12345678";', "hex"),
+        ('style={{ color: "rgb(1, 2, 3)" }}', "colour function"),
+        ("background: rgba(0 0 0 / 0.5);", "colour function"),
+        ("color: hsl(10 20% 30%);", "colour function"),
+        ('className="text-gray-500"', "named Tailwind colour"),
+        ('className="hover:bg-slate-100"', "named Tailwind colour"),
+        ('className="border-black"', "named Tailwind colour"),
+        ('className="bg-ink/50"', "opacity modifier"),
+        ('className="text-[#123]"', "hex"),
+        ('className="text-[color:var(--x)]"', "arbitrary colour"),
+        ('className="bg-[rgb(1,2,3)]"', "arbitrary colour"),
+        ('const s = { fill: "red" };', "CSS colour name"),
+    ],
+)
+def test_scan_patterns_catch_off_token_colours(
+    snippet: str, kind: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The scan itself is tested: each of these must be reported, so a pattern that stops working fails."""
+    d = tmp_path / "frontend/app"
+    d.mkdir(parents=True)
+    (d / "x.tsx").write_text(snippet)
+    monkeypatch.setattr(sys.modules[__name__], "ROOT", tmp_path)
+    monkeypatch.setattr(sys.modules[__name__], "SOURCE_DIRS", ["frontend/app"])
+    assert kind in {k for _, k, _ in _scan_source()}, f"{snippet!r} was not reported as {kind}"
+
+
+def test_scan_ignores_tokens_and_plain_text(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    d = tmp_path / "frontend/app"
+    d.mkdir(parents=True)
+    ok = (
+        'const a = "#FFF"; const b = "#2563EB"; href="#main"; '
+        'className="text-white bg-card text-ink bg-transparent w-1/2"'
+    )
+    (d / "x.tsx").write_text(ok)
+    monkeypatch.setattr(sys.modules[__name__], "ROOT", tmp_path)
+    monkeypatch.setattr(sys.modules[__name__], "SOURCE_DIRS", ["frontend/app"])
+    assert _scan_source() == []
 
 
 def test_check_contrast_script_passes() -> None:

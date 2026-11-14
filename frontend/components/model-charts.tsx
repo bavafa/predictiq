@@ -33,6 +33,10 @@ const SLATE = "#475569";
 const INK2 = "#4b5563";
 const GRID = "#e5e7eb";
 
+// Legend text is body-text colour (text.secondary, 7:1 on white). Recharts would colour it with the series colour, and the
+// teal main-model colour is only 3.7:1, which is enough for a line (3:1) but not for text (4.5:1). The coloured key beside it stays.
+const legendText = (value: ReactNode) => <span style={{ color: INK2 }}>{value}</span>;
+
 const axisLabel = (value: string, extra: Record<string, unknown> = {}) => ({ value, fontSize: 12, fill: INK2, ...extra });
 const one = (n: number) => (Math.round(n * 10) / 10).toFixed(1);
 
@@ -80,7 +84,7 @@ export function PrecisionRecallByCutoff({ results, cutoff }: { results: Results;
               <CartesianGrid stroke={GRID} vertical={false} />
               <XAxis type="number" dataKey="cutoff" domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tick={{ fontSize: 11, fill: INK2 }} label={axisLabel("Alert cut-off (percent)", { position: "insideBottom", offset: -18 })} />
               <YAxis domain={[0, 100]} width={48} tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 11, fill: INK2 }} label={axisLabel("Percent", { angle: -90, position: "insideLeft" })} />
-              <Legend verticalAlign="top" height={28} />
+              <Legend verticalAlign="top" height={28} formatter={legendText} />
               <Line name="Precision" type="monotone" dataKey="precision" stroke={MAIN} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
               <Line name="Recall" type="monotone" dataKey="recall" stroke={SLATE} strokeWidth={2} strokeDasharray="6 3" dot={false} isAnimationActive={false} />
               <ReferenceLine x={cutoff} stroke={CUTOFF} strokeWidth={2} label={{ value: `Cut-off ${cutoff}%`, position: "insideBottomRight", fontSize: 11, fill: CUTOFF }} />
@@ -170,7 +174,7 @@ export function PrecisionRecallCurves({ results }: { results: Results }) {
               <CartesianGrid stroke={GRID} />
               <XAxis type="number" dataKey="recall" domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tick={{ fontSize: 11, fill: INK2 }} label={axisLabel("Recall (percent)", { position: "insideBottom", offset: -18 })} />
               <YAxis type="number" dataKey="precision" domain={[0, 100]} width={48} tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 11, fill: INK2 }} label={axisLabel("Precision (%)", { angle: -90, position: "insideLeft" })} />
-              <Legend verticalAlign="top" height={28} />
+              <Legend verticalAlign="top" height={28} formatter={legendText} />
               <Line name={MODEL_NAME.main} data={main} dataKey="precision" stroke={MAIN} strokeWidth={2} dot={false} isAnimationActive={false} />
               <Line name={MODEL_NAME.baseline} data={base} dataKey="precision" stroke={BASELINE} strokeWidth={2} strokeDasharray="6 3" dot={false} isAnimationActive={false} />
             </LineChart>
@@ -218,7 +222,7 @@ export function CalibrationChart({ results }: { results: Results }) {
               <CartesianGrid stroke={GRID} />
               <XAxis type="number" dataKey="x" name="Predicted" domain={[0, top]} tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 11, fill: INK2 }} label={axisLabel("Average predicted chance in the group (percent)", { position: "insideBottom", offset: -18 })} />
               <YAxis type="number" dataKey="y" name="Observed" domain={[0, top]} width={48} tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 11, fill: INK2 }} label={axisLabel("Followed by a failure (%)", { angle: -90, position: "insideLeft" })} />
-              <Legend verticalAlign="top" height={28} />
+              <Legend verticalAlign="top" height={28} formatter={legendText} />
               <ReferenceLine segment={[{ x: 0, y: 0 }, { x: top, y: top }]} stroke={INK2} strokeDasharray="4 4" ifOverflow="hidden" />
               <Scatter name={MODEL_NAME.main} data={main} fill={MAIN} shape="circle" isAnimationActive={false} />
               <Scatter name={MODEL_NAME.baseline} data={base} fill={BASELINE} shape="square" isAnimationActive={false} />

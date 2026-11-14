@@ -43,7 +43,7 @@ How the screens work, in plain words. Everything shown is *simulated* sample dat
 
 The replay time is not a Planner input, but it changes every predicted chance, so it can change all four.
 
-**Model Performance.** Purpose: let a reviewer judge the model rather than trust it. Shows the model version, evaluation date, held-out test period and the 24-hour target in words. Then one comparison table, "Main model vs simple baseline", with the shared alert cut-off control directly above it and a line that states the held-out test period and the cut-off in use. The table has one row per measure and a column each for the main model and the baseline (desktop adds "Better is: higher / lower"):
+**Model Performance.** Purpose: let a reviewer judge the model rather than trust it. Shows the model version, the model build date (the saved evaluation has no date of its own; decision 68), held-out test period and the 24-hour target in words. Then one comparison table, "Main model vs simple baseline", with the shared alert cut-off control directly above it and a line that states the held-out test period and the cut-off in use. The table has one row per measure and a column each for the main model and the baseline (desktop adds "Better is: higher / lower"):
 - precision; recall; precision–recall area (marked as covering all cut-offs);
 - the right/wrong counts of machine-hours: caught, false alerts, missed, quiet and correct;
 - false alerts per 100 machine-days (a run of consecutive alert hours on one machine counts as one alert, and the row says so); share of failure events caught (a failure counts as caught if an alert came in the 24 hours before it), as "n of m (percent)";

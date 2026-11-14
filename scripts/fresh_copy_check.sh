@@ -3,6 +3,7 @@
 #
 #   scripts/fresh_copy_check.sh            clone HEAD of this repository into a temporary folder and run every check there
 #   KEEP=1 scripts/fresh_copy_check.sh     keep the temporary folder afterwards (its path is printed)
+#   REQUIRE_REAL=1 scripts/fresh_copy_check.sh   skipping the real-bundle part is a FAILURE (exit 1), not a note
 #
 # Only COMMITTED files are in the copy (git clone of the local repository), so uncommitted changes are not tested:
 # commit first. The copy has no node_modules, no .venv, no .next, no data/raw and no bundle.
@@ -12,7 +13,8 @@
 #   python:  uv sync --frozen --group ml, ruff check, ruff format --check, mypy, pytest (default selection)
 #   release: the release-hygiene test (it is part of the default pytest run; it runs on its own too, for the log)
 #   real:    only if `python -m scripts.fetch_bundle` can fetch and verify the real bundle (needs the GitHub CLI and
-#            network): the real-bundle Playwright run and `pytest -m ""`. Otherwise this part is reported as SKIPPED.
+#            network): the real-bundle Playwright run and `pytest -m ""`. Otherwise this part is SKIPPED and the last line says
+#            "PASSED (real-bundle checks skipped: <reason>)", never plain "PASSED". With REQUIRE_REAL=1 a skip fails.
 #
 # Nothing here sets or reads an API key, and nothing touches Vercel.
 set -euo pipefail
@@ -21,7 +23,7 @@ SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/predictiq-fresh.XXXXXX")"
 COPY="$WORK/predictiq"
 STARTED=$SECONDS
-REAL="SKIPPED"
+REAL_SKIP_REASON=""
 
 cleanup() {
   if [[ "${KEEP:-0}" == "1" ]]; then
@@ -74,13 +76,21 @@ if uv run --group ml python -m scripts.fetch_bundle; then
   (cd "$COPY/frontend" && npm run e2e:real)
   step 'real bundle: pytest -m ""'
   uv run --group ml pytest -m ""
-  REAL="RAN"
 else
-  echo "SKIPPED: the real bundle could not be fetched and verified here (no network, no GitHub CLI login, or no release)."
+  REAL_SKIP_REASON="the real bundle could not be fetched and verified (no network, no GitHub CLI login, or no release)"
+  echo "SKIPPED: $REAL_SKIP_REASON."
   echo "The real-bundle Playwright run and pytest -m \"\" were NOT run in the fresh copy."
+  if [[ "${REQUIRE_REAL:-0}" == "1" ]]; then
+    echo "FRESH COPY CHECK FAILED: REQUIRE_REAL=1 and the real-bundle checks were skipped: $REAL_SKIP_REASON." >&2
+    exit 1
+  fi
 fi
 
 echo
 echo "=================================================================================="
-echo "FRESH COPY CHECK PASSED (every step above succeeded). Real-bundle part: $REAL. Time: $((SECONDS - STARTED)) s."
+if [[ -n "$REAL_SKIP_REASON" ]]; then
+  echo "FRESH COPY CHECK PASSED (real-bundle checks skipped: $REAL_SKIP_REASON). Time: $((SECONDS - STARTED)) s."
+else
+  echo "FRESH COPY CHECK PASSED (every step above succeeded, including the real-bundle checks). Time: $((SECONDS - STARTED)) s."
+fi
 echo "=================================================================================="

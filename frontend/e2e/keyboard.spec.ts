@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
+import { COLOUR_JS, FOCUS_RING } from "./colour-support";
 import { INTERACTIVE, PAGES, VIEWPORTS, openPage } from "./page-support";
 import { addHours, readWindow, shownHour } from "./support";
 
@@ -7,7 +8,9 @@ import { addHours, readWindow, shownHour } from "./support";
 // docs/design/components.md. Nothing here uses the mouse except to open the page; every action is a key press
 // (Locator.focus() is used only to jump to a control whose position in the Tab order is checked separately).
 
-type Stop = { id: number | null; name: string; visibleFocus: boolean; body: boolean };
+// visibleFocus is true only when the focus outline is EXACTLY the ux-spec rule (2px solid, 2px offset, the focus-ring token
+// colour, at least 3:1 against the background next to it); problems says what is off.
+type Stop = { id: number | null; name: string; visibleFocus: boolean; problems: string[]; body: boolean };
 
 /** Mark every control a Tab key should reach, and return their names in document order. */
 async function markTabbable(page: Page): Promise<string[]> {
@@ -34,19 +37,18 @@ async function markTabbable(page: Page): Promise<string[]> {
 }
 
 async function currentStop(page: Page): Promise<Stop> {
-  return page.evaluate(() => {
+  await page.evaluate(COLOUR_JS);
+  return page.evaluate((rule) => {
     const el = document.activeElement as HTMLElement | null;
-    if (!el || el === document.body) return { id: null, name: "", visibleFocus: false, body: true };
-    const cs = getComputedStyle(el);
-    const outline = cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) > 0;
-    const ring = cs.boxShadow !== "none";
+    if (!el || el === document.body) return { id: null, name: "", visibleFocus: false, problems: [], body: true };
+    const problems: string[] = (window as unknown as { __piq: { focusProblems: (e: Element, r: unknown) => string[] } }).__piq.focusProblems(el, rule);
     const raw = el.getAttribute("data-kb");
     const name = (el.getAttribute("aria-label") || (el as HTMLInputElement).labels?.[0]?.textContent || el.textContent || el.tagName)
       .trim()
       .replace(/\s+/g, " ")
       .slice(0, 60);
-    return { id: raw === null ? null : Number(raw), name, visibleFocus: outline || ring, body: false };
-  });
+    return { id: raw === null ? null : Number(raw), name, visibleFocus: problems.length === 0, problems, body: false };
+  }, FOCUS_RING);
 }
 
 /** Press Tab from the top of the page until focus leaves the page, recording each stop. */
@@ -83,8 +85,8 @@ for (const vp of VIEWPORTS) {
         // Every stop is a control we know about, and shows a focus outline or ring.
         const unknown = stops.filter((s) => s.id === null).map((s) => s.name);
         expect(unknown, "Tab stopped on something that is not a listed control").toEqual([]);
-        const unseen = stops.filter((s) => !s.visibleFocus).map((s) => s.name);
-        expect(unseen, "these controls show no focus outline").toEqual([]);
+        const unseen = stops.filter((s) => !s.visibleFocus).map((s) => `${s.name}: ${s.problems.join(", ")}`);
+        expect(unseen, "these controls do not show the exact 2px focus outline with 3:1 contrast").toEqual([]);
         // Every control is reached.
         const reached = new Set(stops.map((s) => s.id));
         const missed = names.filter((_, i) => !reached.has(i));

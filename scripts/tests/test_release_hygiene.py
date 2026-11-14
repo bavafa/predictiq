@@ -251,9 +251,9 @@ def test_the_scanner_catches_what_it_should() -> None:
 @pytest.mark.xfail(
     strict=False,
     reason=(
-        "KNOWN FINDING, owner decision needed: one early commit in the history has a personal address as its AUTHOR "
-        "(the committer is the no-reply address). Files are clean. Removing it needs a history rewrite, which this test "
-        "suite does not do. The test passes (XPASS) in a shallow clone that does not contain that commit."
+        "owner decision before going public (see docs/LAUNCH_CHECKLIST.md): one early commit in the history has a personal "
+        "address as its AUTHOR (the committer is the no-reply address). Files are clean. Removing it needs a history "
+        "rewrite, which this test suite does not do. The test passes (XPASS) in a shallow clone that does not contain it."
     ),
 )
 def test_commit_author_and_committer_emails_are_noreply() -> None:

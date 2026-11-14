@@ -1,4 +1,4 @@
-# Stage 5 testing report (sessions 1, 2 and fix session 2b)
+# Stage 5 testing report (sessions 1, 2 and fix sessions 2b and 2c)
 
 Date: 14 Nov 2026. Branch `model-perf`. All data is simulated. The counts below are from the runs listed at the end.
 
@@ -9,16 +9,15 @@ Date: 14 Nov 2026. Branch `model-perf`. All data is simulated. The counts below 
 | `frontend/tests/model-performance.test.tsx` (Vitest) | see total below | Model Performance page: header facts (now "Model built" with the note that the results' date is not recorded), every table row at the default cut-off for both models, cut-off changes, dashes for missing values, loading, error and not-available states. |
 | `frontend/e2e/model-performance.spec.ts` | 8 | The page in a browser on the synthetic bundle: table, cut-off control, charts, table views, states. |
 | `frontend/e2e/model-performance-real.spec.ts` | 1 | The page against the real bundle (opt-in `npm run e2e:real`). |
-| `frontend/e2e/axe-all.spec.ts` | 44 | axe accessibility scan on every page at desktop and mobile, plus the open menu, error and empty states. |
-| `frontend/e2e/keyboard.spec.ts` | 38 | Keyboard use: tab order, skip link, menu, cut-off and replay controls, chart tables reachable and scrollable, no keyboard traps. |
+| `frontend/e2e/axe-all.spec.ts` | 54 | axe scan (tags wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa; no disabled rules, no excluded regions) on every page at desktop and mobile, plus the open menu, error and empty states. 10 of the 54 are new in 2c: they prove the `color-contrast` rule is enabled and ran (in axe's passes with more than 5 text nodes, not "inapplicable") and that any node axe could not decide is one of the kinds listed under "Contrast checks" below. |
+| `frontend/e2e/contrast.spec.ts` (new, 2c) | 36 | Rendered contrast on all five pages, desktop and mobile: control boundaries at 3:1 (10), focus outline exact rule and 3:1 for every control (10), chart marks at 3:1 (6), all visible text at 4.5:1, or 3:1 for large text (10). |
+| `frontend/e2e/keyboard.spec.ts` | 38 | Keyboard use: tab order, skip link, menu, cut-off and replay controls, chart tables reachable and scrollable, no keyboard traps. Since 2c every Tab stop must show the exact focus rule (below), not just any outline. |
 | `frontend/e2e/target-size.spec.ts` | 10 | Every control is at least 44 × 44 px on mobile (menu panel, ⓘ buttons, chart tables, state links, planner with assumptions on). |
 | `frontend/e2e/notice.spec.ts` | 12 | The notice is on every page at desktop and mobile, shows the exact wording, is visible without scrolling, is not dismissible, appears once and before the page heading. |
 | `frontend/e2e/no-model.spec.ts` | 18 (no-model run) | With no model data: notice present, axe clean, 44 px controls, no sideways scrolling. |
-| `scripts/tests/test_design_tokens.py` | part of 84 | Every contrast pair in the design tokens, recomputed with the same formula as `docs/design/check-contrast.py`. |
-| `scripts/tests/test_release_hygiene.py` | part of 84 | No secrets, no personal emails in files, no raw data or bundle committed, commit emails (see below). |
+| `scripts/tests/test_design_tokens.py` | 91 | Every contrast pair in the design tokens, recomputed with the same formula as `docs/design/check-contrast.py`; CSS variables and chart constants equal their tokens; the source colour scan (widened in 2c) and 15 tests of the scan itself. |
+| `scripts/tests/test_release_hygiene.py` | 8 (7 pass, 1 expected failure) | No secrets, no personal emails in files, no raw data or bundle committed, commit emails (see below). |
 | `ml/tests/test_bundle.py` (new, fix 2b) | 6 cases | Synthetic evaluation counts for six bundle sizes (1×3 up to 120×1500): no negative counts, the four counts add up to all machine-hours, positives match, calibration groups fit inside their group. Default size still has 2,590 positive hours. |
-
-(The two Python files together hold 84 tests: 83 pass, 1 expected failure, see hygiene.)
 
 ## Contrast table (`python3 -I docs/design/check-contrast.py`)
 
@@ -96,17 +95,58 @@ Result: **0 unexpected result(s)**. Pairs marked "Forbidden" are ones the design
 - The synthetic test bundle now scales its positive hours and false alerts with bundle size, so no count is negative (new test above). The real bundle is not changed.
 - The top notice now reads "Portfolio demo — simulated historical sample data; estimated economics are illustrative." on every page (decision 70). The seven Stage 5 screenshots were retaken.
 
+## Contrast checks, as built in fix session 2c
+
+**Text (WCAG 1.4.3).** axe's `color-contrast` rule is part of `wcag2aa` and is enabled: `axe-all.spec.ts` uses the tags `wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa` with no `disableRules`, `exclude` or `include`. It runs on all five pages at both sizes, and in the table, definition, loading, error, empty and menu states, with zero violations of any impact. It does **not** decide every visible text node: it leaves some "incomplete" (cannot decide). Here those are SVG chart text (`<tspan>`), chart legend text, text it believes is "partially obscured" (planner table cells, the replay line) and one decorative icon. The new axe test fails if axe leaves any other kind undecided. The undecided text is measured by `contrast.spec.ts` "rendered text contrast", which computes the colour, the effective background (walk up to the first opaque background, compositing translucent backgrounds and opacity) and the ratio for every visible text element, HTML and SVG, on all five pages at both sizes. Large text (24 px, or 18.66 px bold) needs 3:1, other text 4.5:1. Disabled and `aria-disabled` controls are skipped (inactive components are exempt).
+
+**Non-text (WCAG 1.4.11, 3:1), rendered, five pages × desktop and mobile** (`contrast.spec.ts`):
+1. Control boundaries. For every visible interactive control: its border colour, or with no border its own background, against the effective background behind it. Controls with no drawn boundary are identified by their text (the text check covers them); native range, checkbox and radio inputs are drawn by the browser and are not sampled; disabled and `aria-disabled` controls are exempt. Each test fails if it finds fewer than three controls, so an empty walk cannot pass.
+2. Focus indicator. Every control is focused (after a key press, so `:focus-visible` applies) and must show exactly the ux-spec rule below, with at least 3:1 between the outline colour and the background next to the control.
+3. Chart marks. Every stroke and fill of chart lines, bars, markers, reference lines and legend keys on Fleet Overview, Asset Details and Model Performance, against the chart background, at 3:1. Gridlines and axis lines are left out (decorative; the grid token is a "forbidden" pair in `tokens.json`).
+
+**Exact focus rule.** `docs/ux-spec.md` (Accessibility: "a visible 2px outline on every control") and `docs/design/components.md` ("Visible 2px focus outline with a 2px gap"), with colours from `tokens.md` and `globals.css`: `outline: 2px solid`, `outline-offset: 2px`, colour `#2563eb` (`brand.focus-ring`) or, on the dark sidebar (`.on-dark`), `#60a5fa` (`sidebar.focus-ring`); at least 3:1 against the background behind the control. `keyboard.spec.ts` now checks this on every Tab stop (it used to accept any non-zero outline or box shadow) and `contrast.spec.ts` checks it on every control.
+
+**Source scan** in `test_design_tokens.py`. It fails on any colour in `frontend/app`, `components` and `lib` that is not a `tokens.json` value: 3, 4, 6 and 8 digit hex (3-digit values are expanded; 4 and 8 digit ones carry alpha and always fail), `rgb()`, `rgba()`, `hsl()`, `hsla()`, `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()`, `color()`, `color-mix()`, CSS colour names in colour properties, named Tailwind utilities (`text-gray-500`, `bg-slate-100`, `border-black`, any palette, with prefixes such as `hover:`), opacity modifiers on colour utilities (`bg-ink/50`) and arbitrary values (`text-[#...]`, `bg-[rgb(...)]`). `white` is allowed because `#FFFFFF` is a token. One exception, with its reason in the test and a check that it is not stale: `bg-black/45`, the dimming scrim behind the open mobile menu (no text, no information). 15 tests check that the scan reports each kind and ignores tokens and plain text.
+
+### Real failures found by these checks, and the minimal fixes
+
+1. **Model Performance chart legend text was 3.74:1.** Recharts coloured the legend labels with the series colour. The teal main-model colour (`#0d9488`) is enough for a line (3:1) but not for text (4.5:1). axe reported these nodes as undecided, so it did not catch them; the rendered text check did. The legend labels now use `text.secondary` (`#4b5563`, 7.56:1); the coloured key beside each label is unchanged (`model-charts.tsx`).
+2. **The skip link had no visible boundary.** When focused it is a white box (`bg-card`) on the `#f6f7f9` page: 1.07:1. It now has a 1 px `surface.input-border` border, 3.6:1 (`app-shell.tsx`).
+3. **The "Historical replay" badge ring used `ring-brand/40`**, a translucent colour that is not a token. It is now `ring-brand`, the `brand.primary` token (`app-shell.tsx`).
+
+Everything else passed unchanged: the boundaries and focus outlines of all controls, all chart marks and all other text. (Three disabled "Reset" and paging buttons flagged on a first run are inactive components, which WCAG 1.4.11 exempts, so the test now skips them and counts them.)
+
+### What the contrast checks do and do not cover
+
+They cover: every pair listed in `tokens.json` (54, recomputed); every colour literal and class in the app source; and, in Chromium at 1280 × 800 and 390 × 844, the rendered text, control boundaries, focus outlines and chart marks of the five pages in their main state, plus axe on the other states.
+
+They do **not** cover:
+- Pairs missing from `tokens.json` are not found by the pair test; the rendered tests and the source scan are what catch them, and only for what is rendered or written in the source.
+- States the rendered contrast tests do not open. `contrast.spec.ts` runs on each page's main state. axe covers the table, definition, loading, error, empty and menu states, and the keyboard spec checks focus inside the open menu, but the boundary and chart-mark checks are not repeated there.
+- Hover, pressed and active states.
+- Background images and gradients (none are used, but the background walk does not sample them) and text over an image.
+- Browser-drawn parts of native controls (range track and thumb, checkbox and radio boxes). Their focus outlines are checked; their drawn edges are not.
+- Chart gridlines and axis lines (decorative by design) and chart marks for data that is not in the test bundles.
+- Forced-colours (Windows High Contrast) mode, dark mode, and browsers other than Chromium.
+- Whether a boundary is *needed* to identify a control. The test applies 3:1 to every drawn boundary, which is stricter than WCAG where a control is identified by its text.
+- A person judging colour-only meaning.
+
 ## Release hygiene scan
 
-The scan finds no secrets and no personal email addresses in committed files. One historical commit does not pass the commit-email check: **commit 874a686 has an author email that is a personal address; its committer email is the noreply address.** No history rewrite was done. This is an owner decision. The test is marked as an expected failure (it passes in a shallow clone that lacks that commit).
+The scan finds no secrets and no personal email addresses in committed files. One historical commit does not pass the commit-email check: **commit 874a686 has an author email that is a personal address; its committer email is the noreply address.** No history rewrite was done. This is an owner decision before going public (to be recorded in `docs/LAUNCH_CHECKLIST.md`, written in a later session). The test is marked as an expected failure with that reason (it passes in a shallow clone that lacks that commit). No code change was made for it in 2c.
 
-## Results of the final runs
+## Results of the final runs (fix session 2c)
 
 - Vitest: 160 passed. Lint, typecheck and build passed.
-- `npm run e2e`: synthetic bundle 172 passed, 5 skipped (the five real-bundle tests); no-model-data run 18 passed.
-- `npm run e2e:real`: 177 passed.
+- `npm run e2e`: synthetic bundle 218 passed, 5 skipped (the five real-bundle tests); no-model-data run 18 passed.
+- `npm run e2e:real`: 223 passed.
 - ruff check, ruff format --check and mypy: clean.
-- `pytest -q`: 328 passed, 1 expected failure (the hygiene finding above), 16 not selected. `pytest -q -m ""`: 344 passed, 1 expected failure.
+- `pytest -q`: 343 passed, 1 expected failure (the hygiene finding above), 16 not selected.
+- The fresh-copy script was changed and syntax-checked in 2c but not run: it needs the network for `npm ci` and `uv sync`.
+
+## Other 2c changes
+
+- `scripts/fresh_copy_check.sh`: when the real-bundle part is skipped, the last line is now `FRESH COPY CHECK PASSED (real-bundle checks skipped: <reason>)`, never plain "PASSED". With `REQUIRE_REAL=1` a skip prints a failure line and exits 1.
 
 ## What is NOT covered
 

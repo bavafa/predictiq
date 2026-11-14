@@ -103,7 +103,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <a
         href="#main"
         inert={open}
-        className="absolute left-2 top-2 z-50 inline-flex min-h-11 min-w-11 -translate-y-20 items-center rounded-md bg-card px-3 text-sm font-semibold text-link focus:translate-y-0"
+        className="absolute left-2 top-2 z-50 inline-flex min-h-11 min-w-11 -translate-y-20 items-center rounded-md border border-input-edge bg-card px-3 text-sm font-semibold text-link focus:translate-y-0"
       >
         Skip to content
       </a>
@@ -173,7 +173,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <h1 className="order-3 m-0 basis-full text-xl leading-7 font-semibold lg:order-none lg:flex-1 lg:basis-auto lg:text-[22px]">
               {title}
             </h1>
-            <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-replay-bg px-2.5 py-0.5 text-xs font-semibold text-replay-text ring-1 ring-brand/40 lg:ml-0">
+            <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-replay-bg px-2.5 py-0.5 text-xs font-semibold text-replay-text ring-1 ring-brand lg:ml-0">
               <span aria-hidden="true">⏱</span> Historical replay
             </span>
           </header>

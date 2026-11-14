@@ -122,3 +122,32 @@ test("axe: a panel that failed to load (Fleet Overview, desktop)", async ({ page
   await expect(page.getByTestId("service-error").first()).toContainText("Couldn't load the fleet");
   expect(await violations(page)).toEqual([]);
 });
+
+// color-contrast is part of wcag2aa. This proves it is ENABLED and really ran on text, rather than being skipped:
+// the rule must appear in axe's passes with nodes checked (and not in "inapplicable"), on every page at both sizes.
+// Nodes axe cannot decide (text over images, for example) are listed under "incomplete"; there must be none.
+for (const vp of VIEWPORTS) {
+  for (const def of PAGES) {
+    test(`axe color-contrast rule ran on ${def.name} (${vp.name})`, async ({ page }) => {
+      await openPage(page, def, vp.width, vp.height);
+      const res = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+      const passed = res.passes.find((r) => r.id === "color-contrast");
+      expect(passed, "color-contrast is in the passes").toBeTruthy();
+      expect(passed!.nodes.length, "text nodes checked by color-contrast").toBeGreaterThan(5);
+      expect(res.inapplicable.some((r) => r.id === "color-contrast")).toBe(false);
+      // Nodes axe could not decide. Three kinds are accepted, because something else covers them:
+      //  - text inside an SVG chart and chart legend text (axe cannot find a background for <tspan> or the legend);
+      //  - text axe thinks is "partially obscured" by another element (table cells and the replay bar);
+      //  both are measured by "rendered text contrast" in contrast.spec.ts, which checks every visible text element;
+      //  - an aria-hidden icon glyph that contains no text characters (axe says "only non-text characters").
+      // Anything else axe cannot decide fails this test.
+      const undecided = res.incomplete
+        .filter((r) => r.id === "color-contrast")
+        .flatMap((r) => r.nodes.map((n) => ({ target: n.target.join(" "), why: n.any[0]?.message ?? "", html: n.html })))
+        .filter((n) => !/(^|[ >])(tspan|text)\b|recharts-surface|recharts-legend/.test(n.target))
+        .filter((n) => !/only non-text characters|partially obscured/.test(n.why))
+        .map((n) => `${n.target.slice(-80)} :: ${n.why} :: ${n.html.slice(0, 120)}`);
+      expect(undecided).toEqual([]);
+    });
+  }
+}
