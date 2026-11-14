@@ -48,6 +48,20 @@ Plain log of decisions. Newest last. Owner approval is noted where given; otherw
 
 **20. Input edge colour darkened to #768295.** The earlier #8792A2 measured 2.94:1 on the page background, below the 3:1 minimum. *Status: proposed.*
 
+**21. (2026-11-13) Exactly what each Planner input changes.** Only per-model costs change the order; one shared failure cost scales exposure; planned cost, crew slots and the risk-reduction assumption change spend, shortlist or net benefit, not the order; the cut-off and "also list below" change which machines are listed. The experience spec holds the full table, and each input says what it changes on screen. *Status: proposed. Responds to design review finding 2.*
+
+**22. (2026-11-13) The visitor guide demonstrates a per-model cost change.** Step 3 now asks the visitor to raise one machine model's failure cost, which really reorders the list and shows "Moved" marks. *Status: proposed.*
+
+**23. (2026-11-13) Machines below the cut-off are never shortlisted.** "Also list below the cut-off" shows them for context only. Spare crew slots stay empty and the summary says so. *Status: proposed.*
+
+**24. (2026-11-13) Model Performance leads with one main-vs-baseline table at the shared cut-off.** It covers precision, recall, precision–recall area, the four right/wrong counts, false alerts per 100 machine-days, share of failure events caught and calibration gap, with the held-out test period and cut-off stated above it. It replaces the four headline cards and the separate right/wrong table. *Status: proposed. Responds to finding 3.*
+
+**25. (2026-11-13) Filtered-to-nothing shows zeros, not dashes or old shapes.** Every Fleet card and chart describes the filtered population of 0 machines. *Status: proposed. Responds to finding 1.*
+
+**26. (2026-11-13) Sliders are native range inputs; mobile controls are at least 44px.** Each slider shows its label, minimum, maximum and current value; keyboard steps are written in the experience spec. *Status: proposed. Responds to finding 5.*
+
+**27. (2026-11-13) "Full data record" opens the public data provenance page in the repository.** *Status: proposed. Responds to finding 6.*
+
 ## Pending owner decisions
 - Design gate approval, after independent review.
 - Decision 14 (main model only on Fleet and Asset Details).

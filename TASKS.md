@@ -12,8 +12,8 @@ Current stage: **User-experience design.**
 - [x] Low-fidelity wireframes, desktop and mobile, for the five screens, rendered to images, plus key states (`docs/wireframes/`)
 - [x] Component list (`docs/design/components.md`)
 - [x] Colour and type tokens, with computed contrast (`docs/design/tokens.md`, `tokens.json`)
-- [ ] Independent review of the design documents
-- [ ] One bounded fix round
+- [x] Independent review of the design documents (result: fail, 3 high and 3 medium findings; `docs/QA_REPORTS/ux-design-codex-review.md`)
+- [x] One bounded fix round: all six findings addressed, 13 Nov 2026 (decisions 21–27)
 - [ ] Owner approval of the design gate (includes design decisions 11–20 and the open questions)
 
 ## Next stages
