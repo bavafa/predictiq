@@ -53,7 +53,7 @@ Timestamps carry no time zone in the source; we treat them as naive hourly times
 - Neither statement names the CSV files specifically. Under either reading (MIT or CC BY 4.0) use, modification and redistribution are permitted **with attribution / notice retained**.
 
 **Our approach (conservative):**
-1. Raw CSVs are **not committed**. `scripts/download_data.sh` fetches them from the pinned commit and fails if any SHA-256 differs. `data/raw/` is gitignored.
+1. Raw CSVs are **not committed**. A download script (planned for the project-skeleton stage; **not built yet**) will fetch them from the pinned commit and fail if any SHA-256 differs. The raw-data folder will be gitignored.
 2. Public builds will credit: "Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), via github.com/microsoft/sqlworkshops, licensed CC BY 4.0 / MIT."
 3. Derived artifacts (model outputs, aggregated replay predictions) may be published with that credit.
 
