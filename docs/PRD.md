@@ -1,9 +1,9 @@
 # PredictIQ: Product requirements
 
-A one-page plan. Everything here uses *simulated* sample data published by Microsoft: 100 made-up machines over one year, not real plant, fleet or mine telemetry. PredictIQ is a portfolio demonstration, not a production safety or control system.
+A one-page plan. It all uses *simulated* sample data published by Microsoft: 100 made-up machines over one year, not real plant, fleet or mine telemetry. PredictIQ is a portfolio demonstration, not a production safety or control system.
 
 ## Problem statement
-Maintenance managers lack a simple way to link machine health signals, near-term failure risk and the cost of acting early. Public examples often show a model score with no decision attached, or claim accuracy and savings they cannot back up. Reviewers lack a small, honest example that goes from sensor history to a maintenance decision.
+Maintenance managers lack a simple way to link machine health signals, near-term failure risk and the cost of acting early. Public examples often show a model score with no decision, or claim accuracy and savings they cannot back up. Reviewers lack a small, honest example that goes from sensor history to a maintenance decision.
 ## Proposed solution
 A web application with no login. It replays the simulated machine history hour by hour, labeled "historical replay", never "live". For each machine it estimates the chance that a recorded component failure happens in the next 24 hours (our chosen window). It shows the riskiest machines, the sensor history and past events behind each estimate, and the factors that most pushed the score up or down: patterns in the data, not proof of physical cause. A planning screen ranks machines by expected cost of failure, using cost and capacity figures the user sets, labeled illustrative. A model page shows results on unseen data next to a simple baseline.
 
@@ -28,8 +28,8 @@ All are checks we can pass or fail; no model results exist yet, and we set no ac
 - Event-level measures are shown too: share of failure events caught and false alerts per 100 machine-days (*simulated*), with each run of consecutive alert hours counted as one alert.
 - No claim is made about machines the model never saw unless a separate held-out-machines test is run.
 - An automated check proves no estimate uses information from after its own timestamp.
-- Planner rankings change the same way every time the user changes costs, capacity or the alert cut-off; money figures are labeled illustrative.
-- A fresh copy rebuilds the model and results from the documented download, with matching file checks.
+- Planner results change the same way every time: different failure costs per machine model reorder the list; crew slots change which machines are shortlisted; the alert cut-off changes which machines are listed. All money figures are labeled illustrative.
+- A fresh copy rebuilds the model and results from the documented download, with matching checks.
 
 ## Main risks
 - **Simulated data is too clean, so results look too good:** say so on every results screen; show the baseline.
@@ -39,7 +39,7 @@ All are checks we can pass or fail; no model results exist yet, and we set no ac
 - **Free hosting is slow to wake up:** test early; show a loading state.
 
 ## Stages
-Each starts after the owner approves the one before; an independent reviewer checks each before it closes.
+Each starts after the owner approves the one before; an independent reviewer checks each.
 - **Stage 1, Foundation:** data check, sign-offs, design, architecture, project skeleton.
 - **Stage 2, Data and model:** data checks, past-only features, baseline and main model, repeatable evaluation.
 - **Stage 3, Core screens and data service:** fleet overview and machine details on real model output, with replay.
