@@ -1,0 +1,26 @@
+## Findings
+
+- **Medium — M4 release evidence is incomplete.** The acceptance criteria require a public app without login and all tests passing on a fresh copy ([stories.md](/workspace/predictiq/docs/stories.md:149)). The checklist correctly leaves the public URL and production smoke checks open ([LAUNCH_CHECKLIST.md](/workspace/predictiq/docs/LAUNCH_CHECKLIST.md:103)), while the testing report says the fresh-copy script was not run ([stage5-testing.md](/workspace/predictiq/docs/QA_REPORTS/stage5-testing.md:156)). The protected-preview checks were reported for commit `f29e567`, not the reviewed commit `369cced` ([stage5-live-checks.md](/workspace/predictiq/docs/QA_REPORTS/stage5-live-checks.md:5)).
+- **Medium — The history-scan launch command has a conflicting success condition.** Step 1 expects exit code 0 even if previously reviewed items remain ([LAUNCH_CHECKLIST.md](/workspace/predictiq/docs/LAUNCH_CHECKLIST.md:14)); the scanner returns 1 whenever it finds any item ([history_scan.py](/workspace/predictiq/scripts/history_scan.py:118)). Those items still require the recorded owner decision before publication ([stage5-history-scan.md](/workspace/predictiq/docs/QA_REPORTS/stage5-history-scan.md:16)).
+- **Medium — First-launch rollback needs a concrete site-hiding action.** The proposed fastest rollback says to “restore the previous option” to put production behind login ([LAUNCH_CHECKLIST.md](/workspace/predictiq/docs/LAUNCH_CHECKLIST.md:93)), but the documented current option is Standard Protection, under which production is expected to be public ([LAUNCH_CHECKLIST.md](/workspace/predictiq/docs/LAUNCH_CHECKLIST.md:63)). Reverting the build change stops future builds; it does not take down the first live deployment.
+- **Low — Two claims exceed their cited evidence.** The raw production-domain log records HTTP 404, but not the `DEPLOYMENT_NOT_FOUND` response body asserted in the report ([live-checks.log](/workspace/predictiq/docs/QA_REPORTS/stage5-live-evidence/live-checks.log:14), [stage5-live-checks.md](/workspace/predictiq/docs/QA_REPORTS/stage5-live-checks.md:18)). The model card says *every number* was measured on held-out test data, although it also gives training counts and validation metrics ([MODEL_CARD.md](/workspace/predictiq/docs/MODEL_CARD.md:3)).
+- **Low — Launch documentation still says the localhost bundle script was not run**, despite the committed nine-case passing log ([LAUNCH_CHECKLIST.md](/workspace/predictiq/docs/LAUNCH_CHECKLIST.md:53), [stage5-bundle-download.log](/workspace/predictiq/docs/QA_REPORTS/stage5-bundle-download.log:72)).
+
+The round-5 **High bundle-path finding is fixed in code**: production always downloads, checks SHA-256 before unpacking, restricts entry names, and replaces a local bundle ([fetch-bundle.mjs](/workspace/predictiq/frontend/scripts/fetch-bundle.mjs:170)); the tests cover tampered local data, zip-slip names, failed downloads, and unchanged preview behavior ([fetch-bundle.test.ts](/workspace/predictiq/frontend/tests/fetch-bundle.test.ts:120)). The committed bundle log matches the localhost script’s cases. The earlier launch-check command is also corrected.
+
+## Stage 5 criteria
+
+| Criterion | Status | Evidence |
+|---|---|---|
+| Public link opens without login | **Open at launch gate** | No production deployment yet; checklist step 6 requires a logged-out check. |
+| Serious review findings fixed or owner accepted | **Not met** | High bundle issue fixed; historical personal email and internal path disposition remains with owner. |
+| Model results from saved evaluation, with version and build date | **Met** | [Model page](/workspace/predictiq/frontend/components/model-performance-screen.tsx:93), [real-bundle test](/workspace/predictiq/frontend/e2e/model-performance-real.spec.ts:10). |
+| Explain why plain accuracy misleads | **Met** | [Accuracy section](/workspace/predictiq/frontend/components/model-performance-screen.tsx:285). |
+| All tests pass on a fresh copy | **Not met** | Script exists; no completed fresh-copy run is evidenced. |
+| Keyboard use and color contrast pass review | **Met within documented automated scope** | Expanded tests address the Stage 3 Low coverage finding; human screen-reader and device review remain unperformed ([stage5-testing.md](/workspace/predictiq/docs/QA_REPORTS/stage5-testing.md:162)). |
+| Notice on every page | **Met in code and tests** | Shared notice and five-page test; [stage5-testing.md](/workspace/predictiq/docs/QA_REPORTS/stage5-testing.md:96). |
+| No secrets, personal information or private notes remain | **Not met** | Current tracked-file scan found no secret or internal-path hit outside QA reports, but the disclosed personal author email and older paths remain in history ([stage5-history-scan.md](/workspace/predictiq/docs/QA_REPORTS/stage5-history-scan.md:11)). |
+
+**Verdict: FAIL** for the M4 exit condition. The public release and its smoke checks remain open, as the checklist states.
+
+**Ran:** read-only `git diff main...369cced`, `git show` and file inspection, tracked-file pattern search, `node --check`, `bash -n`, and `git diff --check`. Syntax checks passed; `git diff --check` reported whitespace in two evidence logs and blank lines at EOF in two E2E support files. I did not run write-producing test suites, deployment checks, or network commands.

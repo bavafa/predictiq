@@ -12,3 +12,5 @@ page /model-performance 200
 page /about-data 200
 no-bypass page 302  api 302
 production domain predictiq-eight.vercel.app (logged out): 404
+17:57 production domain logged out: HTTP/2 404 
+17:57 production domain logged out: x-vercel-error: DEPLOYMENT_NOT_FOUND

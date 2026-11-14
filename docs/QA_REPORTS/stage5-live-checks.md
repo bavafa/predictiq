@@ -2,7 +2,7 @@
 
 Run on 14 Nov 2026 at about 5:54 PM, Toronto time. Raw output is in `stage5-live-evidence/`.
 
-The preview `dpl_7zzg8naq7yXKrrYFNXRyD2AZfM6M` was built on the build machine from commit `f29e567`. It used the real bundle `piq-20261114-efc9c243`, hash-checked by `scripts.fetch_bundle`. Protection was on (Vercel Authentication), and nothing was promoted to production.
+The preview `dpl_7zzg8naq7yXKrrYFNXRyD2AZfM6M` was built on the build machine from commit `f29e567`. The later commits on this branch change only documents and evidence, not app or build code. It used the real bundle `piq-20261114-efc9c243`, hash-checked by `scripts.fetch_bundle`. Protection was on (Vercel Authentication), and nothing was promoted to production.
 
 ## Results
 - **Data service:** function size 30,292,792 bytes (limit 500 MB).
@@ -15,7 +15,7 @@ The preview `dpl_7zzg8naq7yXKrrYFNXRyD2AZfM6M` was built on the build machine fr
   - Wrong model version: 404. Unknown path: 404. Both `no-store`.
 - **Pages:** all five return 200 through the protection bypass: Fleet Overview, Asset Details, Maintenance Planner, Model Performance, and About & Data.
 - **Protection:** without the bypass, the page and the API both answer 302, a redirect to Vercel sign-in.
-- **Production domain** `predictiq-eight.vercel.app`, logged out: 404 `DEPLOYMENT_NOT_FOUND`, because nothing is deployed to production. It does not redirect to sign-in.
+- **Production domain** `predictiq-eight.vercel.app`, logged out: 404 with header `x-vercel-error: DEPLOYMENT_NOT_FOUND` (re-checked and logged), because nothing is deployed to production. It does not redirect to sign-in.
 - **Planner:**
   - The largest allowed request returned 25,466 bytes, three times, with identical bodies.
   - Error responses are unchanged: 404 for a wrong model version, 422 for 101 crew slots, 422 for an unknown field, 413 for an oversized body.

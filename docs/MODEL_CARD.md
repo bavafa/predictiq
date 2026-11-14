@@ -1,6 +1,6 @@
 # Model card: PredictIQ failure-warning models
 
-**Model version:** `piq-20261114-efc9c243` (the final model of this demo). Every number on this page was **measured on simulated held-out data** (the test window below, which the models were not fitted or tuned on). Nothing here describes real machines or a real company.
+**Model version:** `piq-20261114-efc9c243` (the final model of this demo). The performance results on this page were **measured on simulated held-out data** (the test window below, which the models were not fitted or tuned on). Where a figure comes from training or validation data instead, such as row counts or the validation numbers used to choose cut-offs, it says so. All of it is simulated. Nothing here describes real machines or a real company.
 
 Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e). Microsoft states content in that repository is licensed under CC BY 4.0; the repository's license file is MIT.
 

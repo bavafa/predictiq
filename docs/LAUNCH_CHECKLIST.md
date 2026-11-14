@@ -18,7 +18,7 @@ Status: **prepared, not started.** Nothing below has been run against production
   uv run python -m scripts.history_scan --out docs/QA_REPORTS/stage5-history-scan-final.txt
   uv run pytest scripts/tests/test_release_hygiene.py
   ```
-- **Expected:** exit code 0 and "Nothing found", or only the items already reviewed in `docs/QA_REPORTS/stage5-history-scan.md` and accepted in step 0. Any new finding stops the launch: the owner decides (no history is rewritten by a script).
+- **Expected:** either exit code 0 and "Nothing found", or exit code 1 listing **only** the items already in `docs/QA_REPORTS/stage5-history-scan.md`, each with the owner's decision recorded in step 0. (The scanner exits 1 whenever it lists anything, so exit 1 is expected while the known items stay in history.) Compare the two lists line by line. Any item not on the reviewed list stops the launch for an owner decision. No script rewrites history.
 - **Rollback:** none needed (read-only).
 
 ### 2. Merge the Stage 5 branch into `main`
@@ -50,7 +50,7 @@ Status: **prepared, not started.** Nothing below has been run against production
   git clone https://github.com/bavafa/predictiq.git "$d/clone"
   VERCEL_ENV=production node "$d/clone/frontend/scripts/sync-backend.mjs" --artifacts "$d/clone/artifacts" --out "$d/out"
   ```
-  prints `fetch-bundle: SHA-256 matched; unpacked 10 files to artifacts/<VERSION>/bundle`, then `synced bundle <VERSION> -> .../out/bundle`, and exits 0. (The same logic is covered by `frontend/tests/fetch-bundle.test.ts`. The localhost end-to-end script `scripts/verify_bundle_download.sh` was written but **not yet run**; run it before this step and save its output as `docs/QA_REPORTS/stage5-bundle-download.log`.)
+  prints `fetch-bundle: SHA-256 matched; unpacked 10 files to artifacts/<VERSION>/bundle`, then `synced bundle <VERSION> -> .../out/bundle`, and exits 0. (The same logic is covered by `frontend/tests/fetch-bundle.test.ts`. The localhost end-to-end script `scripts/verify_bundle_download.sh` was run on 14 Nov 2026 and all nine cases passed (`docs/QA_REPORTS/stage5-bundle-download.log`); run it again before this step.)
 - **Rollback:** if the download fails (404, hash differs), stop. Do **not** continue to step 5. Fix the release asset (owner) or go back to a private repository (step 3 rollback).
 
 ### 5. Pull request that lets `main` build: remove the `ignoreCommand` line
@@ -92,7 +92,7 @@ Status: **prepared, not started.** Nothing below has been run against production
 
 ### 9. Rollback (any time after step 5)
 Fastest first:
-1. **Hide the site, keep the code:** Vercel dashboard → Deployment Protection → restore the previous option (production behind login again).
+1. **Hide the site, keep the code:** in the Vercel dashboard, open Settings, then Deployment Protection, then Vercel Authentication, and set the scope to **All Deployments**. Or use the API: `env -u VERCEL_TOKEN vercel api /v9/projects/predictiq?teamId=team_yiqLFb6Z5UF49vvJPXyxmfs7 -X PATCH --input <(echo '{"ssoProtection":{"deploymentType":"all"}}')`; check the exact CLI flags with `vercel api --help` first. This puts the production domain behind sign-in as well, and it is the fastest way to take the first launch offline. Afterwards, check logged out that `https://predictiq-eight.vercel.app/` redirects with 302 to sign-in. To relaunch later, set the scope back to Standard Protection (`all_except_custom_domains`). (This *adds* protection; no step in this checklist removes it.)
 2. **Go back to the previous production deployment:** Vercel → Deployments → pick the last good one → "Promote to Production" (or `vercel rollback`; the first launch has no earlier production deployment, so use option 1 or 3).
 3. **Stop new production builds:** revert the step 5 pull request, so the `ignoreCommand` cancels every `main` build again.
 4. **Make the repository private:** `gh repo edit bavafa/predictiq --visibility private --accept-visibility-change-consequences`. Note that a production build then cannot download the bundle, so any further production build fails (by design). The live site keeps serving its last build.
