@@ -31,7 +31,7 @@ Current stage: **Build, story 1: project skeleton.**
 - [x] Session 1: data checks (`ml/validate.py`), 24-hour label (`ml/labels.py`), past-only features (`ml/features/`), splits and unseen-machine set (`ml/splits.py`, `ml/unseen_machines.json`), tests including the leakage test and an opt-in real-data test, `ml` dependency group, Makefile targets, data-checks section in `docs/DATA_PROVENANCE.md`.
 - [x] Session 2 (14 Nov 2026): logistic regression baseline and XGBoost main model (`ml/train.py`), calibration and default cut-off on validation, `evaluate.py --write` once and `--verify`, seen / unseen / all results, threshold analysis, model version and manifest, replay start (`ml/replay.py`), determinism check (two from-scratch runs identical), `docs/MODEL_CARD.md`.
 - [x] Session 3 (14 Nov 2026): serving bundle (`scripts/build_bundle.py`, parity and explanation tests), `scripts/fetch_bundle.py`, data service endpoints with validation / `mv` / cache rules, 503 without a bundle, Vercel prebuild copy with the synthetic-bundle refusal, largest-request size test, example planner costs (decision 55, owner to confirm), synthetic test bundle for CI, `docs/DEPLOY.md`.
-- [ ] Orchestrator: create the `bundle-piq-20261114-efc9c243` prerelease (command in `docs/DEPLOY.md`), deploy the protected preview, measure function size and response sizes (closes the two re-measure items of decision 53).
+- [x] Orchestrator: create the `bundle-piq-20261114-efc9c243` prerelease (command in `docs/DEPLOY.md`), deploy the protected preview, measure function size and response sizes (closes the two re-measure items of decision 53).
 
 ## Known issues from the architecture re-check (tracked; the one fix round was used)
 - [x] Medium (fixed 13 Nov, only the latest version is served): the cache contract conflicts with itself. URLs are "immutable per model version", yet a stale version returns 404, and browsers keep a 200 for an hour. Decide whether old versions stay servable, and define cache behaviour at release.
@@ -45,9 +45,11 @@ Current stage: **Build, story 1: project skeleton.**
 - [x] Hash-checked download script and no-network test; `ignoreCommand` skipping `main` builds
 - [x] Screenshots in `docs/QA_REPORTS/skeleton-screenshots/`
 - [x] Trial deploy on Vercel as a protected preview: checks 1, 3, 5 and 6 met; 2 and 4 met for the skeleton only (14 Nov 2026; see the live checks report).
-- [ ] Data-and-model stage: measure again the data service size with the real bundle (check 2) and each data endpoint's largest response (check 4).
+- [x] Data-and-model stage: measure again the data service size with the real bundle (check 2) and each data endpoint's largest response (check 4).
   - [ ] Low (review): adapter test can pass without a real bundle; menu test does not cover a real route change; adapter description out of date.
 - [x] Independent review (`docs/QA_REPORTS/skeleton-codex-review.md`): PASS WITH KNOWN ISSUES
 - [x] Fix round (13 Nov 2026): gitleaks 403 (`pull-requests: read`); axe accessibility checks in e2e (5 routes × desktop/mobile + open menu); actions pinned to commit SHAs; mobile menu is a modal dialog with inert background; stale notes updated; `.github/dependabot.yml` added
 - [x] CI green on GitHub after the fix round (commit 554e106, all 4 jobs on push and pull request)
 - [x] Low (fixed 13 Nov): after choosing a mobile menu link, focus moves to the main landmark; Escape and Close still return it to Menu. Vitest test added.
+- [x] Independent review of the data-and-model stage: round 1 fixed (replay check, feature count); round 2 passed with known issues; its Low (raw size record) fixed.
+- [ ] Owner: confirm the example planner costs; choose how model data reaches the public launch.

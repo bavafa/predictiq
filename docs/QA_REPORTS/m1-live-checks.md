@@ -1,6 +1,6 @@
 # Data and model stage: size checks re-measured on a protected preview
 
-Measured on 14 Nov 2026 between 9:15 and 9:17 AM (Toronto time). Protection stayed on. Raw output and the script that produced it are in `m1-live-evidence/`.
+Measured on 14 Nov 2026 between 9:15 and 9:17 AM (Toronto time). Protection stayed on. Raw output, including the function-size record, and the script that produced it are in `m1-live-evidence/`.
 
 ## What was deployed
 - **Source:** the branch at its latest fixed commit, with the real serving bundle for model version piq-20261114-efc9c243 (simulated data).

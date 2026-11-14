@@ -157,5 +157,13 @@ Crew slots: 5. Why these numbers: round figures that differ a little by model (s
 
 **56. Serving details (Lead default).** Explanations come from XGBoost `pred_contribs` (no `shap` package); the bundle is about 10.1 MB; scores and contributions are served rounded to 6 decimals and ranking, status and alert counts all use those rounded numbers; a missing `mv` is a 400, another `mv` a 404 (both `no-store`); `at` is `YYYY-MM-DDTHH:00[:00]`, out-of-window and malformed values are 422. *Status: Lead default, 2026-11-14.*
 
+**57. How the model data reaches a deployment (Lead default, owner to decide for launch).** The serving bundle lives on a GitHub pre-release of this private repository, not in git (decision 48). Vercel's own branch builds can't download it without a stored access key, and we don't add secrets. So:
+- **Branch previews** run without model data. The data questions answer "model data unavailable", and the health check says no model is loaded.
+- **For checks and demos,** the bundle is fetched on the build machine (hash checked), then built and uploaded as a protected preview.
+- **For the public launch, the owner chooses** one of: make the repository public, so the release can be downloaded without a key; or let the build machine build and upload each release. *Status: Lead default, 2026-11-14.*
+
+**58. Builder model for this stage.** Every part was built by Claude Code Sonnet at medium effort. No part needed Opus: the modelling followed the approved architecture with standard methods. *Status: Lead record, 2026-11-14.*
+
 ## Pending owner decisions
-- Illustrative cost defaults (can wait until the planner is built).
+- Confirm or replace the example planner costs (decision 55).
+- How model data reaches the public launch (decision 57).

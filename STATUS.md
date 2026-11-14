@@ -1,9 +1,17 @@
 # Status
 
-_Updated 2026-11-14, after data-and-model session 1._
+_Updated 2026-11-14, 9:25 AM ET, data-and-model stage ready for owner review._
 
 ## Current stage
-**Build stage, story 1: the project skeleton, on branch `skeleton` (PR #23). The architecture gate is approved by Meysam (Owner) (13 Nov 2026, 10:05 PM ET).** The independent skeleton review passed with known issues; its fix round is done (see below). Sections further down that describe the architecture stage are history.
+**Data-and-model stage built and reviewed, on branch `data-model`; waiting for the owner to review and merge.** The project skeleton was merged by Meysam (Owner) on 14 Nov 2026 at 8:08 AM ET.
+- **Done:** data checks, the 24-hour label, past-only features, the baseline and main models, the alert cut-off and event measures, the twenty-machine unseen test, and the serving bundle for the latest model only. The bundle is kept on a GitHub pre-release, not in git.
+- **Data service:** answers every data question from the bundle.
+- **Size checks** re-measured live on a protected preview, both met:
+  - the data service is about 30 MB as Vercel reports it (75 MB uncompressed in the local build);
+  - the largest answer is 144,715 bytes.
+- **Independent review:** round 1 found one Medium and one Low, both fixed. Round 2 passed with known issues; its one Low (a missing raw record) is fixed.
+- **Next:** the owner reviews; then Stage 3, the core screens.
+- **Blockers:** none. The owner has two decisions to make: the example planner costs, and how model data reaches the public launch.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
 **Done:** the data checks now run and pass on the real files: 761 failure rows become 719 events, and everything matches the recorded counts. The 24-hour failure label, the past-only features (nothing from the scoring hour or later is used, proven by an automated test that scrambles the future) and the train / tuning / test split with a 24-hour gap between periods are built and tested. Twenty machines are set aside once, with a fixed seed, to test how the model does on machines it never saw. Building every feature for all 100 machines over the whole year takes about 1.5 seconds.
