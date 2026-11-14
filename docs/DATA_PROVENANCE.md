@@ -54,7 +54,7 @@ _Run 13 Nov 2026 by the orchestrator on the downloaded files; the event, duplica
 |---|---|
 | Telemetry completeness | 100 machines × 8,761 hourly rows each; every consecutive gap is exactly 1 hour; no blank fields; no duplicate machine-hours. |
 | Blank fields / identical rows | Zero in all five files. |
-| Repeated machine-hour keys | Errors: 303 rows share a machine-hour with another error row; maintenance: 758. These are legitimate multiple records (different error types / components), not duplicate rows. |
+| Repeated machine-hour keys | Errors: 577 rows sit in machine-hours that hold more than one error row (303 rows beyond the first per machine-hour); maintenance: 1,514 rows in shared machine-hours (758 beyond the first). These are legitimate multiple records (different error types / components), not identical rows. |
 | Machine IDs | Every machine ID in errors, maintenance and failures exists in the machine table. Machine ages 0–20 years. |
 | Failure events | 761 component-failure rows collapse to **719 machine-time events** (42 events have two components failing in the same hour; none more). Every event joins to a telemetry row at the same machine-hour. |
 | Maintenance at failure time | **702 of 719** failure events have a maintenance record at the same machine-hour (1,022 maintenance rows sit on failure timestamps; 743 failure rows match a same-hour replacement of the same component). These are repairs logged at failure time and are a **leakage hazard**: the data-and-model stage must treat records at the prediction timestamp as unavailable unless strictly earlier, and document the rule. |
@@ -70,7 +70,7 @@ What the source actually says (checked at the pinned commit):
 
 **Our approach until the owner decides (conservative):**
 1. Raw CSVs are **not committed**. A download script (planned for the project-skeleton stage; **not built yet**) will fetch them from the pinned commit and fail if any SHA-256 differs. The raw-data folder will be gitignored.
-2. Nothing is published yet. Proposed credit for any future public build, to be confirmed by the owner: "Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e). Microsoft states content in that repository is licensed under CC BY 4.0; the repository's license file is MIT." Following CC BY 4.0 attribution (the stricter of the two) covers both readings.
+2. Nothing is published yet. Draft credit for any future public build, **for owner review**: "Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e). Microsoft states content in that repository is licensed under CC BY 4.0; the repository's license file is MIT." We do **not** claim this credit alone satisfies both licenses: MIT also requires keeping its copyright and permission notice with copies or substantial portions, and CC BY 4.0 has its own attribution conditions. Exact publication terms are part of the owner decision below.
 
 **Owner decision needed:** confirm you are comfortable using the data and publishing derived outputs (model scores, charts) with the credit above, given the license conflict described. Alternative: ask Microsoft (the README lists sqlserversamples@microsoft.com) before public release.
 
