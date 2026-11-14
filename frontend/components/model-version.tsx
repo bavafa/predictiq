@@ -1,23 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { describeModelVersion, fetchModelVersion, type ModelVersionState } from "@/lib/metadata";
+import { useData } from "@/components/data-provider";
 
 export function ModelVersion() {
-  const [state, setState] = useState<ModelVersionState>({ status: "loading" });
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchModelVersion(controller.signal).then((s) => {
-      if (!controller.signal.aborted) setState(s);
-    });
-    return () => controller.abort();
-  }, []);
-
+  const { meta } = useData();
+  const text =
+    meta.status === "loading"
+      ? "…"
+      : meta.status === "error"
+        ? "— (couldn't load)"
+        : meta.status === "no-model"
+          ? "none yet"
+          : meta.meta.model_version;
   return (
     <span data-testid="model-version" aria-live="polite">
-      {describeModelVersion(state)}
+      {text}
     </span>
   );
 }

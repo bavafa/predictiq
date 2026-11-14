@@ -1,19 +1,17 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShell } from "@/components/app-shell";
+import type { FetchLike } from "@/lib/api";
 import { DISCLOSURE } from "@/lib/nav";
+import { fakeFetch, noModelMetadata, readyMetadata, renderWithData } from "./helpers";
 
 let mockPath = "/";
 vi.mock("next/navigation", () => ({ usePathname: () => mockPath }));
 
-function mockMetadata(body: unknown, ok = true) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn().mockResolvedValue({ ok, json: () => Promise.resolve(body) }),
-  );
-}
+let service: FetchLike = fakeFetch(noModelMetadata());
+const renderShell = () => renderWithData(<AppShell>content</AppShell>, service);
 
 beforeEach(() => {
   mockPath = "/";
@@ -22,23 +20,35 @@ beforeEach(() => {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
   }) as unknown as typeof window.matchMedia;
-  mockMetadata({ app_name: "PredictIQ", version: "0.1.0", model_version: null, model_available: false });
+  service = fakeFetch(noModelMetadata());
 });
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => window.history.replaceState(null, "", "/"));
 
 describe("AppShell", () => {
-  it("shows the disclosure banner and the Historical replay badge, with no replay controls", () => {
-    render(<AppShell>content</AppShell>);
+  it("shows the disclosure banner and the Historical replay badge, with no replay controls when there is no model data", async () => {
+    renderShell();
     expect(screen.getByRole("note")).toHaveTextContent(DISCLOSURE);
     expect(screen.getByText("Historical replay")).toBeInTheDocument();
+    await screen.findByText(/no replay controls/);
     expect(screen.queryByRole("slider")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /play|step|start/i })).not.toBeInTheDocument();
   });
 
+  it("carries the replay time and cut-off to the other pages' links, and not the filters", async () => {
+    window.history.replaceState(null, "", "/?at=2015-11-02T00:00&cutoff=30&status=alert");
+    service = fakeFetch(readyMetadata());
+    renderShell();
+    await screen.findByRole("button", { name: "Play" });
+    expect(screen.getByRole("link", { name: "Asset Details" })).toHaveAttribute(
+      "href",
+      "/asset-details?at=2015-11-02T00%3A00&cutoff=30",
+    );
+  });
+
   it("lists the five pages as links and marks the current one", () => {
     mockPath = "/model-performance";
-    render(<AppShell>content</AppShell>);
+    renderShell();
     const nav = screen.getByRole("navigation", { name: "Main" });
     const links = Array.from(nav.querySelectorAll("a")).map((a) => a.textContent);
     expect(links).toEqual([
@@ -53,19 +63,19 @@ describe("AppShell", () => {
   });
 
   it("shows 'none yet' when metadata reports no model", async () => {
-    render(<AppShell>content</AppShell>);
+    renderShell();
     await waitFor(() => expect(screen.getByTestId("model-version")).toHaveTextContent("none yet"));
   });
 
   it("says the version could not be loaded when the data service is unreachable", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
-    render(<AppShell>content</AppShell>);
+    service = vi.fn().mockRejectedValue(new TypeError("offline"));
+    renderShell();
     await waitFor(() => expect(screen.getByTestId("model-version")).toHaveTextContent("couldn't load"));
   });
 
   it("opens the menu, moves focus inside, and closes on Escape returning focus to the button", async () => {
     const user = userEvent.setup();
-    render(<AppShell>content</AppShell>);
+    renderShell();
     const menu = screen.getByRole("button", { name: /^Menu$/ });
     expect(menu).toHaveAttribute("aria-expanded", "false");
 
@@ -80,7 +90,7 @@ describe("AppShell", () => {
 
   it("closes the menu with the Close menu button", async () => {
     const user = userEvent.setup();
-    render(<AppShell>content</AppShell>);
+    renderShell();
     const menu = screen.getByRole("button", { name: /^Menu$/ });
     await user.click(menu);
     await user.click(screen.getByRole("button", { name: /Close menu/ }));
@@ -90,7 +100,7 @@ describe("AppShell", () => {
 
   it("moves focus to the main landmark when a menu link is activated", async () => {
     const user = userEvent.setup();
-    render(<AppShell>content</AppShell>);
+    renderShell();
     await user.click(screen.getByRole("button", { name: /^Menu$/ }));
     const link = screen.getByRole("link", { name: "Asset Details" });
     link.addEventListener("click", (e) => e.preventDefault());
@@ -101,7 +111,7 @@ describe("AppShell", () => {
 
   it("keeps Tab focus inside the open menu", async () => {
     const user = userEvent.setup();
-    render(<AppShell>content</AppShell>);
+    renderShell();
     await user.click(screen.getByRole("button", { name: /^Menu$/ }));
     const nav = screen.getByRole("navigation", { name: "Main" });
     for (let i = 0; i < 12; i++) {
@@ -112,7 +122,7 @@ describe("AppShell", () => {
 
   it("is a labelled modal dialog while open, with the rest of the page inert, and plain navigation when closed", async () => {
     const user = userEvent.setup();
-    const { container } = render(<AppShell>content</AppShell>);
+    const { container } = renderShell();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(container.querySelectorAll("[inert]")).toHaveLength(0);
 

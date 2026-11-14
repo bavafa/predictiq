@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { vi } from "vitest";
 import { describe, expect, it } from "vitest";
 
 import AboutDataPage from "@/app/about-data/page";
@@ -7,6 +8,9 @@ import FleetOverviewPage from "@/app/page";
 import MaintenancePlannerPage from "@/app/maintenance-planner/page";
 import ModelPerformancePage from "@/app/model-performance/page";
 import { PROVENANCE_URL } from "@/lib/nav";
+import { fakeFetch, readyMetadata, renderWithData } from "./helpers";
+
+vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
 
 const emptyPages = [
   ["Fleet Overview", FleetOverviewPage],
@@ -16,11 +20,9 @@ const emptyPages = [
 ] as const;
 
 describe.each(emptyPages)("%s", (_name, Page) => {
-  it("is an honest empty state: no numbers, charts, tables or controls", () => {
-    const { container } = render(<Page />);
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-      "Not built yet — model results arrive in the data-and-model stage",
-    );
+  it("is an honest empty state: no numbers, charts, tables or controls", async () => {
+    const { container } = renderWithData(<Page />, fakeFetch(readyMetadata()));
+    expect(await screen.findByRole("heading", { level: 2 })).toHaveTextContent("Not built yet");
     // The only digits allowed are the prose "24 hours" horizon; no values.
     expect((container.textContent ?? "").replace(/24 hours/g, "")).not.toMatch(/\d/);
     expect(container.querySelector("table, svg, canvas, input, button, a")).toBeNull();

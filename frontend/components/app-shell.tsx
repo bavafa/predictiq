@@ -5,15 +5,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
+import { useData } from "@/components/data-provider";
 import { ModelVersion } from "@/components/model-version";
+import { ReplayBar } from "@/components/replay-bar";
 import { Button } from "@/components/ui/button";
 import { ABOUT_NAV, DISCLOSURE, MAIN_NAV, titleFor, type NavItem } from "@/lib/nav";
+import { carriedSearch } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 
 function NavLink({ item, current, onNavigate }: { item: NavItem; current: boolean; onNavigate: () => void }) {
+  // The replay time, cut-off and selected machine travel with the reader from page to page (decision 13).
+  const { search } = useData();
   return (
     <Link
-      href={item.href}
+      href={`${item.href}${carriedSearch(search)}`}
       aria-current={current ? "page" : undefined}
       onClick={onNavigate}
       className={cn(
@@ -167,6 +172,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span aria-hidden="true">⏱</span> Historical replay
             </span>
           </header>
+
+          <ReplayBar />
 
           <main ref={main} id="main" tabIndex={-1} className="flex max-w-[1440px] flex-col gap-4 p-3 sm:p-5">
             {children}
