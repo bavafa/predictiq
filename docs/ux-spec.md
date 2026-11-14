@@ -11,7 +11,7 @@ How the screens work, in plain words. Everything shown is *simulated* sample dat
 1. The site opens on **Fleet Overview**. The disclosure banner and the "Historical replay" badge are the first things on screen. A short three-step guide sits at the top. It can be hidden.
 2. The visitor presses **Play**. The replay time moves forward one hour per second. Cards, chart and table update together.
 3. They open the top machine in the table. **Asset Details** shows its sensor history, recent errors and repairs, its predicted chance of failure, and what pushed that estimate up or down.
-4. They open **Maintenance Planner**, open "Set cost per machine model" and give one machine model a higher failure cost. That model's machines move up the list, marked "moved up", and the shortlist changes. (Changing the single cost for every machine would only scale the money figures, so the guide does not suggest it.)
+4. They open **Maintenance Planner** and give one machine model a higher failure cost in its own field. That model's machines can move up the list, marked "moved up", and at some hours this also changes who is shortlisted. (Setting the same cost for every machine model would only scale the money figures, so the guide does not suggest it.)
 5. They open **Model Performance** to see the main model and a simple baseline side by side on held-out data at the same cut-off, and why plain accuracy misleads.
 6. **About & Data** says what the data is, where it comes from, and what the demo does not do.
 
@@ -71,9 +71,9 @@ Every row except precision–recall area and calibration is computed at the shar
 | Machine selector | Asset Details | Switches machine. |
 | Sensor tabs | Asset Details, mobile | Which sensor chart shows. |
 | ⓘ explanation buttons | Asset Details, Model Performance | Opens a plain definition of the input or measure. |
-| Cost if a failure happens | Planner | Scales every expected exposure. Does not change the order. |
-| Cost per machine model (optional, four fields) | Planner | Different values change exposure for that model's machines, the order and the shortlist. |
-| Planned maintenance cost | Planner | Changes planned spend and, if turned on, net benefit. Not the order. |
+| Cost if a failure happens, per machine model (four fields, always visible, start at decision 55 values) | Planner | Changes exposure for that model's machines. Different values can change the order and, at some hours, who is shortlisted. |
+| Set every machine model's failure cost + "Apply to all models" | Planner | Writes one value into all four failure-cost fields. Equal costs give the order by predicted chance alone; Moved stays empty. |
+| Planned maintenance cost, per machine model (four fields) and "Apply to all models" | Planner | Changes planned spend and, if turned on, net benefit. Never the order or the shortlist. |
 | Crew slots (− / + / typed) | Planner | How many machines are shortlisted. Not the order. |
 | Also list machines below the cut-off | Planner | Adds them to the list, marked and never shortlisted. |
 | Assume maintenance lowers the chance of failure by …% (0% to 90%, 5-point steps) | Planner | Off by default. When on, adds an "Expected net benefit (estimate)" column and its formula. Not the order. |
