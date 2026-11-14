@@ -1,8 +1,8 @@
 // Prebuild step. Copies, for the Vercel Python function:
 //   ../backend/app                      -> _backend/app     (backend/ stays the only source)
 //   ../artifacts/<latest>/bundle         -> _backend/bundle  (only if present; never a synthetic one)
-// If there is no local bundle and the build is a production build (VERCEL_ENV=production) or BUNDLE_FETCH=1, the bundle is
-// first downloaded from the public release and verified (fetch-bundle.mjs, decision 71). On production a missing,
+// On a production build (VERCEL_ENV=production) the bundle is always downloaded from the public release and verified first,
+// replacing any local folder; with BUNDLE_FETCH=1 it is downloaded when there is no local bundle (fetch-bundle.mjs, decision 71). On production a missing,
 // failed or mismatched bundle FAILS the build. Without those variables (previews, local builds) nothing is downloaded.
 // _backend/ is generated and git-ignored.
 //

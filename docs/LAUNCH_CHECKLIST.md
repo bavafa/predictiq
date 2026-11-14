@@ -45,12 +45,12 @@ Status: **prepared, not started.** Nothing below has been run against production
   sha256sum "$d/bundle.zip"
   cat artifacts/<VERSION>/bundle.sha256
   ```
-- **Expected:** the two SHA-256 values are the same (`0ad2916e…2d57d2`). Run the production-style prebuild on a fresh clone with the real URL (no override):
+- **Expected:** the two SHA-256 values are the same (`0ad2916e…2d57d2`). Run the prebuild as a production build on a fresh clone with the real URL (no override). `VERCEL_ENV=production` forces the download:
   ```bash
   git clone https://github.com/bavafa/predictiq.git "$d/clone"
-  node "$d/clone/frontend/scripts/sync-backend.mjs" --artifacts "$d/clone/artifacts" --out "$d/out"   # with BUNDLE_FETCH=1 in the environment
+  VERCEL_ENV=production node "$d/clone/frontend/scripts/sync-backend.mjs" --artifacts "$d/clone/artifacts" --out "$d/out"
   ```
-  prints "SHA-256 matched; unpacked 10 files" and exits 0. (The same logic is covered by `frontend/tests/fetch-bundle.test.ts`. The localhost end-to-end script `scripts/verify_bundle_download.sh` was written but **not yet run**; run it before this step and save its output as `docs/QA_REPORTS/stage5-bundle-download.log`.)
+  prints `fetch-bundle: SHA-256 matched; unpacked 10 files to artifacts/<VERSION>/bundle`, then `synced bundle <VERSION> -> .../out/bundle`, and exits 0. (The same logic is covered by `frontend/tests/fetch-bundle.test.ts`. The localhost end-to-end script `scripts/verify_bundle_download.sh` was written but **not yet run**; run it before this step and save its output as `docs/QA_REPORTS/stage5-bundle-download.log`.)
 - **Rollback:** if the download fails (404, hash differs), stop. Do **not** continue to step 5. Fix the release asset (owner) or go back to a private repository (step 3 rollback).
 
 ### 5. Pull request that lets `main` build: remove the `ignoreCommand` line

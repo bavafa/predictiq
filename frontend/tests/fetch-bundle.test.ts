@@ -3,7 +3,7 @@
 // A tiny zip writer builds the test archives; no network is used (a fake fetch, or a refused local port).
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { crc32, deflateRawSync } from "node:zlib";
@@ -207,13 +207,45 @@ describe("ensureBundle", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it("leaves an existing local bundle alone (no download even on production)", async () => {
+  it("leaves an existing local bundle alone on a non-production build (BUNDLE_FETCH=1 too)", async () => {
     writeManifest(makeZip(goodFiles()));
     mkdirSync(join(artifacts, VERSION, "bundle"));
     writeFileSync(join(artifacts, VERSION, "bundle", "meta.json"), goodMeta);
-    const fetchImpl = serving(null, 500);
-    expect((await ensureBundle({ artifacts, env: PROD, fetchImpl })).action).toBe("present");
-    expect(fetchImpl).not.toHaveBeenCalled();
+    for (const env of [{}, { BUNDLE_FETCH: "1" }]) {
+      const fetchImpl = serving(null, 500);
+      expect((await ensureBundle({ artifacts, env, fetchImpl })).action).toBe("present");
+      expect(fetchImpl).not.toHaveBeenCalled();
+    }
+  });
+
+  it("production never trusts an existing (even tampered) local bundle: it downloads, verifies and replaces it", async () => {
+    const zip = makeZip(goodFiles());
+    writeManifest(zip);
+    mkdirSync(join(artifacts, VERSION, "bundle"));
+    writeFileSync(join(artifacts, VERSION, "bundle", "meta.json"), goodMeta);
+    writeFileSync(join(artifacts, VERSION, "bundle", "scores_main.npy"), "TAMPERED");
+    writeFileSync(join(artifacts, VERSION, "bundle", "extra.sh"), "echo hi");
+    const fetchImpl = serving(zip);
+    const r = await ensureBundle({ artifacts, env: PROD, fetchImpl });
+    expect(r.action).toBe("fetched");
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(readdirSync(join(artifacts, VERSION, "bundle")).sort()).toEqual(["meta.json", "scores_main.npy"]);
+    expect(readFileSync(join(artifacts, VERSION, "bundle", "scores_main.npy"), "utf8")).toBe("numbers");
+    expect(readdirSync(join(artifacts, VERSION)).some((n) => n.startsWith(".bundle-"))).toBe(false);
+  });
+
+  it("production with an existing local bundle and a failed download fails (the local folder is not used)", async () => {
+    writeManifest(makeZip(goodFiles()));
+    mkdirSync(join(artifacts, VERSION, "bundle"));
+    writeFileSync(join(artifacts, VERSION, "bundle", "meta.json"), goodMeta);
+    await expect(ensureBundle({ artifacts, env: PROD, fetchImpl: serving(null, 500) })).rejects.toThrow(/HTTP 500/);
+    const down = vi.fn(async () => {
+      throw new Error("offline");
+    });
+    await expect(ensureBundle({ artifacts, env: PROD, fetchImpl: down })).rejects.toBeInstanceOf(BundleError);
+    // A hash mismatch also fails, and the existing folder is not replaced by the refused download.
+    const other = makeZip({ ...goodFiles(), "scores_main.npy": "numbert" });
+    await expect(ensureBundle({ artifacts, env: PROD, fetchImpl: serving(other) })).rejects.toThrow(/SHA-256 mismatch/);
   });
 
   it("accepts http only for localhost in BUNDLE_URL", async () => {

@@ -1,7 +1,8 @@
 // Production bundle download (decision 71; docs/DEPLOY.md). Called by sync-backend.mjs (the prebuild).
 //
-// When there is no local artifacts/<version>/bundle and the build is a production build (VERCEL_ENV=production) or
-// asks for it (BUNDLE_FETCH=1), this downloads bundle.zip from the public GitHub release
+// On a production build (VERCEL_ENV=production) a local artifacts/<version>/bundle is never trusted: the release is always
+// downloaded and verified, and replaces that folder. A non-production build that asks for it (BUNDLE_FETCH=1) downloads
+// only when there is no local bundle. This downloads bundle.zip from the public GitHub release
 //   https://github.com/bavafa/predictiq/releases/download/bundle-<version>/bundle.zip
 // and checks it BEFORE anything is unpacked:
 //   1. the download is no larger than the size in the committed manifest (or a fixed cap);
@@ -163,13 +164,17 @@ export function readZip(buf) {
 /**
  * Make artifacts/<version>/bundle available when it is not there and the environment asks for it.
  * Returns {action: "present" | "skipped" | "fetched", version}. Throws BundleError when a required fetch fails.
- * `required` is true when VERCEL_ENV=production: then "skipped" is never returned for a missing bundle.
+ * On VERCEL_ENV=production a local bundle folder is never trusted: the release is always downloaded, verified and replaces it.
+ * Otherwise an existing local bundle is left as it is ("present").
  */
 export async function ensureBundle({ artifacts, env = process.env, fetchImpl = globalThis.fetch }) {
   const version = latestManifestVersion(artifacts);
   const production = env.VERCEL_ENV === "production";
   const requested = production || env.BUNDLE_FETCH === "1";
-  if (version && existsSync(join(artifacts, version, "bundle", "meta.json"))) return { action: "present", version };
+  // Production never trusts a local bundle folder: it may be stale or tampered with. It always downloads, verifies the
+  // SHA-256 against the committed manifest, and replaces any existing folder with the freshly unpacked, verified files.
+  // Other builds keep a local bundle as fetched and verified by scripts/fetch_bundle.py.
+  if (!production && version && existsSync(join(artifacts, version, "bundle", "meta.json"))) return { action: "present", version };
   if (!requested) return { action: "skipped", version };
   if (!version) throw new BundleError("no committed artifacts/piq-*/manifest.json: cannot tell which bundle to download");
 
