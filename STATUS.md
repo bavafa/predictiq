@@ -10,7 +10,7 @@ _Updated 2026-11-13, after the skeleton review fix round._
 **Review fix round (done):** gitleaks permission, axe in e2e, pinned actions, modal mobile menu (dialog semantics, inert background), stale notes, Dependabot.
 **CI:** green on GitHub for commit 554e106 (runs 43551738720 pull request and 43551731238 push: frontend, e2e, python and security all succeeded). Actions are bumped to Node 24 releases and pinned by commit SHA.
 **Re-verification:** PASS WITH KNOWN ISSUES (one new Low: after a mobile menu link is chosen, focus is not moved). Fixed: focus now moves to `<main>`, with a Vitest test; lint, typecheck, test, build and e2e pass.
-**Next:** trial deploy on Vercel as a protected preview (spike, decision 41), which is the first real test of the Root Directory `frontend` + `api/index.py` + rewrite layout; independent review; then the data-and-model stage.
+**Next:** owner reviews and merges the skeleton; then the data-and-model stage.
 **Blockers:** none for this story. Owner to review and merge.
 **Known limitations:** rate-limit counting is per address, and the build machine's traffic leaves from several addresses, so the 429 was shown with a temporarily lowered limit; `make` not installed on the build machine, so the Makefile was not executed; `npm audit` shows 7 moderate dev-tool issues (minimatch via typescript-eslint, fix needs a breaking upgrade), none high; no replay controls by design.
 **How to run:** see `README.md` (`make setup`, `make dev`, `make test`).
@@ -35,17 +35,12 @@ _Updated 2026-11-13, after the skeleton review fix round._
 - None.
 
 ## Owner decisions pending
-- Architecture gate approval (decisions 32–45).
-- Hosting (decision 41): all on Vercel if the spike passes; otherwise Vercel frontend + Render free backend. Owner holds the credentials.
-- Written confirmation that the demo is personal and non-commercial (Vercel Hobby terms, section 4). Without it, neither hosting option is eligible and hosting goes back to the owner.
-- Where the ~10–15 MB serving bundle lives: in the repository or as a GitHub release asset (decision 42).
-- Proposed split dates (decision 36): fine, or prefer a longer test period?
-- Whether to run the optional held-out-machines experiment.
 - Illustrative cost defaults (planner stage).
+- Optional: override where the serving bundle lives (default is a GitHub release, decision 48).
 
 ## Known limitations of the architecture
-- Not measured until the spike: routing beside Next.js, cold starts, bundle bytes, CPU per request, response sizes, cache hits, the WAF rule.
-- Vercel docs do not say whether function responses are cached by full query string; we assume they are, and the spike checks.
+- Measured in the trial (14 Nov 2026): routing, cold starts, bundle size, response sizes, cache hits and the rate-limit rule. Not yet measured: processor time per request, which needs the real model data.
+- Responses are cached separately for each query string (confirmed in the trial).
 - Rate limiting is per IP and per region; traffic spread over many IPs can still use up the Hobby CPU allowance. That pauses the site, with no bill.
 - Artifact sizes are estimates (uncompressed NumPy arrays plus small JSON files).
 
