@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fleet Overview — PredictIQ wireframe</title>
+<style>
+/* ===== shared wireframe shell (copied in every screen file; keep in sync) ===== */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font:14px/20px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111;background:#f2f2f2;overflow-x:hidden}
+a{color:#111}
+button,select,input{font:inherit;color:#111}
+.skip{position:absolute;left:-999px}
+.banner{background:#d9d9d9;border-bottom:1px solid #999;padding:6px 16px;font-size:13px;font-weight:600}
+.app{display:flex;min-height:calc(100vh - 32px)}
+.sidebar{width:240px;flex:0 0 240px;background:#2b2b2b;color:#eee;padding:16px 0;display:flex;flex-direction:column}
+.sidebar .brand{font-weight:700;font-size:18px;padding:0 20px 16px}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar li a{display:block;padding:10px 20px;color:#eee;text-decoration:none;min-height:44px}
+.sidebar li a[aria-current=page]{background:#555;color:#fff;font-weight:600;border-left:4px solid #fff;padding-left:16px}
+.sidebar .sep{border-top:1px solid #555;margin:8px 20px}
+.sidebar .foot{margin-top:auto;padding:16px 20px;font-size:12px;color:#ccc;line-height:16px}
+.sidebar .close{display:none}
+.maincol{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid #bbb;padding:8px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:56px}
+.topbar h1{font-size:22px;line-height:28px;margin:0;flex:1 1 auto}
+.menu-btn,.brand-m{display:none}
+.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #666;background:#eee;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}
+.replaybar{background:#fafafa;border-bottom:1px solid #bbb;padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.replaybar .time{font-weight:700;font-variant-numeric:tabular-nums;margin-right:8px}
+.btn{border:1px solid #555;background:#fff;border-radius:6px;padding:6px 12px;min-height:36px;cursor:pointer;white-space:nowrap}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.link{border:none;background:none;text-decoration:underline;padding:6px 4px}
+.sel{border:1px solid #555;background:#fff;border-radius:4px;padding:6px 8px;min-height:36px}
+/* sliders are native range inputs: visible label, min, max and current value */
+.slider{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.slider input[type=range]{width:180px;min-height:24px;margin:0;accent-color:#333}
+.slider .mm{font-size:12px;color:#444;font-variant-numeric:tabular-nums;white-space:nowrap}
+.slider output{font-weight:700;font-variant-numeric:tabular-nums}
+.timeline{flex:1 1 300px;min-width:200px}
+.timeline input[type=range]{flex:1 1 80px;width:auto;min-width:80px}
+.check{display:inline-flex;align-items:center;gap:6px}
+.check input,.field .check input{width:auto;min-height:0;margin:0}
+main{padding:20px;display:flex;flex-direction:column;gap:16px;max-width:1440px}
+.card{background:#fff;border:1px solid #aaa;border-radius:8px;padding:16px 20px}
+.card h2{font-size:18px;line-height:28px;margin:0 0 4px}
+.card h3{font-size:16px;margin:0 0 4px}
+.cap{font-size:12px;line-height:16px;color:#444}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid4>*,.grid3>*,.grid2>*,.plan>*{min-width:0}
+table.wrap th,table.wrap td{white-space:normal}
+.metric .label{font-size:13px;font-weight:600}
+.metric .value{font-size:30px;line-height:36px;font-weight:600;font-variant-numeric:tabular-nums;margin:6px 0}
+/* value-type labels: word + edge style (solid / dashed / dotted) */
+.vt{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.02em;border:1.5px solid #333;border-radius:4px;padding:0 5px;line-height:16px;background:#fff;white-space:nowrap;vertical-align:middle}
+.vt-h{border-style:solid}
+.vt-p{border-style:dashed}
+.vt-i{border-style:dotted;border-width:2px}
+/* risk tags: word + icon */
+.tag{display:inline-flex;gap:4px;align-items:center;font-size:12px;font-weight:600;border-radius:4px;padding:1px 6px;border:1px solid #555;white-space:nowrap}
+.tag-alert{background:#ddd;border:2px solid #222}
+.tag-below{background:#fff}
+.tag-fail{background:#222;color:#fff;border-color:#222}
+.chart{border:1px dashed #888;border-radius:6px;background:#fcfcfc;height:180px;position:relative;margin-top:8px}
+.chart svg{position:absolute;inset:24px 12px 28px 44px;width:calc(100% - 56px);height:calc(100% - 52px)}
+.chart .yl{position:absolute;left:4px;top:6px;font-size:11px;color:#333}
+.chart .xl{position:absolute;right:8px;bottom:6px;font-size:11px;color:#333}
+.chart .note{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;color:#333;background:#fff;padding:2px 6px;text-align:center}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ccc;white-space:nowrap}
+th{background:#eee;font-size:13px}
+th button{border:none;background:none;font-weight:700;padding:0;cursor:pointer}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.cardlist{display:none;list-style:none;margin:0;padding:0}
+.cardlist li{border-bottom:1px solid #ccc;padding:10px 0}
+.cardlist a{display:flex;justify-content:space-between;gap:8px;text-decoration:none;min-height:44px;align-items:center}
+.notice{border:1px solid #777;border-left:6px solid #555;background:#fff;border-radius:6px;padding:10px 14px}
+.problem{border:2px solid #333;border-left:8px solid #333;background:#fff;border-radius:6px;padding:12px 16px}
+.skel{background:repeating-linear-gradient(90deg,#ddd 0 40%,#e9e9e9 40% 100%);border-radius:4px;height:14px;margin:6px 0}
+.skel.big{height:32px;width:60%}
+.skel.block{height:140px}
+.empty{border:1px dashed #777;border-radius:8px;background:#fff;padding:28px;text-align:center}
+.wfnote{font-size:12px;color:#333;background:#e6e6e6;border-top:1px solid #aaa;padding:8px 20px}
+.example{font-size:11px;font-weight:600;border:1px solid #777;border-radius:3px;padding:0 4px;background:#fff;color:#333}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;margin-top:6px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-weight:600;font-size:13px}
+.field input{border:1px solid #555;border-radius:4px;padding:6px 8px;min-height:36px;width:100%}
+.field .err{font-size:12px;font-weight:600}
+.field input[aria-invalid=true]{border:2px solid #111}
+.bar{height:14px;background:#888;border-radius:2px}
+details summary{cursor:pointer;font-weight:600}
+[hidden]{display:none!important}
+@media (max-width:1023px){
+  .sidebar{display:none}
+  .menu-btn{display:inline-flex}
+  .brand-m{display:inline;font-weight:700}
+  .topbar h1{flex-basis:100%;order:3;font-size:20px}
+  body[data-state=nav-open] .sidebar{display:flex;position:fixed;inset:0 auto 0 0;width:280px;z-index:10;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
+  body[data-state=nav-open] .sidebar .close{display:block;margin:0 20px 12px;background:#444;color:#fff;border-color:#888}
+}
+@media (max-width:760px){
+  main{padding:12px;gap:12px}
+  .topbar,.replaybar{padding:8px 12px}
+  .grid4{grid-template-columns:1fr 1fr;gap:12px}
+  .grid3,.grid2{grid-template-columns:1fr;gap:12px}
+  .card{padding:12px 14px}
+  .metric .value{font-size:24px;line-height:30px}
+  .desk-only{display:none!important}
+  .cardlist{display:block}
+  /* 44px minimum touch targets on mobile */
+  .btn,.sel,.field input:not([type=checkbox]),.btn.link{min-height:44px;min-width:44px}
+  .slider input[type=range]{min-height:44px;width:140px}
+  .check{min-height:44px}
+  .check input,.field .check input{width:22px;height:22px;flex:none}
+  details summary{min-height:44px;display:flex;align-items:center}
+  main a:not(.btn){display:inline-flex;align-items:center;min-height:44px}
+  .timeline{flex-basis:100%}
+  .chart{height:160px}
+}
+@media (min-width:761px){.mob-only{display:none!important}}
+/* ===== end shared shell ===== */
+.guide ol{margin:4px 0 0;padding-left:20px}
+.guide li{margin:2px 0}
+</style>
+</head>
+<body data-state="default">
+<a class="skip" href="#main">Skip to content</a>
+<div class="banner" role="note">ⓘ Portfolio demo — historical sample data; estimated economics are illustrative.</div>
+<div class="app">
+  <nav class="sidebar" aria-label="Main">
+    <div class="brand">PredictIQ</div>
+    <button class="btn close" type="button">✕ Close menu</button>
+    <ul>
+      <li><a href="fleet-overview.html" aria-current="page">Fleet Overview</a></li>
+      <li><a href="asset-details.html">Asset Details</a></li>
+      <li><a href="maintenance-planner.html">Maintenance Planner</a></li>
+      <li><a href="model-performance.html">Model Performance</a></li>
+      <li class="sep" aria-hidden="true"></li>
+      <li><a href="about-data.html">About &amp; Data</a></li>
+    </ul>
+    <div class="foot">Model version: —<br>Data: Microsoft sample data (simulated), 2015</div>
+  </nav>
+  <div class="maincol">
+    <header class="topbar">
+      <button class="btn menu-btn" type="button" aria-expanded="false">☰ Menu</button>
+      <span class="brand-m">PredictIQ</span>
+      <h1>Fleet Overview</h1>
+      <span class="badge">⏱ Historical replay</span>
+    </header>
+    <div class="replaybar" role="group" aria-label="Historical replay controls">
+      <output class="time" for="rt">2015-11-14 06:00 <span class="example">example</span></output>
+      <span data-show="replay-start" hidden class="cap"><b>Start of the replay window.</b></span>
+      <button class="btn" type="button" data-disable="replay-start">|◀ Start</button>
+      <button class="btn" type="button" aria-label="Step back" data-disable="replay-start">◀ Back</button>
+      <button class="btn primary" type="button" aria-pressed="false" data-disable="replay-end">▶ Play</button>
+      <button class="btn" type="button" aria-label="Step forward" data-disable="replay-end">Fwd ▶</button>
+      <label class="cap" for="step">Step</label>
+      <select id="step" class="sel"><option>1 hour</option><option>6 hours</option><option>24 hours</option></select>
+      <span class="slider timeline"><label for="rt" class="cap"><b>Replay time</b></label><span class="mm">First hour —</span><input type="range" id="rt" min="0" max="100" step="1" value="62" aria-valuetext="2015-11-14 06:00"><span class="mm">Last hour —</span></span>
+    </div>
+
+    <main id="main">
+      <!-- data service waking up -->
+      <div class="notice" data-show="waking" hidden role="status">
+        <b>⟳ Waking up the data service…</b> The demo's data service sleeps when nobody uses it. This can take up to a minute. The page fills in by itself. <button class="btn link" type="button">Read about the data while you wait</button>
+      </div>
+      <!-- end of data -->
+      <div class="notice" data-show="replay-end" hidden role="status">
+        <b>End of the replay window (—).</b> Playback stopped. There is no later data. <button class="btn" type="button">Jump to start</button>
+      </div>
+
+      <section class="card guide" aria-labelledby="g" data-hide="waking">
+        <div class="row" style="justify-content:space-between"><h2 id="g">New here? Three steps, about 90 seconds</h2><button class="btn link" type="button">Hide guide</button></div>
+        <ol>
+          <li>Press <b>Play</b> to replay the simulated machine history hour by hour.</li>
+          <li>Open the top machine in the table to see its sensors and what pushed its estimate up.</li>
+          <li>Open the <b>Maintenance Planner</b>, open "Set cost per machine model" and give one machine model a higher illustrative failure cost. Machines of that model move up the list, with "moved up" marks.</li>
+        </ol>
+      </section>
+
+      <!-- controls -->
+      <section class="card" aria-label="Alert cut-off and filters">
+        <div class="row">
+          <span class="slider"><label for="co"><b>Alert cut-off</b></label><span class="mm">0%</span><input type="range" id="co" min="0" max="100" step="1" value="40" aria-valuetext="— percent, default"><span class="mm">100%</span><output for="co" data-hide="threshold-changed">—% (default)</output><output for="co" data-show="threshold-changed" hidden>—% (custom) <span class="example">changed</span></output></span>
+          <button class="btn" type="button" data-enable="threshold-changed" disabled>Reset to default</button>
+          <span class="cap desk-only">Default set on validation data. Shared with the Planner and Model Performance.</span>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <label>Machine model <select class="sel"><option>All</option><option>model1</option><option>model2</option><option data-sel="empty">model3</option><option>model4</option></select></label>
+          <label>Status <select class="sel"><option>All</option><option data-sel="empty">Alert</option><option>Below cut-off</option></select></label>
+          <label>Machine <input class="sel" style="width:90px" placeholder="number"></label>
+          <button class="btn" type="button" data-enable="empty">Clear filters</button>
+        </div>
+      </section>
+
+      <div class="notice" data-show="threshold-changed" hidden role="status">Cut-off changed to — . Cards, tags, chart line and table updated together. — machines in Alert.</div>
+
+      <!-- metric cards -->
+      <section class="grid4" aria-label="Fleet summary">
+        <div class="card metric"><div class="label">Machines shown</div>
+          <div class="value" data-hide="loading error empty">100</div><div class="skel big" data-show="loading" hidden></div><div class="value" data-show="error" hidden>—</div><div class="value" data-show="empty" hidden>0</div>
+          <div class="cap"><span class="vt vt-h">Historical</span> <span data-hide="empty">of 100</span><span data-show="empty" hidden>0 of 100 match filters</span></div></div>
+        <div class="card metric"><div class="label">Machines in Alert</div>
+          <div class="value" data-hide="loading empty">—</div><div class="skel big" data-show="loading" hidden></div><div class="value" data-show="empty" hidden>0</div>
+          <div class="cap"><span class="vt vt-p">Predicted</span> <span data-hide="empty">chance ≥ cut-off, next 24 h, among machines shown</span><span data-show="empty" hidden>of the 0 machines shown</span></div></div>
+        <div class="card metric"><div class="label">Highest predicted chance</div>
+          <div class="value" data-hide="loading empty">—</div><div class="skel big" data-show="loading" hidden></div><div class="value" data-show="empty" hidden style="font-size:20px">None</div>
+          <div class="cap"><span class="vt vt-p">Predicted</span> <span data-hide="empty">of a recorded failure in 24 h, among machines shown</span><span data-show="empty" hidden>no machines shown, so no highest value</span></div></div>
+        <div class="card metric"><div class="label">Scored hour</div>
+          <div class="value" style="font-size:20px" data-hide="loading">2015-11-14 06:00</div><div class="skel big" data-show="loading" hidden></div>
+          <div class="cap"><span class="example">example</span> follows the replay time<span data-show="empty" hidden>; not affected by filters</span></div></div>
+      </section>
+
+      <div class="problem" data-show="error" hidden role="alert">
+        <b>⚠ Couldn't load the fleet at this time.</b> The data service sent an error. Your settings are kept. <button class="btn" type="button">Try again</button>
+      </div>
+
+      <!-- charts -->
+      <section class="grid2" data-hide="error">
+        <figure class="card" style="margin:0">
+          <div class="row" style="justify-content:space-between"><h2>Predicted risk across the fleet</h2><button class="btn" type="button">View as table</button></div>
+          <div class="cap"><span class="vt vt-p">Predicted</span> Number of machines shown (<span data-hide="empty">100 of 100</span><span data-show="empty" hidden><b>0 of 100</b></span> after filters) by predicted chance of failure in the next 24 h. Dashed line = cut-off.</div>
+          <div class="chart" data-show="empty" hidden>
+            <span class="yl">Machines (0–1)</span><span class="xl">Predicted chance, 0–100%</span>
+            <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="50" x2="100" y2="50" stroke="#222" stroke-width=".8"/><line x1="45" y1="0" x2="45" y2="50" stroke="#222" stroke-dasharray="2 2" stroke-width=".6"/></svg>
+            <span class="note"><b>0 machines match these filters.</b><br>Every bar is 0. Nothing to plot.</span>
+          </div>
+          <div class="chart" data-hide="loading empty">
+            <span class="yl">Machines</span><span class="xl">Predicted chance, 0–100%</span>
+            <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><g fill="#999"><rect x="2" y="10" width="8" height="40"/><rect x="12" y="22" width="8" height="28"/><rect x="22" y="34" width="8" height="16"/><rect x="32" y="40" width="8" height="10"/><rect x="42" y="44" width="8" height="6"/><rect x="52" y="46" width="8" height="4"/><rect x="62" y="47" width="8" height="3"/></g><line x1="45" y1="0" x2="45" y2="50" stroke="#222" stroke-dasharray="2 2" stroke-width=".6"/></svg>
+            <span class="note">shape only — no data yet</span>
+          </div>
+          <div class="skel block" data-show="loading" hidden></div>
+        </figure>
+        <figure class="card" style="margin:0">
+          <div class="row" style="justify-content:space-between"><h2>Machines in Alert over time</h2>
+            <span class="row" role="radiogroup" aria-label="Range"><button class="btn primary" type="button" role="radio" aria-checked="true">24 h</button><button class="btn" type="button" role="radio" aria-checked="false">7 days</button></span>
+            <button class="btn" type="button">View as table</button></div>
+          <div class="cap"><span class="vt vt-p">Predicted</span> Count of machines shown (<span data-hide="empty">100 of 100</span><span data-show="empty" hidden><b>0 of 100</b></span> after filters) at or above the cut-off, each hour up to the replay time.</div>
+          <div class="chart" data-show="empty" hidden>
+            <span class="yl">Machines (0–1)</span><span class="xl">Time (historical)</span>
+            <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#222" stroke-width="1.2" points="0,50 100,50"/></svg>
+            <span class="note"><b>0 machines match these filters,</b><br>so the count is 0 at every hour.</span>
+          </div>
+          <div class="chart" data-hide="loading empty">
+            <span class="yl">Machines</span><span class="xl">Time (historical)</span>
+            <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#666" stroke-width="1" points="0,40 10,38 20,41 30,30 40,33 50,25 60,28 70,35 80,32 90,36 100,34"/></svg>
+            <span class="note">shape only — no data yet</span>
+          </div>
+          <div class="skel block" data-show="loading" hidden></div>
+        </figure>
+      </section>
+
+      <!-- table -->
+      <section class="card" aria-labelledby="t" data-hide="error">
+        <div class="row" style="justify-content:space-between"><h2 id="t">Machines ranked by predicted 24-hour risk</h2><span class="cap" data-hide="empty">Showing 1–25 of 100</span><span class="cap" data-show="empty" hidden>Showing 0 of 100</span></div>
+        <div data-hide="loading empty">
+          <div class="table-wrap desk-only">
+            <table>
+              <caption class="skip">Machines ranked by predicted chance of a recorded failure in the next 24 hours</caption>
+              <thead><tr>
+                <th class="num"><button type="button">Rank</button></th><th><button type="button">Machine</button></th><th><button type="button">Machine model</button></th><th class="num"><button type="button">Age (years)</button></th>
+                <th class="num" aria-sort="descending"><button type="button">Predicted chance, 24 h ▼</button></th><th><button type="button">Status</button></th><th><button type="button">Latest error</button></th></tr></thead>
+              <tbody>
+                <tr><td class="num">1</td><td><a href="asset-details.html">Machine —</a></td><td>—</td><td class="num">—</td><td class="num">—% <span class="vt vt-p">Predicted</span></td><td><span class="tag tag-alert">▲ Alert</span></td><td>— <span class="vt vt-h">Historical</span></td></tr>
+                <tr><td class="num">2</td><td><a href="asset-details.html">Machine —</a></td><td>—</td><td class="num">—</td><td class="num">—%</td><td><span class="tag tag-alert">▲ Alert</span></td><td>—</td></tr>
+                <tr><td class="num">3</td><td><a href="asset-details.html">Machine —</a></td><td>—</td><td class="num">—</td><td class="num">—%</td><td><span class="tag tag-below">○ Below cut-off</span></td><td>None in last 7 days</td></tr>
+                <tr><td class="num">…</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul class="cardlist" aria-label="Ranked machines">
+            <li><a href="asset-details.html"><span><b>1 · Machine —</b><br><span class="cap">model — · — years · latest error —</span></span><span>—% <span class="tag tag-alert">▲ Alert</span> ›</span></a></li>
+            <li><a href="asset-details.html"><span><b>2 · Machine —</b><br><span class="cap">model — · — years · latest error —</span></span><span>—% <span class="tag tag-alert">▲ Alert</span> ›</span></a></li>
+            <li><a href="asset-details.html"><span><b>3 · Machine —</b><br><span class="cap">model — · — years · none in 7 days</span></span><span>—% <span class="tag tag-below">○ Below</span> ›</span></a></li>
+          </ul>
+          <div class="row mob-only" style="margin-top:8px"><label>Sort <select class="sel"><option>Predicted chance, high → low</option><option>Machine number</option><option>Age</option></select></label></div>
+          <div class="row" style="margin-top:12px;justify-content:space-between"><span class="cap">Rows per page: 25</span><span class="row"><button class="btn" type="button" disabled>‹ Previous</button><span>Page 1 of 4</span><button class="btn" type="button">Next ›</button></span></div>
+        </div>
+        <div data-show="loading" hidden aria-busy="true"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+        <div class="empty" data-show="empty" hidden role="status"><b>No machines match these filters at 2015-11-14 06:00 <span class="example">example</span>.</b><br><span class="cap">Filters: status "Alert" and machine model "model3" <span class="example">example</span>. All cards and charts above count these 0 machines.</span><br><br><button class="btn primary" type="button">Clear filters</button></div>
+      </section>
+    </main>
+    <div class="wfnote">Low-fidelity wireframe. "—" = value comes from the saved model results later. Items marked <span class="example">example</span> are made-up placeholders, not data. Greyscale on purpose.</div>
+  </div>
+</div>
+<script>
+/* wireframe-only: ?state=loading|error|waking|empty (filters match nothing)|threshold-changed|replay-start|replay-end|nav-open */
+(function(){var s=new URLSearchParams(location.search).get('state')||'default';document.body.dataset.state=s;
+document.querySelectorAll('[data-show]').forEach(function(e){e.hidden=e.dataset.show.split(' ').indexOf(s)<0});
+document.querySelectorAll('[data-hide]').forEach(function(e){if(e.dataset.hide.split(' ').indexOf(s)>=0)e.hidden=true});
+document.querySelectorAll('[data-disable]').forEach(function(e){if(e.dataset.disable.split(' ').indexOf(s)>=0)e.disabled=true});
+document.querySelectorAll('[data-enable]').forEach(function(e){e.disabled=e.dataset.enable.split(' ').indexOf(s)<0&&e.hasAttribute('disabled')?true:false;if(e.dataset.enable.split(' ').indexOf(s)>=0)e.disabled=false});
+document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var rt=document.getElementById('rt');if(rt&&s==='replay-end')rt.value=rt.max;if(rt&&s==='replay-start')rt.value=rt.min;document.querySelectorAll('[data-sel]').forEach(function(e){if(e.dataset.sel===s)e.selected=true});
+})();
+</script>
+</body>
+</html>

@@ -1,19 +1,26 @@
 # Tasks
 
-Current stage: **Gate 0 (data check) and requirements draft.**
+Current stage: **User-experience design.**
 
-## Current stage
-- [x] Gate 0 data check: source, hashes, schema, license recorded in `docs/DATA_PROVENANCE.md` (done; pending owner sign-off)
-- [x] Requirements draft: `docs/PRD.md` (done; pending review and owner approval)
-- [x] Stories draft: `docs/stories.md` (done; pending review and owner approval)
-- [x] Independent review of data provenance and requirements (done: `docs/QA_REPORTS/gate0-prd-codex-review.md`)
-- [x] Fix review findings 2, 3, 4, 5, 7 in requirements and stories (done; stories word target not fully met; re-review pending)
-- [x] Independent re-review rounds 1–2 (done: Gate 0 PASS recommended; stories length accepted as known issue)
-- [ ] Owner approval of Gate 0 (pending)
-- [ ] Owner confirmation of license reading (pending)
-- [ ] Owner approval of requirements and stories (pending)
+## Done (approved by Meysam (Owner), 13 Nov 2026 8:41 PM ET)
+- [x] Gate 0 data check, approved. License accepted and credit line applied.
+- [x] Requirements and stories, approved.
+- [x] Independent review rounds for Gate 0 and the requirements.
+
+## Current stage: user-experience design
+- [x] Experience spec: users, the 90-second visitor path, screens, interactions, states, accessibility, labeling rules (`docs/ux-spec.md`)
+- [x] Low-fidelity wireframes, desktop and mobile, for the five screens, rendered to images, plus key states (`docs/wireframes/`)
+- [x] Component list (`docs/design/components.md`)
+- [x] Colour and type tokens, with computed contrast (`docs/design/tokens.md`, `tokens.json`)
+- [x] Independent review of the design documents (result: fail, 3 high and 3 medium findings; `docs/QA_REPORTS/ux-design-codex-review.md`)
+- [x] One bounded fix round: all six findings addressed, 13 Nov 2026 (decisions 21–27)
+- [ ] Owner approval of the design gate (includes design decisions 11–20 and the open questions)
 
 ## Next stages
-- [ ] User-experience design: not started — waits for approval
-- [ ] Architecture: not started — waits for approval
-- [ ] Build in stories (M0 project skeleton, then M1–M4): not started — waits for approval
+- [ ] Architecture: not started; waits for design approval
+- [ ] Build in stories (project skeleton, then data and model, screens, planner, launch): not started; waits for approval
+
+## Known issues from the design re-check (Medium, tracked; not fixed because the one fix round was used)
+- [ ] Planner per-model-cost example: the "Moved" marks don't come from one consistent earlier order. Use a consistent example.
+- [ ] Model comparison: state that a run of consecutive alert hours counts as one alert in "false alerts per 100 machine-days".
+- [ ] Planner wireframe: the model3 cost field's label must point to the input that is visible in both states.

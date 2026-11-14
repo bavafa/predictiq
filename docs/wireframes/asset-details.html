@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asset Details — PredictIQ wireframe</title>
+<style>
+/* ===== shared wireframe shell (copied in every screen file; keep in sync) ===== */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font:14px/20px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111;background:#f2f2f2;overflow-x:hidden}
+a{color:#111}
+button,select,input{font:inherit;color:#111}
+.skip{position:absolute;left:-999px}
+.banner{background:#d9d9d9;border-bottom:1px solid #999;padding:6px 16px;font-size:13px;font-weight:600}
+.app{display:flex;min-height:calc(100vh - 32px)}
+.sidebar{width:240px;flex:0 0 240px;background:#2b2b2b;color:#eee;padding:16px 0;display:flex;flex-direction:column}
+.sidebar .brand{font-weight:700;font-size:18px;padding:0 20px 16px}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar li a{display:block;padding:10px 20px;color:#eee;text-decoration:none;min-height:44px}
+.sidebar li a[aria-current=page]{background:#555;color:#fff;font-weight:600;border-left:4px solid #fff;padding-left:16px}
+.sidebar .sep{border-top:1px solid #555;margin:8px 20px}
+.sidebar .foot{margin-top:auto;padding:16px 20px;font-size:12px;color:#ccc;line-height:16px}
+.sidebar .close{display:none}
+.maincol{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid #bbb;padding:8px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:56px}
+.topbar h1{font-size:22px;line-height:28px;margin:0;flex:1 1 auto}
+.menu-btn,.brand-m{display:none}
+.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #666;background:#eee;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}
+.replaybar{background:#fafafa;border-bottom:1px solid #bbb;padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.replaybar .time{font-weight:700;font-variant-numeric:tabular-nums;margin-right:8px}
+.btn{border:1px solid #555;background:#fff;border-radius:6px;padding:6px 12px;min-height:36px;cursor:pointer;white-space:nowrap}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.link{border:none;background:none;text-decoration:underline;padding:6px 4px}
+.sel{border:1px solid #555;background:#fff;border-radius:4px;padding:6px 8px;min-height:36px}
+/* sliders are native range inputs: visible label, min, max and current value */
+.slider{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.slider input[type=range]{width:180px;min-height:24px;margin:0;accent-color:#333}
+.slider .mm{font-size:12px;color:#444;font-variant-numeric:tabular-nums;white-space:nowrap}
+.slider output{font-weight:700;font-variant-numeric:tabular-nums}
+.timeline{flex:1 1 300px;min-width:200px}
+.timeline input[type=range]{flex:1 1 80px;width:auto;min-width:80px}
+.check{display:inline-flex;align-items:center;gap:6px}
+.check input,.field .check input{width:auto;min-height:0;margin:0}
+main{padding:20px;display:flex;flex-direction:column;gap:16px;max-width:1440px}
+.card{background:#fff;border:1px solid #aaa;border-radius:8px;padding:16px 20px}
+.card h2{font-size:18px;line-height:28px;margin:0 0 4px}
+.card h3{font-size:16px;margin:0 0 4px}
+.cap{font-size:12px;line-height:16px;color:#444}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid4>*,.grid3>*,.grid2>*,.plan>*{min-width:0}
+table.wrap th,table.wrap td{white-space:normal}
+.metric .label{font-size:13px;font-weight:600}
+.metric .value{font-size:30px;line-height:36px;font-weight:600;font-variant-numeric:tabular-nums;margin:6px 0}
+/* value-type labels: word + edge style (solid / dashed / dotted) */
+.vt{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.02em;border:1.5px solid #333;border-radius:4px;padding:0 5px;line-height:16px;background:#fff;white-space:nowrap;vertical-align:middle}
+.vt-h{border-style:solid}
+.vt-p{border-style:dashed}
+.vt-i{border-style:dotted;border-width:2px}
+/* risk tags: word + icon */
+.tag{display:inline-flex;gap:4px;align-items:center;font-size:12px;font-weight:600;border-radius:4px;padding:1px 6px;border:1px solid #555;white-space:nowrap}
+.tag-alert{background:#ddd;border:2px solid #222}
+.tag-below{background:#fff}
+.tag-fail{background:#222;color:#fff;border-color:#222}
+.chart{border:1px dashed #888;border-radius:6px;background:#fcfcfc;height:180px;position:relative;margin-top:8px}
+.chart svg{position:absolute;inset:24px 12px 28px 44px;width:calc(100% - 56px);height:calc(100% - 52px)}
+.chart .yl{position:absolute;left:4px;top:6px;font-size:11px;color:#333}
+.chart .xl{position:absolute;right:8px;bottom:6px;font-size:11px;color:#333}
+.chart .note{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;color:#333;background:#fff;padding:2px 6px;text-align:center}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ccc;white-space:nowrap}
+th{background:#eee;font-size:13px}
+th button{border:none;background:none;font-weight:700;padding:0;cursor:pointer}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.cardlist{display:none;list-style:none;margin:0;padding:0}
+.cardlist li{border-bottom:1px solid #ccc;padding:10px 0}
+.cardlist a{display:flex;justify-content:space-between;gap:8px;text-decoration:none;min-height:44px;align-items:center}
+.notice{border:1px solid #777;border-left:6px solid #555;background:#fff;border-radius:6px;padding:10px 14px}
+.problem{border:2px solid #333;border-left:8px solid #333;background:#fff;border-radius:6px;padding:12px 16px}
+.skel{background:repeating-linear-gradient(90deg,#ddd 0 40%,#e9e9e9 40% 100%);border-radius:4px;height:14px;margin:6px 0}
+.skel.big{height:32px;width:60%}
+.skel.block{height:140px}
+.empty{border:1px dashed #777;border-radius:8px;background:#fff;padding:28px;text-align:center}
+.wfnote{font-size:12px;color:#333;background:#e6e6e6;border-top:1px solid #aaa;padding:8px 20px}
+.example{font-size:11px;font-weight:600;border:1px solid #777;border-radius:3px;padding:0 4px;background:#fff;color:#333}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;margin-top:6px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-weight:600;font-size:13px}
+.field input{border:1px solid #555;border-radius:4px;padding:6px 8px;min-height:36px;width:100%}
+.field .err{font-size:12px;font-weight:600}
+.field input[aria-invalid=true]{border:2px solid #111}
+.bar{height:14px;background:#888;border-radius:2px}
+details summary{cursor:pointer;font-weight:600}
+[hidden]{display:none!important}
+@media (max-width:1023px){
+  .sidebar{display:none}
+  .menu-btn{display:inline-flex}
+  .brand-m{display:inline;font-weight:700}
+  .topbar h1{flex-basis:100%;order:3;font-size:20px}
+  body[data-state=nav-open] .sidebar{display:flex;position:fixed;inset:0 auto 0 0;width:280px;z-index:10;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
+  body[data-state=nav-open] .sidebar .close{display:block;margin:0 20px 12px;background:#444;color:#fff;border-color:#888}
+}
+@media (max-width:760px){
+  main{padding:12px;gap:12px}
+  .topbar,.replaybar{padding:8px 12px}
+  .grid4{grid-template-columns:1fr 1fr;gap:12px}
+  .grid3,.grid2{grid-template-columns:1fr;gap:12px}
+  .card{padding:12px 14px}
+  .metric .value{font-size:24px;line-height:30px}
+  .desk-only{display:none!important}
+  .cardlist{display:block}
+  /* 44px minimum touch targets on mobile */
+  .btn,.sel,.field input:not([type=checkbox]),.btn.link{min-height:44px;min-width:44px}
+  .slider input[type=range]{min-height:44px;width:140px}
+  .check{min-height:44px}
+  .check input,.field .check input{width:22px;height:22px;flex:none}
+  details summary{min-height:44px;display:flex;align-items:center}
+  main a:not(.btn){display:inline-flex;align-items:center;min-height:44px}
+  .timeline{flex-basis:100%}
+  .chart{height:160px}
+}
+@media (min-width:761px){.mob-only{display:none!important}}
+/* ===== end shared shell ===== */
+
+</style>
+</head>
+<body data-state="default">
+<a class="skip" href="#main">Skip to content</a>
+<div class="banner" role="note">ⓘ Portfolio demo — historical sample data; estimated economics are illustrative.</div>
+<div class="app">
+  <nav class="sidebar" aria-label="Main">
+    <div class="brand">PredictIQ</div>
+    <button class="btn close" type="button">✕ Close menu</button>
+    <ul>
+      <li><a href="fleet-overview.html">Fleet Overview</a></li>
+      <li><a href="asset-details.html" aria-current="page">Asset Details</a></li>
+      <li><a href="maintenance-planner.html">Maintenance Planner</a></li>
+      <li><a href="model-performance.html">Model Performance</a></li>
+      <li class="sep" aria-hidden="true"></li>
+      <li><a href="about-data.html">About &amp; Data</a></li>
+    </ul>
+    <div class="foot">Model version: —<br>Data: Microsoft sample data (simulated), 2015</div>
+  </nav>
+  <div class="maincol">
+    <header class="topbar">
+      <button class="btn menu-btn" type="button" aria-expanded="false">☰ Menu</button>
+      <span class="brand-m">PredictIQ</span>
+      <h1>Asset Details</h1>
+      <span class="badge">⏱ Historical replay</span>
+    </header>
+    <div class="replaybar" role="group" aria-label="Historical replay controls">
+      <output class="time" for="rt">2015-11-14 06:00 <span class="example">example</span></output>
+      <span data-show="replay-start" hidden class="cap"><b>Start of the replay window.</b></span>
+      <button class="btn" type="button" data-disable="replay-start">|◀ Start</button>
+      <button class="btn" type="button" aria-label="Step back" data-disable="replay-start">◀ Back</button>
+      <button class="btn primary" type="button" aria-pressed="false" data-disable="replay-end">▶ Play</button>
+      <button class="btn" type="button" aria-label="Step forward" data-disable="replay-end">Fwd ▶</button>
+      <label class="cap" for="step">Step</label>
+      <select id="step" class="sel"><option>1 hour</option><option>6 hours</option><option>24 hours</option></select>
+      <span class="slider timeline"><label for="rt" class="cap"><b>Replay time</b></label><span class="mm">First hour —</span><input type="range" id="rt" min="0" max="100" step="1" value="62" aria-valuetext="2015-11-14 06:00"><span class="mm">Last hour —</span></span>
+    </div>
+
+    <main id="main">
+      <!-- no machine selected -->
+      <section class="empty" data-show="no-machine" hidden>
+        <h2 style="margin:0 0 8px">Choose a machine to see its history and risk</h2>
+        <p style="margin:0 0 12px">Pick a machine number, or open one from the ranked table on Fleet Overview.</p>
+        <div class="row" style="justify-content:center"><label>Machine <select class="sel"><option>Choose 1–100…</option></select></label><a class="btn primary" href="fleet-overview.html" style="text-decoration:none">Go to Fleet Overview</a></div>
+      </section>
+
+      <!-- machine not found (e.g. a shared link with a machine number outside 1-100) -->
+      <section class="empty" data-show="not-found" hidden role="alert">
+        <h2 style="margin:0 0 8px">Machine 250 isn't in the sample data</h2>
+        <p style="margin:0 0 12px">The sample has machines numbered 1 to 100. The link may have a typo. Choose another machine, or open one from Fleet Overview.</p>
+        <div class="row" style="justify-content:center"><label>Machine <select class="sel"><option>Choose 1–100…</option></select></label><a class="btn primary" href="fleet-overview.html" style="text-decoration:none">Go to Fleet Overview</a></div>
+      </section>
+
+      <section class="card" data-hide="no-machine not-found" aria-label="Machine and range">
+        <div class="row">
+          <a href="fleet-overview.html">‹ Back to fleet</a>
+          <label>Machine <select class="sel"><option>Machine — </option></select></label>
+          <span class="row" role="radiogroup" aria-label="Chart range"><span class="cap">Range</span><button class="btn primary" type="button" role="radio" aria-checked="true">24 h</button><button class="btn" type="button" role="radio" aria-checked="false">7 days</button></span>
+          <span class="cap desk-only">Alert cut-off: — (shared, change it on Fleet Overview)</span>
+        </div>
+      </section>
+
+      <div class="notice" data-show="partial" hidden role="status"><b>Only — hours of history before this point.</b> The 7-day charts show what exists. Earlier data is not in the sample.</div>
+
+      <section class="grid2" data-hide="no-machine not-found">
+        <div class="card">
+          <h2>Machine —</h2>
+          <div data-hide="loading"><div>Machine model — · Age — years</div><div class="cap" style="margin-top:6px"><span class="vt vt-h">Historical</span> from the simulated sample data</div></div>
+          <div data-show="loading" hidden><div class="skel"></div><div class="skel" style="width:50%"></div></div>
+        </div>
+        <div class="card">
+          <h2>Predicted chance of a recorded failure in the next 24 hours</h2>
+          <div data-hide="loading" class="row"><span class="metric"><span class="value">—%</span></span><span class="tag tag-alert">▲ Alert</span><span class="vt vt-p">Predicted</span></div>
+          <div data-show="loading" hidden class="skel big"></div>
+          <div class="cap">Scored at 2015-11-14 06:00 <span class="example">example</span> · uses only records from before this hour · model version —</div>
+        </div>
+      </section>
+
+      <section class="card" data-hide="no-machine not-found" aria-labelledby="why">
+        <div class="row" style="justify-content:space-between"><h2 id="why">What pushed this estimate up or down <button class="btn link" type="button" aria-label="What does this mean?">ⓘ</button></h2><span class="vt vt-p">Predicted</span></div>
+        <p class="cap" style="margin:0 0 8px">These are patterns the model found in the data, not causes. They are not repair advice.</p>
+        <div data-hide="loading">
+          <table class="wrap">
+            <thead><tr><th>Input (plain name)</th><th class="desk-only">Direction</th><th style="width:45%">Size</th><th class="num">Push (+ raises, − lowers)</th></tr></thead>
+            <tbody>
+              <tr><td>Average vibration, past 24 hours</td><td class="desk-only">▲ raises</td><td><div class="bar" style="width:80%"></div></td><td class="num">+—</td></tr>
+              <tr><td>Errors of one type, past 24 hours</td><td class="desk-only">▲ raises</td><td><div class="bar" style="width:50%"></div></td><td class="num">+—</td></tr>
+              <tr><td>Days since a part was last serviced</td><td class="desk-only">▲ raises</td><td><div class="bar" style="width:30%"></div></td><td class="num">+—</td></tr>
+              <tr><td>Change in rotation, past 6 hours</td><td class="desk-only">▼ lowers</td><td><div class="bar" style="width:20%;background:#fff;border:1.5px dashed #333"></div></td><td class="num">−—</td></tr>
+            </tbody>
+          </table>
+          <p class="cap">Row names are <span class="example">example</span> inputs; the real list comes from the trained model. Tooltip on ⓘ or on a row: what the input means and its time window, e.g. "average vibration over the 24 hours before the scored hour".</p>
+        </div>
+        <div data-show="loading" hidden><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+      </section>
+
+      <section class="card" data-hide="no-machine not-found" aria-labelledby="sens">
+        <div class="row" style="justify-content:space-between"><h2 id="sens">Sensor history, up to the replay time</h2><span class="vt vt-h">Historical</span></div>
+        <p class="cap" style="margin:0">Units not stated by the source. One sensor per chart. Markers: ◆ recorded failure · ■ maintenance · ▲ error.</p>
+        <div class="problem" data-show="panel-error" hidden role="alert" style="margin-top:8px"><b>⚠ Couldn't load the sensor history for this machine.</b> The rest of this page is still correct. Your machine, time and range are kept. <button class="btn" type="button">Try again</button></div>
+        <div class="row mob-only" data-hide="panel-error" role="tablist" aria-label="Sensor" style="margin-top:8px"><button class="btn primary" role="tab" aria-selected="true">Voltage</button><button class="btn" role="tab">Rotation</button><button class="btn" role="tab">Pressure</button><button class="btn" role="tab">Vibration</button></div>
+        <div class="grid2" style="margin-top:8px" data-hide="panel-error">
+          <figure style="margin:0"><div class="row" style="justify-content:space-between"><h3>Voltage</h3><button class="btn" type="button">View as table</button></div>
+            <div class="chart" data-hide="loading"><span class="yl">Reading</span><span class="xl">Time (historical)</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,25 8,22 16,28 24,24 32,26 40,20 48,27 56,23 64,25 72,21 80,26 88,24 100,25"/><text x="62" y="12" font-size="6">■</text></svg><span class="note">shape only — no data yet</span></div><div class="skel block" data-show="loading" hidden></div></figure>
+          <figure style="margin:0" class="desk-only"><div class="row" style="justify-content:space-between"><h3>Rotation</h3><button class="btn" type="button">View as table</button></div>
+            <div class="chart" data-hide="loading"><span class="yl">Reading</span><span class="xl">Time (historical)</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,30 10,28 20,31 30,27 40,29 50,33 60,30 70,26 80,29 90,31 100,28"/></svg><span class="note">shape only — no data yet</span></div><div class="skel block" data-show="loading" hidden></div></figure>
+          <figure style="margin:0" class="desk-only"><div class="row" style="justify-content:space-between"><h3>Pressure</h3><button class="btn" type="button">View as table</button></div>
+            <div class="chart" data-hide="loading"><span class="yl">Reading</span><span class="xl">Time (historical)</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,22 10,24 20,21 30,25 40,23 50,22 60,26 70,24 80,22 90,25 100,23"/><text x="30" y="12" font-size="6">▲</text></svg><span class="note">shape only — no data yet</span></div><div class="skel block" data-show="loading" hidden></div></figure>
+          <figure style="margin:0" class="desk-only"><div class="row" style="justify-content:space-between"><h3>Vibration</h3><button class="btn" type="button">View as table</button></div>
+            <div class="chart" data-hide="loading"><span class="yl">Reading</span><span class="xl">Time (historical)</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,30 10,29 20,31 30,28 40,30 50,27 60,24 70,22 80,20 90,18 100,17"/></svg><span class="note">shape only — no data yet</span></div><div class="skel block" data-show="loading" hidden></div></figure>
+        </div>
+      </section>
+
+      <section class="card" data-hide="no-machine not-found" aria-labelledby="pva">
+        <div class="row" style="justify-content:space-between"><h2 id="pva">Past estimates beside recorded failures</h2><button class="btn" type="button">View as table</button></div>
+        <p class="cap" style="margin:0"><span class="vt vt-p">Predicted</span> line = predicted chance each hour · <span class="vt vt-h">Historical</span> ◆ = recorded failure · dashed = cut-off. Only hours up to the replay time.</p>
+        <div class="chart" data-hide="loading"><span class="yl">Predicted chance, 0–100%</span><span class="xl">Time (historical)</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="20" x2="100" y2="20" stroke="#222" stroke-dasharray="2 2" stroke-width=".5"/><polyline fill="none" stroke="#555" stroke-width="1" points="0,46 15,45 30,44 40,40 50,30 55,15 60,44 75,45 90,43 100,44"/><text x="56" y="10" font-size="6">◆</text></svg><span class="note">shape only — no data yet</span></div>
+        <div class="skel block" data-show="loading" hidden></div>
+      </section>
+
+      <section class="grid2" data-hide="no-machine not-found">
+        <div class="card"><h2>Recent errors (7 days up to replay time)</h2><span class="vt vt-h">Historical</span>
+          <ul class="cap" style="padding-left:18px"><li>— · error type —</li><li>— · error type —</li></ul>
+          <p class="cap">If none: "No errors in the 7 days up to this time."</p></div>
+        <div class="card"><h2>Recent maintenance (90 days up to replay time)</h2><span class="vt vt-h">Historical</span>
+          <ul class="cap" style="padding-left:18px"><li>— · part —</li></ul>
+          <p class="cap">Lists only records from before the scored hour, the same rule the model follows.</p></div>
+      </section>
+    </main>
+    <div class="wfnote">Low-fidelity wireframe. "—" = value comes from the saved model results later. Items marked <span class="example">example</span> are made-up placeholders, not data. Greyscale on purpose.</div>
+  </div>
+</div>
+<script>
+/* wireframe-only: ?state=no-machine|not-found|loading|partial|panel-error */
+(function(){var s=new URLSearchParams(location.search).get('state')||'default';document.body.dataset.state=s;
+document.querySelectorAll('[data-show]').forEach(function(e){e.hidden=e.dataset.show.split(' ').indexOf(s)<0});
+document.querySelectorAll('[data-hide]').forEach(function(e){if(e.dataset.hide.split(' ').indexOf(s)>=0)e.hidden=true});
+document.querySelectorAll('[data-disable]').forEach(function(e){if(e.dataset.disable.split(' ').indexOf(s)>=0)e.disabled=true});
+document.querySelectorAll('[data-enable]').forEach(function(e){e.disabled=e.dataset.enable.split(' ').indexOf(s)<0&&e.hasAttribute('disabled')?true:false;if(e.dataset.enable.split(' ').indexOf(s)>=0)e.disabled=false});
+document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var rt=document.getElementById('rt');if(rt&&s==='replay-end')rt.value=rt.max;if(rt&&s==='replay-start')rt.value=rt.min;
+})();
+</script>
+</body>
+</html>

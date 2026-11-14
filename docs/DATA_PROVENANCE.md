@@ -70,9 +70,9 @@ What the source actually says (checked at the pinned commit):
 
 **Our approach until the owner decides (conservative):**
 1. Raw CSVs are **not committed**. A download script (planned for the project-skeleton stage; **not built yet**) will fetch them from the pinned commit and fail if any SHA-256 differs. The raw-data folder will be gitignored.
-2. Nothing is published yet. Draft credit for any future public build, **for owner review**: "Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e). Microsoft states content in that repository is licensed under CC BY 4.0; the repository's license file is MIT." We do **not** claim this credit alone satisfies both licenses: MIT also requires keeping its copyright and permission notice with copies or substantial portions, and CC BY 4.0 has its own attribution conditions. Exact publication terms are part of the owner decision below.
+2. Nothing is published yet. Credit line for any future public build (**owner accepted 13 Nov 2026**): "Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e). Microsoft states content in that repository is licensed under CC BY 4.0; the repository's license file is MIT." We do **not** claim this credit alone satisfies both licenses: MIT also requires keeping its copyright and permission notice with copies or substantial portions, and CC BY 4.0 has its own attribution conditions. The owner accepted this residual ambiguity (see License status below).
 
-**Owner decision needed:** confirm you are comfortable using the data and publishing derived outputs (model scores, charts) with the credit above, given the license conflict described. Alternative: ask Microsoft (the README lists sqlserversamples@microsoft.com) before public release.
+**License status: owner accepted, credit line applied.** On 13 Nov 2026 (8:41 PM ET) Meysam (Owner) decided to use the data and publish derived outputs with the draft credit line above. The credit line is therefore applied as written. Raw files still stay out of the repository.
 
 ## Do not
 
