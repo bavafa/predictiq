@@ -1,220 +1,175 @@
 # PredictIQ: Epics and user stories
 
-PredictIQ is a web demo that estimates which machines may fail in the next 24 hours and helps rank maintenance work. It uses *simulated* sample data published by Microsoft, not real machines; all money figures are *illustrative*. Five stages, one epic each. Each stage waits for the owner's approval of the one before. Story headings name the user.
+A web demo estimating which machines may fail in the next 24 hours and ranking maintenance work. It uses *simulated* Microsoft sample data, not real machines; money figures are *illustrative*. Five stages, one epic each; each waits for owner approval of the one before.
 
-## Epic M0: Foundation
-**Problem:** building before the data, scope and design are settled causes rework.
-
-**What we'll build:** an approved data check, brief, requirements, design and architecture, then a project skeleton.
-
+## Epic: Stage 1, Foundation
+**Problem:** building before scope is settled causes rework.
+**What we'll build:** approved documents, then a project skeleton.
 **Acceptance criteria:**
-- The owner has approved each document in order.
-- The empty project starts and its test command runs.
+- The owner approves each document in order.
+- The empty project starts and tests run.
 
 ### Data check (owner)
-**Problem:** a model is only as honest as its data source.
-
-**What we'll build:** a record of where the data comes from, file fingerprints, layout and license.
-
+**Problem:** a model is only as honest as its data.
+**What we'll build:** a record of source, file fingerprints, license.
 **Acceptance criteria:**
-- The data is described as simulated everywhere.
+- The data is called simulated everywhere.
 - Raw files stay out of the project; a download fails if any file differs.
 - The owner confirms the license reading.
 
-### Brief and requirements sign-off (owner)
-**Problem:** unclear scope invites feature creep and inflated claims.
-
-**What we'll build:** a one-page requirements document and this story list.
-
+### Requirements sign-off (owner)
+**Problem:** unclear scope invites inflated claims.
+**What we'll build:** a one-page requirements document and this list.
 **Acceptance criteria:**
-- Goals, non-goals and success checks are written in plain English.
-- An independent reviewer has checked them; the owner approves.
+- Goals, non-goals and success checks use plain English.
+- A reviewer checks them; the owner approves.
 
 ### User-experience design (visitor)
-**Problem:** screens built without a plan end up cluttered or misleading.
-
-**What we'll build:** rough screen layouts, a component list, colors and type, key states.
-
+**Problem:** unplanned screens mislead.
+**What we'll build:** rough layouts, colors, key states.
 **Acceptance criteria:**
-- Each screen shows where historical, predicted and illustrative values appear.
+- Screens mark historical, predicted and illustrative values.
 - Loading, empty and error states are drawn.
 
 ### Architecture (builder)
-**Problem:** unclear boundaries make the model and screens drift apart.
-
-**What we'll build:** a short design note: parts, data flow, hosting, and recorded decisions.
-
+**Problem:** unclear boundaries make parts drift apart.
+**What we'll build:** a short note on parts, data flow, hosting.
 **Acceptance criteria:**
-- Training and live scoring share one feature process.
-- Hosting limits are checked before choosing.
+- Training and replay scoring share one feature process.
+- Hosting limits are checked first.
 
 ### Project skeleton (builder)
 **Problem:** tool problems found late waste time.
-
-**What we'll build:** an empty app, an empty data service, test and check commands.
-
+**What we'll build:** an empty app and data service.
 **Acceptance criteria:**
-- Both parts start on a fresh copy.
+- Both start on a fresh copy.
 - Tests and code checks run, even if empty.
 
-## Epic M1: Data and model
-**Problem:** risk scores mean nothing if the data is broken or the model saw the future.
-
-**What we'll build:** data checks, past-only features, two models, a repeatable evaluation.
-
+## Epic: Stage 2, Data and model
+**Problem:** scores mean nothing if data is broken or the model saw the future.
+**What we'll build:** data checks, past-only features, two models, repeatable evaluation.
 **Acceptance criteria:**
-- Training and evaluation rerun from scratch give the same results.
+- Rerunning from scratch gives the same results.
 - No known future-information leak remains.
 
-### Data checks (builder)
-**Problem:** silent data errors corrupt every later result.
-
-**What we'll build:** checks for machine numbers, hourly gaps, duplicates, missing values and ranges.
-
+### Data checks and the 24-hour label (builder)
+**Problem:** silent data errors and a vague label corrupt results.
+**What we'll build:** data checks and a precisely written label.
 **Acceptance criteria:**
-- Any broken check stops the run with a clear message.
-- Failures logged for several parts at the same hour count as one event.
+- The label is a failure strictly after the scoring hour and at or before 24 hours later, with tested edge cases.
+- Several parts failing in one hour count as one event.
+- A written rule covers hours right after a failure.
 
 ### Past-only features (reviewer)
-**Problem:** using later records, such as repairs logged at failure time, makes a model look better than it is.
-
-**What we'll build:** recent sensor averages and trends, past error counts, time since last service.
-
+**Problem:** later records, like repairs logged at failure time, flatter a model.
+**What we'll build:** recent sensor trends, past errors, time since service.
 **Acceptance criteria:**
-- An automated test proves no feature uses data after its timestamp.
-- The training and test periods have a gap between them.
+- Every record type has an "as of" rule; records logged at the scoring hour count as not yet known (simulated data).
+- An automated test proves no feature uses later data.
+- A stated gap separates training, tuning and test periods.
 
 ### Baseline and main model (hiring manager)
 **Problem:** a score with no comparison says little.
-
-**What we'll build:** a simple baseline model and a stronger main model, trained on earlier months.
-
+**What we'll build:** a simple baseline and a stronger model.
 **Acceptance criteria:**
-- Both are scored once on later months they never saw (*simulated*).
-- Results are shown side by side, whatever they are.
+- A reproducible comparison on held-out later data (*simulated*), published whatever the result.
+- No claim about unseen machines without a separate held-out-machines test.
 
-### Alert cut-off and replay scores (maintenance manager)
-**Problem:** a raw score is not an alert.
-
-**What we'll build:** a default alert cut-off from a separate check period, and saved scores for every machine-hour.
-
+### Alert cut-off and event measures (maintenance manager)
+**Problem:** a score is not an alert; hourly counts overstate repeats.
+**What we'll build:** a default cut-off and event-level measures.
 **Acceptance criteria:**
-- The cut-off is chosen without touching the test period.
-- Scores show whether they can be trusted as chances (calibration).
+- Cut-off and calibration (do scores work as chances?) are chosen without touching the test period, used once.
+- Share of failure events caught and false alerts per 100 machine-days are reported (*simulated*).
+- A run of consecutive alert hours counts as one alert.
 
-## Epic M2: Core screens and data service
-**Problem:** model output is useless if a manager cannot see it.
-
+## Epic: Stage 3, Core screens and data service
+**Problem:** model output is useless if nobody sees it.
 **What we'll build:** fleet overview and machine details, fed by a data service.
-
 **Acceptance criteria:**
-- Screens use real saved model scores, not placeholders.
-- Every number matches the selected replay time and alert cut-off.
+- Screens use saved model scores, not placeholders.
+- Numbers match the chosen replay time and cut-off.
 
 ### Fleet overview (maintenance manager)
-**Problem:** a manager needs to see the riskiest machines first.
-
-**What we'll build:** a ranked machine table, high-risk count, risk spread, filters.
-
+**Problem:** a manager needs the riskiest machines first.
+**What we'll build:** a ranked table, high-risk count, filters.
 **Acceptance criteria:**
-- The high-risk count matches the filtered table.
-- Changing the alert cut-off updates both.
+- The count matches the filtered table.
+- Changing the cut-off updates both.
 
 ### Machine details (reliability engineer)
-**Problem:** a score with no evidence is hard to trust.
-
-**What we'll build:** sensor history, recent errors and repairs, and the factors behind the score.
-
+**Problem:** a score without evidence is hard to trust.
+**What we'll build:** sensor history, recent events, score factors.
 **Acceptance criteria:**
-- Factors are labeled as patterns, not causes.
-- Past scores are shown next to the failures that actually happened (*simulated*).
+- Factors are labeled patterns, not causes.
+- Past scores sit beside actual failures (*simulated*).
 
 ### Historical replay (visitor)
-**Problem:** old data passed off as live is misleading.
-
-**What we'll build:** a time picker with play, pause and step.
-
+**Problem:** old data passed off as live misleads.
+**What we'll build:** a time picker with play, pause, step.
 **Acceptance criteria:**
 - The screen says "historical replay", never "live".
-- Playback stops cleanly at the start and end of the data.
+- Playback stops cleanly at the data's ends.
 
 ### Data service (builder)
-**Problem:** the browser cannot load a year of hourly data at once.
-
-**What we'll build:** a read-only service that answers fleet, machine and history questions.
-
+**Problem:** a browser cannot load a year of hourly data.
+**What we'll build:** a read-only service for fleet, machine and history questions.
 **Acceptance criteria:**
 - Bad dates or machine numbers return a clear error.
-- Each answer is tested against the saved scores.
+- Answers are tested against saved scores.
 
-## Epic M3: Maintenance planning
-**Problem:** a risk list does not say what to fix first when crews are limited.
-
-**What we'll build:** a planner that ranks machines by expected cost of failure.
-
+## Epic: Stage 4, Maintenance planning
+**Problem:** a risk list does not say what to fix first.
+**What we'll build:** a planner ranking machines by expected failure cost.
 **Acceptance criteria:**
-- Rankings change predictably with user inputs.
+- Rankings change predictably with inputs.
 - No screen claims savings.
 
 ### Cost and capacity inputs (maintenance manager)
-**Problem:** every site's costs differ, and we have no real ones.
-
-**What we'll build:** inputs for downtime cost, planned repair cost and available crew slots.
-
+**Problem:** sites differ, and we have no real costs.
+**What we'll build:** inputs for downtime cost, repair cost, crew slots.
 **Acceptance criteria:**
-- Every input shows its unit and an "illustrative" label.
+- Inputs show units and an "illustrative" label.
 - Out-of-range values are refused with a message.
 
 ### Ranked repair list (maintenance manager)
-**Problem:** a manager needs a short list that fits the crew they have.
-
-**What we'll build:** a list ranked by chance of failure times assumed cost, cut to capacity.
-
+**Problem:** a manager needs a short list that fits the crew.
+**What we'll build:** a list ranked by failure chance times assumed cost.
 **Acceptance criteria:**
 - The same inputs always give the same list.
-- The formula is shown on screen in plain words.
+- The formula is shown in plain words.
 
 ### Exposure, not savings (hiring manager)
-**Problem:** expected cost is easy to misread as money saved.
-
+**Problem:** expected cost is easily misread as money saved.
 **What we'll build:** clear labels and an assumptions panel.
-
 **Acceptance criteria:**
-- The screen separates expected exposure from realized benefit.
-- Any benefit figure requires a stated, user-set guess of how much a repair lowers risk.
+- Expected exposure is kept apart from realized benefit.
+- Any benefit figure needs a user-set guess of how much repair lowers risk.
 
-## Epic M4: Launch
+## Epic: Stage 5, Launch
 **Problem:** a demo nobody can open, or that overclaims, has little value.
-
-**What we'll build:** the model page, full tests, a public release, honest docs.
-
+**What we'll build:** the model page, full tests, a public release.
 **Acceptance criteria:**
 - A public link opens the app without login.
-- The independent reviewer's serious findings are fixed or accepted by the owner.
+- The reviewer's serious findings are fixed or accepted by the owner.
 
 ### Model performance page (hiring manager)
-**Problem:** reviewers need to judge the model, not take it on trust.
-
-**What we'll build:** baseline and main model results, a right/wrong table, an alert cut-off slider.
-
+**Problem:** reviewers must judge the model, not trust it.
+**What we'll build:** baseline and main results, a right/wrong table, a cut-off slider.
 **Acceptance criteria:**
 - Every number comes from the saved evaluation, with model version and date.
 - The page explains why plain accuracy misleads when failures are rare.
 
 ### Full testing (builder)
 **Problem:** working parts can fail together.
-
-**What we'll build:** end-to-end, accessibility and release smoke tests.
-
+**What we'll build:** end-to-end, accessibility and release tests.
 **Acceptance criteria:**
 - All tests pass on a fresh copy.
 - Keyboard use and color contrast pass review.
 
 ### Public release and limitations (owner)
-**Problem:** visitors must know exactly what the demo is and is not.
-
-**What we'll build:** a front-page guide, a data credit, a limitations section and a portfolio summary.
-
+**Problem:** visitors must know what the demo is and is not.
+**What we'll build:** a front-page guide, data credit, limitations section.
 **Acceptance criteria:**
 - Every page carries the simulated-data and illustrative-costs notice.
 - No secrets, personal information or private notes remain.

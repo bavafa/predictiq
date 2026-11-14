@@ -10,6 +10,7 @@ Gate 0 (data check) and requirements draft. Waiting on review and owner approval
 - Requirements draft: `docs/PRD.md`.
 - Epics and stories draft: `docs/stories.md`.
 - Decision log started: `DECISIONS.md`. Task list: `TASKS.md`.
+- 2026-11-13: review findings 2, 3, 4, 5 and 7 fixed in `docs/PRD.md` and `docs/stories.md` (stories still above the 1,000-word target); findings 1 and 6 fixed in `docs/DATA_PROVENANCE.md`; re-review pending.
 
 ## Next
 1. Independent review of `docs/DATA_PROVENANCE.md`, `docs/PRD.md` and `docs/stories.md`.
