@@ -116,3 +116,15 @@ export function WakingUp() {
     </Notice>
   );
 }
+
+/** One panel failed: it says what failed and offers Try again; the rest of the page stays as it was. */
+export function PanelError({ message, onRetry, testId }: { message: string; onRetry: () => void; testId: string }) {
+  return (
+    <Notice tone="problem" icon={<AlertTriangle size={20} />} title={message} testId={testId} role="status">
+      <p className="m-0">The rest of this page is still correct.</p>
+      <Button className="mt-3" onClick={onRetry}>
+        Try again
+      </Button>
+    </Notice>
+  );
+}

@@ -29,7 +29,10 @@ export default defineConfig({
   webServer: [
     {
       // The data service. Never reuse a server that is already running: it could be serving other data.
-      command: `uv run uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port ${apiPort}`,
+      // A long keep-alive: Next's proxy reuses sockets for about 5 s and uvicorn's default of 5 s closes them at
+      // the same moment, which seemed to leave proxied requests hanging for minutes in parallel runs. Only the
+      // local test stack needs this; on Vercel there is no such proxy.
+      command: `uv run uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port ${apiPort} --timeout-keep-alive 75`,
       cwd: "..",
       env: { PREDICTIQ_BUNDLE_DIR: bundleDir },
       url: `http://127.0.0.1:${apiPort}/api/v1/health`,
