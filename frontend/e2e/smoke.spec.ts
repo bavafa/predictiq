@@ -1,0 +1,18 @@
+import { expect, test } from "@playwright/test";
+
+test("shell, banner, and every route render honestly", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("note")).toContainText(
+    "Portfolio demo — historical sample data; estimated economics are illustrative.",
+  );
+  await expect(page.getByText("Historical replay")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Fleet Overview");
+  await expect(page.getByRole("heading", { level: 2 })).toContainText("Not built yet");
+
+  const nav = page.getByRole("navigation", { name: "Main" });
+  for (const name of ["Asset Details", "Maintenance Planner", "Model Performance", "About & Data"]) {
+    await nav.getByRole("link", { name }).click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
+  }
+  await expect(page.getByRole("link", { name: /Full data record/ })).toHaveAttribute("href", /DATA_PROVENANCE\.md$/);
+});
