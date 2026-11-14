@@ -11,10 +11,10 @@ One Vercel project, one deployment, **an ordinary Vercel Python function. Not Ve
 | **Root Directory** | **`frontend`** |
 | Framework preset | Next.js (also set in `frontend/vercel.json`) |
 | Install / build / output | Vercel defaults for Next.js (`npm install`, `next build`) |
-| Python function | `frontend/api/index.py`, an adapter that imports the FastAPI `app` from `backend/app/` |
+| Python function | `frontend/api/index.py`, an adapter that imports the FastAPI `app` from `frontend/_backend/app/`, a build-time copy of `backend/app/` |
 | Python version | 3.12 (`frontend/.python-version`; also Vercel's default) |
 | Python dependencies | `frontend/requirements.txt`, pinned, generated from `uv.lock` |
-| Include source files outside the Root Directory | **must stay enabled** (Project Settings → Build and Deployment; it is the default). The adapter imports `backend/`, which sits next to `frontend/`. |
+| Include source files outside the Root Directory | **must stay enabled** (Project Settings → Build and Deployment; it is the default). The build copies `backend/app/` into `frontend/_backend/app/`, because Vercel does not bundle `../backend` through `includeFiles`. |
 
 Routing, in `frontend/vercel.json`:
 
@@ -28,9 +28,8 @@ Routing, in `frontend/vercel.json`:
 
 Vercel's Python pages say that running a Python backend beside another framework is what **Services** is for. Services is beta, and decision 41 rules it out. The docs do show that `.py` files in an `api/` folder become Python functions, with `app` as the ASGI object, so this layout relies on that older, ordinary mechanism next to a Next.js project. **The docs do not state that this combination works, nor how `api/` maps to a Root Directory.** That is exactly what the trial deploy proves.
 
-### If the trial deploy shows the adapter cannot see `backend/`
-
-Fallback layout, no change of host: copy `backend/app` into `frontend/api/_backend/app` during the build (the adapter already looks there first), or move the Root Directory to the repository root and point `vercel.json` there. If routing itself fails (criterion 1), decision 41 falls back to Render for the data service.
+### How the backend gets into the function
+`backend/` stays the only source. `npm run build` first runs `frontend/scripts/sync-backend.mjs` (the `prebuild` step), which copies `backend/app` into `frontend/_backend/app` (git-ignored, never edited by hand). `vercel.json` then lists `_backend/app/**` under `includeFiles` so the function bundle contains it, and `excludeFiles` removes the Next.js `app/**` folder so the Python package name `app` is not ambiguous. `api/index.py` imports only from the bundle's own `_backend/` and fails loudly if it is missing. Check it without deploying by running `/workspace/predictiq-logs/verify-fn.sh` (it builds locally and calls `/api/v1/health` and `/api/v1/metadata`). If routing itself fails, decision 41 falls back to Render for the data service.
 
 ### Bundle size
 

@@ -13,3 +13,4 @@ artifacts/*
 .env*
 !.env.example
 .vercel/
+frontend/_backend/
