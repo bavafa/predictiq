@@ -1,6 +1,6 @@
 # Tasks
 
-Current stage: **Build, story 1: project skeleton.**
+Current stage: **Stage 3, core screens and data service (session 1 of 3 done).**
 
 ## Done (approved by Meysam (Owner))
 - [x] Gate 0 data check, license accepted, credit line applied (13 Nov 2026, 8:41 PM ET).
@@ -53,3 +53,10 @@ Current stage: **Build, story 1: project skeleton.**
 - [x] Low (fixed 13 Nov): after choosing a mobile menu link, focus moves to the main landmark; Escape and Close still return it to Menu. Vitest test added.
 - [x] Independent review of the data-and-model stage: round 1 fixed (replay check, feature count); round 2 passed with known issues; its Low (raw size record) fixed.
 - [ ] Owner: confirm the example planner costs; choose how model data reaches the public launch.
+
+## Stage 3: Core screens and data service (started 14 Nov 2026, branch `core-screens`)
+- [x] Session 1 (foundations): data service contract rules verified and tested, answers-against-saved-scores tests (synthetic in CI, real bundle opt-in), typed web client with `mv` retry, no-model-data / error / loading / waking states, shared address state, historical replay control, end-to-end tests on a real stack (synthetic bundle; opt-in real bundle).
+- [ ] Session 2: Fleet Overview body (cards, charts, table, filters, cut-off control).
+- [ ] Session 3: Asset Details body (sensor charts, explanation, events, machine selector and its states).
+- [ ] Add the cut-off control to the shared frame once Fleet Overview needs it (session 2).
+- [ ] Update the About & Data status text (still says "skeleton only").

@@ -1,6 +1,6 @@
 # Status
 
-_Updated 2026-11-14, 9:25 AM ET, data-and-model stage ready for owner review._
+_Updated 2026-11-14, Stage 3 (core screens) session 1 of 3 done on branch `core-screens`._
 
 ## Current stage
 **Data-and-model stage built and reviewed, on branch `data-model`; waiting for the owner to review and merge.** The project skeleton was merged by Meysam (Owner) on 14 Nov 2026 at 8:08 AM ET.
@@ -32,6 +32,22 @@ _Updated 2026-11-14, 9:25 AM ET, data-and-model stage ready for owner review._
 **Next for the orchestrator:** create the release with the command in `docs/DEPLOY.md` (nothing was released or deployed by me), deploy the protected preview, run `verify-fn.sh`, and record the function size and response sizes (decision 53 re-measure). Then Stage 3 (screens).
 **Worth knowing:** explanations use XGBoost's own contributions (no `shap`); a Git-triggered Vercel build has no bundle (it is git-ignored) and would serve 503 until the bundle is included; numpy is the only new runtime dependency.
 **Blockers:** none. Owner to confirm decision 55 (illustrative costs).
+
+## Core screens, session 1 of 3: foundations (branch `core-screens`, 14 Nov 2026)
+**Done:**
+- **Data service:** checked every rule in the contract and tested it. Two gaps found and fixed: a trailing new line or a non-English digit in `at` or `cutoff` was accepted (now refused), and the replay window's first hour was taken from the replay start rather than the start of the test period (now the window starts at the first test hour; `/metadata` gains `replay_start`). New tests compare `/fleet`, `/fleet/trend` and `/assets/{id}` with the saved score arrays for sampled hours and cut-offs: a synthetic-bundle version runs in CI, and the same tests run on the real bundle with `pytest -m realbundle` (opt-in; they pass).
+- **Web data layer** (`frontend/lib/`): a typed client that reads the model version from `/metadata`, adds `mv` to every other request, and on a 404 re-reads `/metadata` once and retries only if the version really changed. "Model data unavailable" (503) is its own state: "The model data isn't installed in this preview", no numbers. Network and server failures show what failed with Try again; loading shows grey blocks; a slow service shows "Waking up the data service…".
+- **Shared address state:** replay hour, cut-off and filters live in the web address, are checked on read (a bad value is ignored with a short note), and replay time, cut-off and selected machine follow the reader to other pages.
+- **Replay control** in the shared frame: Start, Step back, Play/Pause, Step forward, step size (1, 6, 24 h) and a native timeline slider (keys apply at once, a drag applies on release, Page Up/Down move 10 hours). It starts at the replay start from `/metadata`, says "Historical replay" and never "live", stops at both ends with a visible end state and Jump to start, keeps unavailable buttons focusable with a visible reason, announces the time every sixth step, and still steps with reduced motion. Model Performance and About & Data show the time read-only. The four screen bodies are still "not built" placeholders; the states and the replay bar already work on them.
+- **End-to-end tests now run against a real stack:** uvicorn serving a synthetic test bundle plus the production Next.js build proxying to it (`npm run e2e`, also in CI, which has no real data), then a second run with no bundle for the no-model-data state. `npm run e2e:real` (or `make e2e-real`) runs the same specs against the real bundle on this machine. Accessibility checks are kept.
+**Results:** pytest 165 passed (+8 opt-in, the 4 new real-bundle ones pass when run); Vitest 70 passed; Playwright 21 passed on the synthetic bundle, 7 with no bundle, 21 on the real bundle; lint, types, formatting and build pass.
+**Worth knowing:**
+- The About & Data page still says "skeleton only / no model trained". That text is out of date but belongs to the About page work, so I left it.
+- `/metadata` `replay_window.start` is now the first test hour; the replay start is `replay_start`. On the real bundle they are the same hour (2015-11-01 00:00).
+- A 404 on a data request is retried only if `/metadata` reports a different model version; retrying an unchanged version could not give a different answer.
+- The e2e build bakes the local data service address into the web build, so `npm run e2e` rebuilds `.next` (a Vercel build is unaffected).
+**Next:** session 2 (Fleet Overview body), session 3 (Machine Details body).
+**Blockers:** none.
 
 ## Skeleton story (branch `skeleton`)
 **Done:** Next.js shell with five routes, disclosure banner, "Historical replay" badge and honest empty states (no numbers); FastAPI `/api/v1/health` and `/api/v1/metadata` only; `ml/` placeholders that exit 1; hash-checked `scripts/download_data.py` (run against the live source on 13 Nov 2026: all 5 files matched; `data/raw` is gitignored); Makefile; ruff/mypy/pytest, Vitest, Playwright smoke test plus axe accessibility checks (5 routes, desktop and mobile, plus the open menu); CI workflow with actions pinned to commit SHAs; Dependabot; Vercel layout and `ignoreCommand` (`docs/DEPLOY.md`); screenshots.
