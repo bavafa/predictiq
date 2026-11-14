@@ -34,11 +34,15 @@ button,select,input{font:inherit;color:#111}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .btn.link{border:none;background:none;text-decoration:underline;padding:6px 4px}
 .sel{border:1px solid #555;background:#fff;border-radius:4px;padding:6px 8px;min-height:36px}
-.slider{display:inline-flex;align-items:center;gap:8px}
-.track{position:relative;width:180px;height:6px;background:#ccc;border:1px solid #777;border-radius:3px}
-.track .thumb{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;background:#333;border:2px solid #fff;box-shadow:0 0 0 1px #333}
-.timeline{flex:1 1 220px;min-width:160px}
-.timeline .track{width:100%}
+/* sliders are native range inputs: visible label, min, max and current value */
+.slider{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.slider input[type=range]{width:180px;min-height:24px;margin:0;accent-color:#333}
+.slider .mm{font-size:12px;color:#444;font-variant-numeric:tabular-nums;white-space:nowrap}
+.slider output{font-weight:700;font-variant-numeric:tabular-nums}
+.timeline{flex:1 1 300px;min-width:200px}
+.timeline input[type=range]{flex:1 1 80px;width:auto;min-width:80px}
+.check{display:inline-flex;align-items:center;gap:6px}
+.check input,.field .check input{width:auto;min-height:0;margin:0}
 main{padding:20px;display:flex;flex-direction:column;gap:16px;max-width:1440px}
 .card{background:#fff;border:1px solid #aaa;border-radius:8px;padding:16px 20px}
 .card h2{font-size:18px;line-height:28px;margin:0 0 4px}
@@ -110,7 +114,13 @@ details summary{cursor:pointer;font-weight:600}
   .metric .value{font-size:24px;line-height:30px}
   .desk-only{display:none!important}
   .cardlist{display:block}
-  .track{width:120px}
+  /* 44px minimum touch targets on mobile */
+  .btn,.sel,.field input:not([type=checkbox]),.btn.link{min-height:44px;min-width:44px}
+  .slider input[type=range]{min-height:44px;width:140px}
+  .check{min-height:44px}
+  .check input,.field .check input{width:22px;height:22px;flex:none}
+  details summary{min-height:44px;display:flex;align-items:center}
+  main a:not(.btn){display:inline-flex;align-items:center;min-height:44px}
   .timeline{flex-basis:100%}
   .chart{height:160px}
 }
@@ -145,7 +155,7 @@ details summary{cursor:pointer;font-weight:600}
       <span class="badge">⏱ Historical replay</span>
     </header>
     <div class="replaybar" role="group" aria-label="Historical replay controls">
-      <span class="time">2015-11-14 06:00 <span class="example">example</span></span>
+      <output class="time" for="rt">2015-11-14 06:00 <span class="example">example</span></output>
       <span data-show="replay-start" hidden class="cap"><b>Start of the replay window.</b></span>
       <button class="btn" type="button" data-disable="replay-start">|◀ Start</button>
       <button class="btn" type="button" aria-label="Step back" data-disable="replay-start">◀ Back</button>
@@ -153,7 +163,7 @@ details summary{cursor:pointer;font-weight:600}
       <button class="btn" type="button" aria-label="Step forward" data-disable="replay-end">Fwd ▶</button>
       <label class="cap" for="step">Step</label>
       <select id="step" class="sel"><option>1 hour</option><option>6 hours</option><option>24 hours</option></select>
-      <span class="slider timeline"><span class="cap">—</span><span class="track" role="slider" aria-label="Replay time" aria-valuetext="2015-11-14 06:00"><span class="thumb" style="left:62%"></span></span><span class="cap">—</span></span>
+      <span class="slider timeline"><label for="rt" class="cap"><b>Replay time</b></label><span class="mm">First hour —</span><input type="range" id="rt" min="0" max="100" step="1" value="62" aria-valuetext="2015-11-14 06:00"><span class="mm">Last hour —</span></span>
     </div>
 
     <main id="main">
@@ -171,20 +181,20 @@ details summary{cursor:pointer;font-weight:600}
         <ol>
           <li>Press <b>Play</b> to replay the simulated machine history hour by hour.</li>
           <li>Open the top machine in the table to see its sensors and what pushed its estimate up.</li>
-          <li>Open the <b>Maintenance Planner</b> and change the illustrative costs to see the ranking move.</li>
+          <li>Open the <b>Maintenance Planner</b>, open "Set cost per machine model" and give one machine model a higher illustrative failure cost. Machines of that model move up the list, with "moved up" marks.</li>
         </ol>
       </section>
 
       <!-- controls -->
       <section class="card" aria-label="Alert cut-off and filters">
         <div class="row">
-          <span class="slider"><b>Alert cut-off</b> <span class="track" role="slider" aria-label="Alert cut-off"><span class="thumb" style="left:40%"></span></span> <b data-hide="threshold-changed">— (default)</b><b data-show="threshold-changed" hidden>— (custom) <span class="example">changed</span></b></span>
+          <span class="slider"><label for="co"><b>Alert cut-off</b></label><span class="mm">0%</span><input type="range" id="co" min="0" max="100" step="1" value="40" aria-valuetext="— percent, default"><span class="mm">100%</span><output for="co" data-hide="threshold-changed">—% (default)</output><output for="co" data-show="threshold-changed" hidden>—% (custom) <span class="example">changed</span></output></span>
           <button class="btn" type="button" data-enable="threshold-changed" disabled>Reset to default</button>
           <span class="cap desk-only">Default set on validation data. Shared with the Planner and Model Performance.</span>
         </div>
         <div class="row" style="margin-top:12px">
-          <label>Machine model <select class="sel"><option>All</option><option>model1</option><option>model2</option><option>model3</option><option>model4</option></select></label>
-          <label>Status <select class="sel"><option>All</option><option>Alert</option><option>Below cut-off</option></select></label>
+          <label>Machine model <select class="sel"><option>All</option><option>model1</option><option>model2</option><option data-sel="empty">model3</option><option>model4</option></select></label>
+          <label>Status <select class="sel"><option>All</option><option data-sel="empty">Alert</option><option>Below cut-off</option></select></label>
           <label>Machine <input class="sel" style="width:90px" placeholder="number"></label>
           <button class="btn" type="button" data-enable="empty">Clear filters</button>
         </div>
@@ -198,14 +208,14 @@ details summary{cursor:pointer;font-weight:600}
           <div class="value" data-hide="loading error empty">100</div><div class="skel big" data-show="loading" hidden></div><div class="value" data-show="error" hidden>—</div><div class="value" data-show="empty" hidden>0</div>
           <div class="cap"><span class="vt vt-h">Historical</span> <span data-hide="empty">of 100</span><span data-show="empty" hidden>0 of 100 match filters</span></div></div>
         <div class="card metric"><div class="label">Machines in Alert</div>
-          <div class="value" data-hide="loading">—</div><div class="skel big" data-show="loading" hidden></div>
-          <div class="cap"><span class="vt vt-p">Predicted</span> chance ≥ cut-off, next 24 h</div></div>
+          <div class="value" data-hide="loading empty">—</div><div class="skel big" data-show="loading" hidden></div><div class="value" data-show="empty" hidden>0</div>
+          <div class="cap"><span class="vt vt-p">Predicted</span> <span data-hide="empty">chance ≥ cut-off, next 24 h, among machines shown</span><span data-show="empty" hidden>of the 0 machines shown</span></div></div>
         <div class="card metric"><div class="label">Highest predicted chance</div>
-          <div class="value" data-hide="loading">—</div><div class="skel big" data-show="loading" hidden></div>
-          <div class="cap"><span class="vt vt-p">Predicted</span> of a recorded failure in 24 h</div></div>
+          <div class="value" data-hide="loading empty">—</div><div class="skel big" data-show="loading" hidden></div><div class="value" data-show="empty" hidden style="font-size:20px">None</div>
+          <div class="cap"><span class="vt vt-p">Predicted</span> <span data-hide="empty">of a recorded failure in 24 h, among machines shown</span><span data-show="empty" hidden>no machines shown, so no highest value</span></div></div>
         <div class="card metric"><div class="label">Scored hour</div>
           <div class="value" style="font-size:20px" data-hide="loading">2015-11-14 06:00</div><div class="skel big" data-show="loading" hidden></div>
-          <div class="cap"><span class="example">example</span> follows the replay time</div></div>
+          <div class="cap"><span class="example">example</span> follows the replay time<span data-show="empty" hidden>; not affected by filters</span></div></div>
       </section>
 
       <div class="problem" data-show="error" hidden role="alert">
@@ -216,8 +226,13 @@ details summary{cursor:pointer;font-weight:600}
       <section class="grid2" data-hide="error">
         <figure class="card" style="margin:0">
           <div class="row" style="justify-content:space-between"><h2>Predicted risk across the fleet</h2><button class="btn" type="button">View as table</button></div>
-          <div class="cap"><span class="vt vt-p">Predicted</span> Number of machines by predicted chance of failure in the next 24 h. Dashed line = cut-off.</div>
-          <div class="chart" data-hide="loading">
+          <div class="cap"><span class="vt vt-p">Predicted</span> Number of machines shown (<span data-hide="empty">100 of 100</span><span data-show="empty" hidden><b>0 of 100</b></span> after filters) by predicted chance of failure in the next 24 h. Dashed line = cut-off.</div>
+          <div class="chart" data-show="empty" hidden>
+            <span class="yl">Machines (0–1)</span><span class="xl">Predicted chance, 0–100%</span>
+            <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="50" x2="100" y2="50" stroke="#222" stroke-width=".8"/><line x1="45" y1="0" x2="45" y2="50" stroke="#222" stroke-dasharray="2 2" stroke-width=".6"/></svg>
+            <span class="note"><b>0 machines match these filters.</b><br>Every bar is 0. Nothing to plot.</span>
+          </div>
+          <div class="chart" data-hide="loading empty">
             <span class="yl">Machines</span><span class="xl">Predicted chance, 0–100%</span>
             <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><g fill="#999"><rect x="2" y="10" width="8" height="40"/><rect x="12" y="22" width="8" height="28"/><rect x="22" y="34" width="8" height="16"/><rect x="32" y="40" width="8" height="10"/><rect x="42" y="44" width="8" height="6"/><rect x="52" y="46" width="8" height="4"/><rect x="62" y="47" width="8" height="3"/></g><line x1="45" y1="0" x2="45" y2="50" stroke="#222" stroke-dasharray="2 2" stroke-width=".6"/></svg>
             <span class="note">shape only — no data yet</span>
@@ -228,8 +243,13 @@ details summary{cursor:pointer;font-weight:600}
           <div class="row" style="justify-content:space-between"><h2>Machines in Alert over time</h2>
             <span class="row" role="radiogroup" aria-label="Range"><button class="btn primary" type="button" role="radio" aria-checked="true">24 h</button><button class="btn" type="button" role="radio" aria-checked="false">7 days</button></span>
             <button class="btn" type="button">View as table</button></div>
-          <div class="cap"><span class="vt vt-p">Predicted</span> Count of machines at or above the cut-off, each hour up to the replay time.</div>
-          <div class="chart" data-hide="loading">
+          <div class="cap"><span class="vt vt-p">Predicted</span> Count of machines shown (<span data-hide="empty">100 of 100</span><span data-show="empty" hidden><b>0 of 100</b></span> after filters) at or above the cut-off, each hour up to the replay time.</div>
+          <div class="chart" data-show="empty" hidden>
+            <span class="yl">Machines (0–1)</span><span class="xl">Time (historical)</span>
+            <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#222" stroke-width="1.2" points="0,50 100,50"/></svg>
+            <span class="note"><b>0 machines match these filters,</b><br>so the count is 0 at every hour.</span>
+          </div>
+          <div class="chart" data-hide="loading empty">
             <span class="yl">Machines</span><span class="xl">Time (historical)</span>
             <svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#666" stroke-width="1" points="0,40 10,38 20,41 30,30 40,33 50,25 60,28 70,35 80,32 90,36 100,34"/></svg>
             <span class="note">shape only — no data yet</span>
@@ -265,20 +285,20 @@ details summary{cursor:pointer;font-weight:600}
           <div class="row" style="margin-top:12px;justify-content:space-between"><span class="cap">Rows per page: 25</span><span class="row"><button class="btn" type="button" disabled>‹ Previous</button><span>Page 1 of 4</span><button class="btn" type="button">Next ›</button></span></div>
         </div>
         <div data-show="loading" hidden aria-busy="true"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
-        <div class="empty" data-show="empty" hidden role="status"><b>No machines match these filters at 2015-11-14 06:00 <span class="example">example</span>.</b><br><span class="cap">Status "Alert" + machine model "model—" returned nothing.</span><br><br><button class="btn primary" type="button">Clear filters</button></div>
+        <div class="empty" data-show="empty" hidden role="status"><b>No machines match these filters at 2015-11-14 06:00 <span class="example">example</span>.</b><br><span class="cap">Filters: status "Alert" and machine model "model3" <span class="example">example</span>. All cards and charts above count these 0 machines.</span><br><br><button class="btn primary" type="button">Clear filters</button></div>
       </section>
     </main>
     <div class="wfnote">Low-fidelity wireframe. "—" = value comes from the saved model results later. Items marked <span class="example">example</span> are made-up placeholders, not data. Greyscale on purpose.</div>
   </div>
 </div>
 <script>
-/* wireframe-only: ?state=loading|error|waking|empty|threshold-changed|replay-start|replay-end|nav-open */
+/* wireframe-only: ?state=loading|error|waking|empty (filters match nothing)|threshold-changed|replay-start|replay-end|nav-open */
 (function(){var s=new URLSearchParams(location.search).get('state')||'default';document.body.dataset.state=s;
 document.querySelectorAll('[data-show]').forEach(function(e){e.hidden=e.dataset.show.split(' ').indexOf(s)<0});
 document.querySelectorAll('[data-hide]').forEach(function(e){if(e.dataset.hide.split(' ').indexOf(s)>=0)e.hidden=true});
 document.querySelectorAll('[data-disable]').forEach(function(e){if(e.dataset.disable.split(' ').indexOf(s)>=0)e.disabled=true});
 document.querySelectorAll('[data-enable]').forEach(function(e){e.disabled=e.dataset.enable.split(' ').indexOf(s)<0&&e.hasAttribute('disabled')?true:false;if(e.dataset.enable.split(' ').indexOf(s)>=0)e.disabled=false});
-document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var th=document.querySelector('.timeline .thumb');if(th&&s==='replay-end')th.style.left='calc(100% - 18px)';if(th&&s==='replay-start')th.style.left='0';
+document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var rt=document.getElementById('rt');if(rt&&s==='replay-end')rt.value=rt.max;if(rt&&s==='replay-start')rt.value=rt.min;document.querySelectorAll('[data-sel]').forEach(function(e){if(e.dataset.sel===s)e.selected=true});
 })();
 </script>
 </body>

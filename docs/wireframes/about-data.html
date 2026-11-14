@@ -34,11 +34,15 @@ button,select,input{font:inherit;color:#111}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .btn.link{border:none;background:none;text-decoration:underline;padding:6px 4px}
 .sel{border:1px solid #555;background:#fff;border-radius:4px;padding:6px 8px;min-height:36px}
-.slider{display:inline-flex;align-items:center;gap:8px}
-.track{position:relative;width:180px;height:6px;background:#ccc;border:1px solid #777;border-radius:3px}
-.track .thumb{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;background:#333;border:2px solid #fff;box-shadow:0 0 0 1px #333}
-.timeline{flex:1 1 220px;min-width:160px}
-.timeline .track{width:100%}
+/* sliders are native range inputs: visible label, min, max and current value */
+.slider{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.slider input[type=range]{width:180px;min-height:24px;margin:0;accent-color:#333}
+.slider .mm{font-size:12px;color:#444;font-variant-numeric:tabular-nums;white-space:nowrap}
+.slider output{font-weight:700;font-variant-numeric:tabular-nums}
+.timeline{flex:1 1 300px;min-width:200px}
+.timeline input[type=range]{flex:1 1 80px;width:auto;min-width:80px}
+.check{display:inline-flex;align-items:center;gap:6px}
+.check input,.field .check input{width:auto;min-height:0;margin:0}
 main{padding:20px;display:flex;flex-direction:column;gap:16px;max-width:1440px}
 .card{background:#fff;border:1px solid #aaa;border-radius:8px;padding:16px 20px}
 .card h2{font-size:18px;line-height:28px;margin:0 0 4px}
@@ -110,7 +114,13 @@ details summary{cursor:pointer;font-weight:600}
   .metric .value{font-size:24px;line-height:30px}
   .desk-only{display:none!important}
   .cardlist{display:block}
-  .track{width:120px}
+  /* 44px minimum touch targets on mobile */
+  .btn,.sel,.field input:not([type=checkbox]),.btn.link{min-height:44px;min-width:44px}
+  .slider input[type=range]{min-height:44px;width:140px}
+  .check{min-height:44px}
+  .check input,.field .check input{width:22px;height:22px;flex:none}
+  details summary{min-height:44px;display:flex;align-items:center}
+  main a:not(.btn){display:inline-flex;align-items:center;min-height:44px}
   .timeline{flex-basis:100%}
   .chart{height:160px}
 }
@@ -170,7 +180,7 @@ details summary{cursor:pointer;font-weight:600}
           <li>Sensor units are not stated by the source.</li>
           <li>The replay covers — to —, the period the model never saw while training.</li>
         </ul>
-        <a href="#">Full data record (source, file checks, license notes) ↗</a>
+        <a href="https://github.com/bavafa/predictiq/blob/main/docs/DATA_PROVENANCE.md">Full data record (source, file checks, license notes) ↗</a><br><span class="cap">Opens the public data provenance page in the project's code repository, in the same tab.</span>
       </section>
 
       <section class="grid2">
@@ -190,7 +200,7 @@ document.querySelectorAll('[data-show]').forEach(function(e){e.hidden=e.dataset.
 document.querySelectorAll('[data-hide]').forEach(function(e){if(e.dataset.hide.split(' ').indexOf(s)>=0)e.hidden=true});
 document.querySelectorAll('[data-disable]').forEach(function(e){if(e.dataset.disable.split(' ').indexOf(s)>=0)e.disabled=true});
 document.querySelectorAll('[data-enable]').forEach(function(e){e.disabled=e.dataset.enable.split(' ').indexOf(s)<0&&e.hasAttribute('disabled')?true:false;if(e.dataset.enable.split(' ').indexOf(s)>=0)e.disabled=false});
-document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var th=document.querySelector('.timeline .thumb');if(th&&s==='replay-end')th.style.left='calc(100% - 18px)';if(th&&s==='replay-start')th.style.left='0';
+document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var rt=document.getElementById('rt');if(rt&&s==='replay-end')rt.value=rt.max;if(rt&&s==='replay-start')rt.value=rt.min;
 })();
 </script>
 </body>

@@ -34,11 +34,15 @@ button,select,input{font:inherit;color:#111}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .btn.link{border:none;background:none;text-decoration:underline;padding:6px 4px}
 .sel{border:1px solid #555;background:#fff;border-radius:4px;padding:6px 8px;min-height:36px}
-.slider{display:inline-flex;align-items:center;gap:8px}
-.track{position:relative;width:180px;height:6px;background:#ccc;border:1px solid #777;border-radius:3px}
-.track .thumb{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;background:#333;border:2px solid #fff;box-shadow:0 0 0 1px #333}
-.timeline{flex:1 1 220px;min-width:160px}
-.timeline .track{width:100%}
+/* sliders are native range inputs: visible label, min, max and current value */
+.slider{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.slider input[type=range]{width:180px;min-height:24px;margin:0;accent-color:#333}
+.slider .mm{font-size:12px;color:#444;font-variant-numeric:tabular-nums;white-space:nowrap}
+.slider output{font-weight:700;font-variant-numeric:tabular-nums}
+.timeline{flex:1 1 300px;min-width:200px}
+.timeline input[type=range]{flex:1 1 80px;width:auto;min-width:80px}
+.check{display:inline-flex;align-items:center;gap:6px}
+.check input,.field .check input{width:auto;min-height:0;margin:0}
 main{padding:20px;display:flex;flex-direction:column;gap:16px;max-width:1440px}
 .card{background:#fff;border:1px solid #aaa;border-radius:8px;padding:16px 20px}
 .card h2{font-size:18px;line-height:28px;margin:0 0 4px}
@@ -110,7 +114,13 @@ details summary{cursor:pointer;font-weight:600}
   .metric .value{font-size:24px;line-height:30px}
   .desk-only{display:none!important}
   .cardlist{display:block}
-  .track{width:120px}
+  /* 44px minimum touch targets on mobile */
+  .btn,.sel,.field input:not([type=checkbox]),.btn.link{min-height:44px;min-width:44px}
+  .slider input[type=range]{min-height:44px;width:140px}
+  .check{min-height:44px}
+  .check input,.field .check input{width:22px;height:22px;flex:none}
+  details summary{min-height:44px;display:flex;align-items:center}
+  main a:not(.btn){display:inline-flex;align-items:center;min-height:44px}
   .timeline{flex-basis:100%}
   .chart{height:160px}
 }
@@ -144,7 +154,7 @@ details summary{cursor:pointer;font-weight:600}
       <span class="badge">⏱ Historical replay</span>
     </header>
     <div class="replaybar" role="group" aria-label="Historical replay controls">
-      <span class="time">2015-11-14 06:00 <span class="example">example</span></span>
+      <output class="time" for="rt">2015-11-14 06:00 <span class="example">example</span></output>
       <span data-show="replay-start" hidden class="cap"><b>Start of the replay window.</b></span>
       <button class="btn" type="button" data-disable="replay-start">|◀ Start</button>
       <button class="btn" type="button" aria-label="Step back" data-disable="replay-start">◀ Back</button>
@@ -152,7 +162,7 @@ details summary{cursor:pointer;font-weight:600}
       <button class="btn" type="button" aria-label="Step forward" data-disable="replay-end">Fwd ▶</button>
       <label class="cap" for="step">Step</label>
       <select id="step" class="sel"><option>1 hour</option><option>6 hours</option><option>24 hours</option></select>
-      <span class="slider timeline"><span class="cap">—</span><span class="track" role="slider" aria-label="Replay time" aria-valuetext="2015-11-14 06:00"><span class="thumb" style="left:62%"></span></span><span class="cap">—</span></span>
+      <span class="slider timeline"><label for="rt" class="cap"><b>Replay time</b></label><span class="mm">First hour —</span><input type="range" id="rt" min="0" max="100" step="1" value="62" aria-valuetext="2015-11-14 06:00"><span class="mm">Last hour —</span></span>
     </div>
 
     <main id="main">
@@ -163,7 +173,14 @@ details summary{cursor:pointer;font-weight:600}
         <div class="row" style="justify-content:center"><label>Machine <select class="sel"><option>Choose 1–100…</option></select></label><a class="btn primary" href="fleet-overview.html" style="text-decoration:none">Go to Fleet Overview</a></div>
       </section>
 
-      <section class="card" data-hide="no-machine" aria-label="Machine and range">
+      <!-- machine not found (e.g. a shared link with a machine number outside 1-100) -->
+      <section class="empty" data-show="not-found" hidden role="alert">
+        <h2 style="margin:0 0 8px">Machine 250 isn't in the sample data</h2>
+        <p style="margin:0 0 12px">The sample has machines numbered 1 to 100. The link may have a typo. Choose another machine, or open one from Fleet Overview.</p>
+        <div class="row" style="justify-content:center"><label>Machine <select class="sel"><option>Choose 1–100…</option></select></label><a class="btn primary" href="fleet-overview.html" style="text-decoration:none">Go to Fleet Overview</a></div>
+      </section>
+
+      <section class="card" data-hide="no-machine not-found" aria-label="Machine and range">
         <div class="row">
           <a href="fleet-overview.html">‹ Back to fleet</a>
           <label>Machine <select class="sel"><option>Machine — </option></select></label>
@@ -174,7 +191,7 @@ details summary{cursor:pointer;font-weight:600}
 
       <div class="notice" data-show="partial" hidden role="status"><b>Only — hours of history before this point.</b> The 7-day charts show what exists. Earlier data is not in the sample.</div>
 
-      <section class="grid2" data-hide="no-machine">
+      <section class="grid2" data-hide="no-machine not-found">
         <div class="card">
           <h2>Machine —</h2>
           <div data-hide="loading"><div>Machine model — · Age — years</div><div class="cap" style="margin-top:6px"><span class="vt vt-h">Historical</span> from the simulated sample data</div></div>
@@ -188,7 +205,7 @@ details summary{cursor:pointer;font-weight:600}
         </div>
       </section>
 
-      <section class="card" data-hide="no-machine" aria-labelledby="why">
+      <section class="card" data-hide="no-machine not-found" aria-labelledby="why">
         <div class="row" style="justify-content:space-between"><h2 id="why">What pushed this estimate up or down <button class="btn link" type="button" aria-label="What does this mean?">ⓘ</button></h2><span class="vt vt-p">Predicted</span></div>
         <p class="cap" style="margin:0 0 8px">These are patterns the model found in the data, not causes. They are not repair advice.</p>
         <div data-hide="loading">
@@ -206,11 +223,12 @@ details summary{cursor:pointer;font-weight:600}
         <div data-show="loading" hidden><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
       </section>
 
-      <section class="card" data-hide="no-machine" aria-labelledby="sens">
+      <section class="card" data-hide="no-machine not-found" aria-labelledby="sens">
         <div class="row" style="justify-content:space-between"><h2 id="sens">Sensor history, up to the replay time</h2><span class="vt vt-h">Historical</span></div>
         <p class="cap" style="margin:0">Units not stated by the source. One sensor per chart. Markers: ◆ recorded failure · ■ maintenance · ▲ error.</p>
-        <div class="row mob-only" role="tablist" aria-label="Sensor" style="margin-top:8px"><button class="btn primary" role="tab" aria-selected="true">Voltage</button><button class="btn" role="tab">Rotation</button><button class="btn" role="tab">Pressure</button><button class="btn" role="tab">Vibration</button></div>
-        <div class="grid2" style="margin-top:8px">
+        <div class="problem" data-show="panel-error" hidden role="alert" style="margin-top:8px"><b>⚠ Couldn't load the sensor history for this machine.</b> The rest of this page is still correct. Your machine, time and range are kept. <button class="btn" type="button">Try again</button></div>
+        <div class="row mob-only" data-hide="panel-error" role="tablist" aria-label="Sensor" style="margin-top:8px"><button class="btn primary" role="tab" aria-selected="true">Voltage</button><button class="btn" role="tab">Rotation</button><button class="btn" role="tab">Pressure</button><button class="btn" role="tab">Vibration</button></div>
+        <div class="grid2" style="margin-top:8px" data-hide="panel-error">
           <figure style="margin:0"><div class="row" style="justify-content:space-between"><h3>Voltage</h3><button class="btn" type="button">View as table</button></div>
             <div class="chart" data-hide="loading"><span class="yl">Reading</span><span class="xl">Time (historical)</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,25 8,22 16,28 24,24 32,26 40,20 48,27 56,23 64,25 72,21 80,26 88,24 100,25"/><text x="62" y="12" font-size="6">■</text></svg><span class="note">shape only — no data yet</span></div><div class="skel block" data-show="loading" hidden></div></figure>
           <figure style="margin:0" class="desk-only"><div class="row" style="justify-content:space-between"><h3>Rotation</h3><button class="btn" type="button">View as table</button></div>
@@ -222,14 +240,14 @@ details summary{cursor:pointer;font-weight:600}
         </div>
       </section>
 
-      <section class="card" data-hide="no-machine" aria-labelledby="pva">
+      <section class="card" data-hide="no-machine not-found" aria-labelledby="pva">
         <div class="row" style="justify-content:space-between"><h2 id="pva">Past estimates beside recorded failures</h2><button class="btn" type="button">View as table</button></div>
         <p class="cap" style="margin:0"><span class="vt vt-p">Predicted</span> line = predicted chance each hour · <span class="vt vt-h">Historical</span> ◆ = recorded failure · dashed = cut-off. Only hours up to the replay time.</p>
         <div class="chart" data-hide="loading"><span class="yl">Predicted chance, 0–100%</span><span class="xl">Time (historical)</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="20" x2="100" y2="20" stroke="#222" stroke-dasharray="2 2" stroke-width=".5"/><polyline fill="none" stroke="#555" stroke-width="1" points="0,46 15,45 30,44 40,40 50,30 55,15 60,44 75,45 90,43 100,44"/><text x="56" y="10" font-size="6">◆</text></svg><span class="note">shape only — no data yet</span></div>
         <div class="skel block" data-show="loading" hidden></div>
       </section>
 
-      <section class="grid2" data-hide="no-machine">
+      <section class="grid2" data-hide="no-machine not-found">
         <div class="card"><h2>Recent errors (7 days up to replay time)</h2><span class="vt vt-h">Historical</span>
           <ul class="cap" style="padding-left:18px"><li>— · error type —</li><li>— · error type —</li></ul>
           <p class="cap">If none: "No errors in the 7 days up to this time."</p></div>
@@ -242,13 +260,13 @@ details summary{cursor:pointer;font-weight:600}
   </div>
 </div>
 <script>
-/* wireframe-only: ?state=no-machine|loading|partial */
+/* wireframe-only: ?state=no-machine|not-found|loading|partial|panel-error */
 (function(){var s=new URLSearchParams(location.search).get('state')||'default';document.body.dataset.state=s;
 document.querySelectorAll('[data-show]').forEach(function(e){e.hidden=e.dataset.show.split(' ').indexOf(s)<0});
 document.querySelectorAll('[data-hide]').forEach(function(e){if(e.dataset.hide.split(' ').indexOf(s)>=0)e.hidden=true});
 document.querySelectorAll('[data-disable]').forEach(function(e){if(e.dataset.disable.split(' ').indexOf(s)>=0)e.disabled=true});
 document.querySelectorAll('[data-enable]').forEach(function(e){e.disabled=e.dataset.enable.split(' ').indexOf(s)<0&&e.hasAttribute('disabled')?true:false;if(e.dataset.enable.split(' ').indexOf(s)>=0)e.disabled=false});
-document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var th=document.querySelector('.timeline .thumb');if(th&&s==='replay-end')th.style.left='calc(100% - 18px)';if(th&&s==='replay-start')th.style.left='0';
+document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var rt=document.getElementById('rt');if(rt&&s==='replay-end')rt.value=rt.max;if(rt&&s==='replay-start')rt.value=rt.min;
 })();
 </script>
 </body>

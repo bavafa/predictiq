@@ -34,11 +34,15 @@ button,select,input{font:inherit;color:#111}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .btn.link{border:none;background:none;text-decoration:underline;padding:6px 4px}
 .sel{border:1px solid #555;background:#fff;border-radius:4px;padding:6px 8px;min-height:36px}
-.slider{display:inline-flex;align-items:center;gap:8px}
-.track{position:relative;width:180px;height:6px;background:#ccc;border:1px solid #777;border-radius:3px}
-.track .thumb{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;background:#333;border:2px solid #fff;box-shadow:0 0 0 1px #333}
-.timeline{flex:1 1 220px;min-width:160px}
-.timeline .track{width:100%}
+/* sliders are native range inputs: visible label, min, max and current value */
+.slider{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.slider input[type=range]{width:180px;min-height:24px;margin:0;accent-color:#333}
+.slider .mm{font-size:12px;color:#444;font-variant-numeric:tabular-nums;white-space:nowrap}
+.slider output{font-weight:700;font-variant-numeric:tabular-nums}
+.timeline{flex:1 1 300px;min-width:200px}
+.timeline input[type=range]{flex:1 1 80px;width:auto;min-width:80px}
+.check{display:inline-flex;align-items:center;gap:6px}
+.check input,.field .check input{width:auto;min-height:0;margin:0}
 main{padding:20px;display:flex;flex-direction:column;gap:16px;max-width:1440px}
 .card{background:#fff;border:1px solid #aaa;border-radius:8px;padding:16px 20px}
 .card h2{font-size:18px;line-height:28px;margin:0 0 4px}
@@ -110,7 +114,13 @@ details summary{cursor:pointer;font-weight:600}
   .metric .value{font-size:24px;line-height:30px}
   .desk-only{display:none!important}
   .cardlist{display:block}
-  .track{width:120px}
+  /* 44px minimum touch targets on mobile */
+  .btn,.sel,.field input:not([type=checkbox]),.btn.link{min-height:44px;min-width:44px}
+  .slider input[type=range]{min-height:44px;width:140px}
+  .check{min-height:44px}
+  .check input,.field .check input{width:22px;height:22px;flex:none}
+  details summary{min-height:44px;display:flex;align-items:center}
+  main a:not(.btn){display:inline-flex;align-items:center;min-height:44px}
   .timeline{flex-basis:100%}
   .chart{height:160px}
 }
@@ -148,7 +158,7 @@ details summary{cursor:pointer;font-weight:600}
     <main id="main">
       <section class="card">
         <h2>How well does the model warn before recorded failures?</h2>
-        <p style="margin:0">Model version — · evaluated on — · test period — to — · <span class="vt vt-h">Historical</span> simulated data</p>
+        <p style="margin:0">Model version — · evaluated on — · held-out test period — to — · <span class="vt vt-h">Historical</span> simulated data</p>
         <p class="cap" style="margin:6px 0 0">Target: a recorded failure strictly after the scored hour and up to 24 hours later. Same 100 machines, later time period the model never saw. Results on simulated data can look better than on real machines. <button class="btn link" type="button">How it was tested</button></p>
       </section>
 
@@ -157,38 +167,61 @@ details summary{cursor:pointer;font-weight:600}
         <p style="margin:0">No numbers are shown until the saved evaluation exists. Nothing here is a placeholder result.</p>
       </section>
 
-      <section class="grid4" data-hide="not-evaluated" aria-label="Headline results">
-        <div class="card metric"><div class="label">Precision–recall area <button class="btn link" type="button" aria-label="What does this mean?">ⓘ</button></div><div class="value">—</div><div class="cap">Main model · baseline —<br>One number for catching failures without too many false alarms. Higher is better.</div></div>
-        <div class="card metric"><div class="label">Failure events caught</div><div class="value">— of —</div><div class="cap">At the chosen cut-off. A run of alert hours counts as one alert.</div></div>
-        <div class="card metric"><div class="label">False alerts per 100 machine-days</div><div class="value">—</div><div class="cap">Alerts with no recorded failure in the next 24 h.</div></div>
-        <div class="card metric"><div class="label">Calibration gap (Brier score) <button class="btn link" type="button" aria-label="What does this mean?">ⓘ</button></div><div class="value">—</div><div class="cap">Average squared gap between predicted chance and what happened. Lower is better.</div></div>
+      <div class="problem" data-show="error" hidden role="alert"><b>⚠ Couldn't load the saved evaluation results.</b> The data service sent an error. Your cut-off setting is kept. The test description and limitations below still apply. <button class="btn" type="button">Try again</button></div>
+
+      <section class="card" data-hide="not-evaluated error" aria-labelledby="cmp">
+        <h2 id="cmp">Main model vs simple baseline</h2>
+        <div class="row">
+          <span class="slider"><label for="co"><b>Alert cut-off</b></label><span class="mm">0%</span><input type="range" id="co" min="0" max="100" step="1" value="40" aria-valuetext="— percent, default"><span class="mm">100%</span><output for="co">—% (default)</output></span>
+          <button class="btn" type="button" disabled>Reset to default</button>
+          <span class="cap">Shared with Fleet Overview and the Planner. Uses saved test results; nothing is retrained.</span>
+        </div>
+        <p class="notice" style="margin:12px 0 8px"><b>Held-out test period: — to —</b> · <b>both models at cut-off —% (default)</b> · <span class="vt vt-h">Historical</span> simulated data, <span class="vt vt-p">Predicted</span> by each model</p>
+        <div data-show="loading" hidden aria-busy="true"><span class="cap">Loading saved evaluation…</span><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+        <table class="wrap" data-hide="loading">
+          <caption class="skip">Main model and simple baseline on the held-out test period, at the shared alert cut-off</caption>
+          <thead><tr><th>Measure</th><th class="num">Main model</th><th class="num">Simple baseline</th><th class="desk-only">Better is</th></tr></thead>
+          <tbody>
+            <tr><td>Precision <span class="cap">— share of alerts followed by a failure</span></td><td class="num">—%</td><td class="num">—%</td><td class="desk-only">Higher</td></tr>
+            <tr><td>Recall <span class="cap">— share of failure hours that had an alert</span></td><td class="num">—%</td><td class="num">—%</td><td class="desk-only">Higher</td></tr>
+            <tr><td>Precision–recall area <button class="btn link" type="button" aria-label="What does precision–recall area mean?">ⓘ</button> <span class="cap">— across all cut-offs, not just this one</span></td><td class="num">—</td><td class="num">—</td><td class="desk-only">Higher</td></tr>
+            <tr><th colspan="4" style="background:#f7f7f7">Right and wrong, counts of machine-hours</th></tr>
+            <tr><td>Caught <span class="cap">— alert, failure followed</span></td><td class="num">—</td><td class="num">—</td><td class="desk-only">Higher</td></tr>
+            <tr><td>False alerts <span class="cap">— alert, no failure followed</span></td><td class="num">—</td><td class="num">—</td><td class="desk-only">Lower</td></tr>
+            <tr><td>Missed <span class="cap">— no alert, failure followed</span></td><td class="num">—</td><td class="num">—</td><td class="desk-only">Lower</td></tr>
+            <tr><td>Quiet, correct <span class="cap">— no alert, no failure</span></td><td class="num">—</td><td class="num">—</td><td class="desk-only">Higher</td></tr>
+            <tr><th colspan="4" style="background:#f7f7f7">What a maintenance team would notice</th></tr>
+            <tr><td>False alerts per 100 machine-days</td><td class="num">—</td><td class="num">—</td><td class="desk-only">Lower</td></tr>
+            <tr><td>Share of failure events caught <span class="cap">— a failure counts as caught if an alert came in the 24 h before it</span></td><td class="num">— of — (—%)</td><td class="num">— of — (—%)</td><td class="desk-only">Higher</td></tr>
+            <tr><td>Calibration gap (Brier score) <button class="btn link" type="button" aria-label="What does calibration gap mean?">ⓘ</button> <span class="cap">— do predicted chances match what happened? Across all cut-offs. Chart below.</span></td><td class="num">—</td><td class="num">—</td><td class="desk-only">Lower</td></tr>
+          </tbody>
+        </table>
+        <p class="cap mob-only" style="margin:6px 0 0">Higher is better for precision, recall, area, caught, quiet-correct and events caught. Lower is better for false alerts, missed and calibration gap.</p>
       </section>
 
-      <section class="card" data-hide="not-evaluated" aria-labelledby="cx">
-        <h2 id="cx">Try a different alert cut-off</h2>
-        <div class="row"><span class="slider"><b>Alert cut-off</b><span class="track" role="slider" aria-label="Alert cut-off"><span class="thumb" style="left:40%"></span></span><b>— (default)</b></span><button class="btn" type="button" disabled>Reset to default</button><span class="cap">Uses saved test results. Nothing is retrained. Shared with Fleet Overview and the Planner.</span></div>
-        <div class="grid3" style="margin-top:12px">
-          <figure style="margin:0"><div class="row" style="justify-content:space-between"><h3>Precision and recall by cut-off</h3><button class="btn" type="button">Table</button></div>
-            <div class="chart"><span class="yl">0–100%</span><span class="xl">Cut-off</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,5 30,10 60,25 100,45"/><polyline fill="none" stroke="#555" stroke-width="1" stroke-dasharray="3 2" points="0,45 30,30 60,18 100,8"/><line x1="40" y1="0" x2="40" y2="50" stroke="#222" stroke-dasharray="2 2" stroke-width=".5"/></svg><span class="note">shape only — no data yet</span></div>
+      <section class="card" data-hide="not-evaluated error" aria-labelledby="cx">
+        <h2 id="cx">How the cut-off trades catching failures against false alarms</h2>
+        <p class="cap" style="margin:0">Main model. Uses the cut-off set above; the dashed line marks it.</p>
+        <div class="grid2" style="margin-top:8px">
+          <figure style="margin:0"><div class="row" style="justify-content:space-between"><h3>Precision and recall by cut-off</h3><button class="btn" type="button">View as table</button></div>
+            <div class="chart" data-hide="loading"><span class="yl">0–100%</span><span class="xl">Cut-off</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,5 30,10 60,25 100,45"/><polyline fill="none" stroke="#555" stroke-width="1" stroke-dasharray="3 2" points="0,45 30,30 60,18 100,8"/><line x1="40" y1="0" x2="40" y2="50" stroke="#222" stroke-dasharray="2 2" stroke-width=".5"/></svg><span class="note">shape only — no data yet</span></div><div class="skel block" data-show="loading" hidden></div>
             <div class="legend"><span>— solid: recall (share of failures caught)</span><span>- - dashed: precision (share of alerts that were right)</span></div></figure>
-          <div><h3>Right and wrong at this cut-off</h3>
-            <table class="wrap"><thead><tr><th></th><th class="num">Failure followed</th><th class="num">No failure followed</th></tr></thead>
-            <tbody><tr><th>Alert raised</th><td class="num">— caught</td><td class="num">— false alerts</td></tr><tr><th>No alert</th><td class="num">— missed</td><td class="num">— quiet, correct</td></tr></tbody></table>
-            <p class="cap">Counts of machine-hours in the test period.</p></div>
-          <div class="card metric" style="background:#f7f7f7"><div class="label">Alerts per day at this cut-off</div><div class="value">—</div><div class="cap">Across the fleet, test period average.</div></div>
+          <figure style="margin:0"><div class="row" style="justify-content:space-between"><h3>Alerts per day by cut-off</h3><button class="btn" type="button">View as table</button></div>
+            <div class="chart" data-hide="loading"><span class="yl">Alerts per day, whole fleet</span><span class="xl">Cut-off</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,4 20,20 40,32 60,40 100,48"/><line x1="40" y1="0" x2="40" y2="50" stroke="#222" stroke-dasharray="2 2" stroke-width=".5"/></svg><span class="note">shape only — no data yet</span></div><div class="skel block" data-show="loading" hidden></div>
+            <p class="cap">At this cut-off: <b>— alerts per day</b>, test period average.</p></figure>
         </div>
       </section>
 
-      <section class="grid2" data-hide="not-evaluated">
-        <figure class="card" style="margin:0"><div class="row" style="justify-content:space-between"><h2>Main model vs simple baseline</h2><button class="btn" type="button">View as table</button></div>
-          <p class="cap" style="margin:0">Precision–recall curves on the test period. Solid = main model. Dashed = baseline. Both labelled on the line.</p>
-          <div class="chart"><span class="yl">Precision</span><span class="xl">Recall</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,5 40,8 70,15 100,40"/><polyline fill="none" stroke="#555" stroke-dasharray="3 2" stroke-width="1" points="0,15 40,25 70,35 100,45"/></svg><span class="cap" style="position:absolute;left:12%;top:16px;font-weight:700">Main model</span><span class="cap" style="position:absolute;left:6%;bottom:30px;font-weight:700">Baseline</span><span class="note">shape only — no data yet</span></div></figure>
+      <section class="grid2" data-hide="not-evaluated error">
+        <figure class="card" style="margin:0"><div class="row" style="justify-content:space-between"><h2>Precision–recall curves</h2><button class="btn" type="button">View as table</button></div>
+          <p class="cap" style="margin:0">Held-out test period. Solid = main model. Dashed = baseline. Both labelled on the line.</p>
+          <div class="chart" data-hide="loading"><span class="yl">Precision</span><span class="xl">Recall</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#555" stroke-width="1" points="0,5 40,8 70,15 100,40"/><polyline fill="none" stroke="#555" stroke-dasharray="3 2" stroke-width="1" points="0,15 40,25 70,35 100,45"/></svg><span class="cap" style="position:absolute;left:12%;top:16px;font-weight:700">Main model</span><span class="cap" style="position:absolute;left:6%;bottom:30px;font-weight:700">Baseline</span><span class="note">shape only — no data yet</span></div><div class="skel block" data-show="loading" hidden></div></figure>
         <figure class="card" style="margin:0"><div class="row" style="justify-content:space-between"><h2>Do predicted chances match what happened?</h2><button class="btn" type="button">View as table</button></div>
-          <p class="cap" style="margin:0">Each point: hours with a similar predicted chance, against how often a failure followed. Diagonal = perfect match.</p>
-          <div class="chart"><span class="yl">Share that failed</span><span class="xl">Predicted chance</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="50" x2="100" y2="0" stroke="#999" stroke-dasharray="2 2" stroke-width=".5"/><g fill="#555"><circle cx="10" cy="46" r="1.5"/><circle cx="30" cy="38" r="1.5"/><circle cx="50" cy="26" r="1.5"/><circle cx="70" cy="18" r="1.5"/><circle cx="90" cy="8" r="1.5"/></g></svg><span class="note">shape only — no data yet</span></div></figure>
+          <p class="cap" style="margin:0">Held-out test period. Each point: hours with a similar predicted chance, against how often a failure followed. Diagonal = perfect match. Circles = main model, squares = baseline.</p>
+          <div class="chart" data-hide="loading"><span class="yl">Share that failed</span><span class="xl">Predicted chance</span><svg viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="50" x2="100" y2="0" stroke="#999" stroke-dasharray="2 2" stroke-width=".5"/><g fill="#555"><circle cx="10" cy="46" r="1.5"/><circle cx="30" cy="38" r="1.5"/><circle cx="50" cy="26" r="1.5"/><circle cx="70" cy="18" r="1.5"/><circle cx="90" cy="8" r="1.5"/></g><g fill="none" stroke="#555" stroke-width=".6"><rect x="9" y="40" width="3" height="3"/><rect x="29" y="30" width="3" height="3"/><rect x="49" y="30" width="3" height="3"/><rect x="69" y="26" width="3" height="3"/></g></svg><span class="note">shape only — no data yet</span></div><div class="skel block" data-show="loading" hidden></div></figure>
       </section>
 
-      <section class="card" data-hide="not-evaluated">
+      <section class="card" data-hide="not-evaluated error loading">
         <h2>Why plain accuracy misleads here</h2>
         <p style="margin:0">Only —% of machine-hours are followed by a failure within 24 hours. A model that always says "no failure" would score —% accuracy and catch nothing. That is why this page leads with precision, recall and events caught.</p>
         <div style="display:flex;height:16px;margin-top:8px;border:1px solid #555"><div style="flex:97;background:#ddd"></div><div style="flex:3;background:#333"></div></div>
@@ -209,13 +242,13 @@ details summary{cursor:pointer;font-weight:600}
   </div>
 </div>
 <script>
-/* wireframe-only: ?state=not-evaluated */
+/* wireframe-only: ?state=not-evaluated|loading|error */
 (function(){var s=new URLSearchParams(location.search).get('state')||'default';document.body.dataset.state=s;
 document.querySelectorAll('[data-show]').forEach(function(e){e.hidden=e.dataset.show.split(' ').indexOf(s)<0});
 document.querySelectorAll('[data-hide]').forEach(function(e){if(e.dataset.hide.split(' ').indexOf(s)>=0)e.hidden=true});
 document.querySelectorAll('[data-disable]').forEach(function(e){if(e.dataset.disable.split(' ').indexOf(s)>=0)e.disabled=true});
 document.querySelectorAll('[data-enable]').forEach(function(e){e.disabled=e.dataset.enable.split(' ').indexOf(s)<0&&e.hasAttribute('disabled')?true:false;if(e.dataset.enable.split(' ').indexOf(s)>=0)e.disabled=false});
-document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var th=document.querySelector('.timeline .thumb');if(th&&s==='replay-end')th.style.left='calc(100% - 18px)';if(th&&s==='replay-start')th.style.left='0';
+document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var rt=document.getElementById('rt');if(rt&&s==='replay-end')rt.value=rt.max;if(rt&&s==='replay-start')rt.value=rt.min;
 })();
 </script>
 </body>
