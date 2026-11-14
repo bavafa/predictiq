@@ -171,5 +171,13 @@ Crew slots: 5. Why these numbers: round figures that differ a little by model (s
 
 **59. Data-and-model gate approved.** Stage 3 may start. Decisions 55 and 57 are resolved as recorded above. *Status: Approved by Meysam (Owner), 2026-11-14 9:53 AM ET.*
 
+## 2026-11-14, owner decisions (12:24 PM ET)
+
+**60. Core-screens gate (M2) approved.** Stage 4 may start. *Status: Approved by Meysam (Owner), 2026-11-14 12:24 PM ET.*
+
+**61. Machine details show the last 7 days of repairs, not the 90 days in the wireframe.** *Status: Approved by Meysam (Owner), 2026-11-14 12:24 PM ET.*
+
+**62. Dependency update requests are held until after Stage 4.** These are the automatic update pull requests for typescript, pydantic, eslint, pydantic-core and fastapi. Once Stage 4 is done, they will be tested together on a separate branch. Until then, nobody touches them. *Status: Approved by Meysam (Owner), 2026-11-14 12:24 PM ET.*
+
 ## Pending owner decisions
 - None at present.
