@@ -1,13 +1,65 @@
 # Status
 
-_Updated 2026-11-14 3:40 PM ET, dependency-update branch `deps-nov14`._
+_Updated 2026-11-14 6:35 PM ET, Stage 5 ready for Meysam's gate decision (PR #33, base main)._
 
 ## Current stage
-**Stage 4 approved and merged (PR #31, 3:26 PM ET). Now testing dependency updates on branch `deps-nov14` (decision 67). Stage 5 has not started; it waits for Meysam.**
-- Included: fastapi 0.162.4 (#28), pydantic 2.14.3 (#25), pydantic-core 2.50.4 (#27), eslint 10 (#26). Left out: TypeScript 7 (#24), because typescript-eslint does not support it yet.
-- Every test passes after two test-only fixes (pytest 239, or 255 with real data). The protected preview built on the box works. See `docs/QA_REPORTS/deps-nov14-checks.md`.
-- Next: CI, review, then Meysam merges and closes the Dependabot pull requests he chooses.
-- Blockers: none.
+**Stage 5, launch preparation: built, checked and reviewed. Waiting for Meysam's GATE M4 decision and launch go-ahead.** PR #32 was merged at 3:49 PM ET. Dependabot #25 to #28 are closed; #24 stays open (decision 69). The repo is still private, protection is still on, and nothing has been deployed to production.
+- Built: the Model Performance page; full testing (contrast, target size, keyboard, axe, notice, release hygiene, fresh copy), which closes the Stage 3 accessibility coverage gap within its documented automated scope; launch preparation (limitations, README, model card, CLAUDE.md, production bundle download with hash check, launch checklist, history scan).
+- Evidence:
+  - fresh-copy check passed on a clean clone, including the real-bundle and real-data checks;
+  - the bundle-download proof passed all nine cases;
+  - live checks on the protected preview `dpl_7zzg8naq7yXKrrYFNXRyD2AZfM6M` all passed;
+  - review rounds 1 to 8, with a final verdict of PASS WITH KNOWN ISSUES.
+- Needs Meysam: the launch go-ahead; the history items (a personal author email in 874a686, and older internal path names); a licence for the code; decisions 70 and 71.
+
+## Handoff to Meysam (Claude Code), 14 Nov 2026, about 6:40 PM ET
+**Exact state**
+- Branch `model-perf`, PR #33 (https://github.com/bavafa/predictiq/pull/33), base `main`. All Stage 5 work is committed and pushed. `main` is at eafd576 (PR #32 merged).
+- The repo is **private**. Vercel protection is **on** (Standard Protection, `all_except_custom_domains`). There is no production deployment. `main` builds are still cancelled by `ignoreCommand`.
+- Nothing is running: no builder, review or check process is left over from this session.
+- Dependabot #24 (TypeScript 7) stays open. #25 to #28 are closed as superseded by #32.
+- Read `CLAUDE.md` first. It has the session rules and the exact gate report format.
+
+**Next steps (in order; each needs Meysam's go-ahead where marked)**
+1. Decide GATE M4 and merge PR #33 (Meysam).
+2. Owner decisions before launch (`docs/LAUNCH_CHECKLIST.md` step 0):
+   - the personal author email in commit 874a686 and the older internal path names in history (accept, or publish from a fresh repository; no force-push to `main`);
+   - a licence for the code;
+   - decisions 70 and 71.
+3. Launch, only after Meysam's written go-ahead, following `docs/LAUNCH_CHECKLIST.md` steps 1 to 8:
+   - 1: history scan;
+   - 2: merge;
+   - 3: make the repository public;
+   - 4: check the public bundle download;
+   - 5: PR removing the `main` `ignoreCommand`, which starts the production build;
+   - 6: confirm production is public and previews stay protected;
+   - 7: production smoke checks;
+   - 8: add the live link.
+   - Step 9 is rollback.
+4. After launch, update STATUS.md, TASKS.md and DECISIONS.md, and write the final report.
+
+- 4:40 PM ET process check: an Opus `claude -p` process (pid 921100) was running at the same time. It belongs to a different project on the build machine (NeuroGate), not PredictIQ, and had no PredictIQ files open, so it was left alone. Only one PredictIQ builder (Sonnet) ran at a time. No Opus was used for PredictIQ.
+
+## Stage 5, sessions 1-2 and fix 2b: testing summary (14 Nov 2026)
+**Done:** full testing added (contrast pairs, 44 px target sizes, keyboard, axe on every page, the notice on every page, release hygiene, fresh-copy script). Round 1 review fixes: the page says "Model built" (the evaluation date is not saved), synthetic test counts scale with bundle size, and the top notice now says "simulated historical sample data" (decisions 68, 70). Report: `docs/QA_REPORTS/stage5-testing.md`.
+**Fix 2c (14 Nov 2026):** rendered contrast checks on all five pages (text, control boundaries, exact 2px focus rule, chart marks), wider colour scan, and three real fixes (chart legend text, skip-link border, badge ring); the fresh-copy script now says "PASSED (real-bundle checks skipped: ...)" when it skips.
+**Fresh-copy fix (14 Nov 2026):** the real-bundle parity test now skips with a reason when data/raw is missing; with `REQUIRE_REAL=1` the fresh-copy script downloads the raw data (SHA-256 verified) first, and its last line names every skipped part; stray blank lines at EOF removed.
+**Not covered:** human screen-reader testing, real devices, manual WCAG checks that automation cannot make.
+**Needs the owner:** commit 874a686 has a personal author email (committer is the no-reply address); no history rewrite was done. Decision 70 wording can be amended at the launch gate.
+**Next:** session 3, launch preparation (done; see the block below).
+
+## Stage 5, session 3: launch preparation (14 Nov 2026)
+**Done (prepared only; nothing deployed, repo still private, no Vercel change):** About & Data has one "Limitations and what this demo does not do" section matching the Model Performance page and the model card; README rewritten for the public repository (live link "(goes live at launch)"); model card marked final with its facts table and intended / not-intended use; production bundle download in the prebuild (`frontend/scripts/fetch-bundle.mjs`, decision 71): hash checked before unpacking, only the ten allowed files, size caps, synthetic refused, production build fails if the bundle is missing or wrong, previews unchanged; `docs/LAUNCH_CHECKLIST.md` (ordered steps with command, who, expected result, rollback, plus the release criteria with evidence); `docs/DEPLOY.md` updated; history-wide scan (`docs/QA_REPORTS/stage5-history-scan.md`).
+**Checks:** ruff, mypy, eslint, tsc clean; Vitest 179 passed; pytest 345 passed, 1 expected failure (the personal-email commit); build ok; `npm run e2e` 218 passed (5 skipped) plus 18 passed (no-model run).
+**Not done:** `scripts/verify_bundle_download.sh` (localhost end-to-end proof) is written but was **not run**: this session was not allowed to run it. Run it, save the log as `docs/QA_REPORTS/stage5-bundle-download.log`.
+**Needs the owner:** history scan found no secrets, but one personal author email (`874a686`) and some older internal paths and public Microsoft addresses; no rewrite done. Also: go-ahead, a licence for the repo's own code and decisions 70 and 71 (Vercel protection is Standard Protection and needs no change; see the checklist).
+**Fix session 3c:** protection facts and the production address `predictiq-eight.vercel.app` recorded (no protection change expected); native range/checkbox/radio controls now styled from tokens and contrast-tested (range track and thumb measured from the declared CSS, not pixels), source colour scan covers JS/TSX style strings, axe "incomplete" accepted only for six documented cases.
+**Next:** review of session 3, then the launch gate.
+
+## Stage 5, session 1: Model Performance page (14 Nov 2026)
+**Done:** `/model-performance` is built as the experience spec describes: model version, model build date (not an evaluation date; see decision 68), held-out test period and the 24-hour target in words; the shared cut-off control above one "Main model vs simple baseline" table (precision, recall, precision-recall area, the four machine-hour counts, false alerts per 100 machine-days, share of failure events caught, calibration gap), every cut-off row read from the saved threshold analysis at the shared cut-off; charts for precision and recall by cut-off, alerts per day, precision-recall curves and calibration, each with a table view; "Why accuracy misleads when failures are rare" with the saved counts; limitations; loading, error, results-not-available and no-model states. The placeholder is gone and About & Data no longer says the page is not built. Screenshots: `docs/QA_REPORTS/stage5-screenshots/`.
+**Needs the owner:** decision 68 (the evaluation file has no date of its own, so the page shows the model's build date; alerts per day and the accuracy figures are arithmetic on saved counts).
+**Next:** review of this page, then full testing and launch preparation.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
 **Done:** the data checks now run and pass on the real files: 761 failure rows become 719 events, and everything matches the recorded counts. The 24-hour failure label, the past-only features (nothing from the scoring hour or later is used, proven by an automated test that scrambles the future) and the train / tuning / test split with a 24-hour gap between periods are built and tested. Twenty machines are set aside once, with a fixed seed, to test how the model does on machines it never saw. Building every feature for all 100 machines over the whole year takes about 1.5 seconds.
@@ -157,3 +209,4 @@ Independent review: first pass FAIL (1 High: the test window included hours with
 **Known limitations:** inputs reset on reload (not in the address); the wireframe's "USD" is "illustrative currency units" (the service's unit); the list shows at most 100 machines in one table (no paging; the service caps it); arrow-key chart stepping not applicable here.
 - **Stage 4 fix round (14 Nov 2026):** `/plan` now takes planned cost per machine model (decision 55; `planned_cost_by_model`, shared `planned_cost` as fallback) and the screen starts with decision 55's failure and planned costs per model (decision 64 rewritten); the 4,096-byte body limit is enforced while reading (declared length refused early, stream cut at the limit). Python 238 passed (+12 real-bundle), Vitest 138, Playwright 59 synthetic / 7 no-bundle / 62 real; stage 4 screenshots retaken.
 - **Stage 4 fix round 2 (14 Nov 2026):** shared costs are now "Set every machine model to" + "Apply to all models" controls over always-visible per-model fields (decision 65); Fleet guide, About & Data and screenshot README reworded to match the ux-spec table; Vitest 142, Playwright 60 synthetic / 7 no-bundle / 64 real, Python 147 (+12 real-bundle deselected); screenshots retaken.
+- **Review round 5 (14 Nov 2026):** a production build (`VERCEL_ENV=production`) never trusts a local bundle folder: it always downloads the release zip, checks the SHA-256 against the committed manifest, unpacks into fresh staging and replaces the folder (tests added; DEPLOY.md and decision 71 updated); launch checklist step 4 command now sets `VERCEL_ENV=production` for real.

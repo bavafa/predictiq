@@ -69,7 +69,7 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [x] Fix round 2 (14 Nov 2026): Fleet Overview guide step 3 now describes the cut-off and says the Planner comes later; replay-bar tests made deterministic; screenshot README matches the charts-as-tables shots.
 - [x] (14 Nov 2026, Stage 4 session 2) Stage 4: restore the Fleet Overview guide step "open Maintenance Planner, set a cost per machine model, watch machines move up" once the Planner is built (`components/fleet-screen.tsx`, and the guide test in `tests/fleet.test.tsx`).
 - [x] Stage 3 independent review: three rounds, all Medium findings fixed; passed with known issues.
-- [ ] Low (review): accessibility tests don't yet check every contrast pair or mobile target size.
+- [x] Low (review): accessibility tests don't yet check every contrast pair or mobile target size. Covered in Stage 5 session 2 (`docs/QA_REPORTS/stage5-testing.md`); human screen-reader and real-device testing remain not done.
 
 ## Stage 4: Maintenance planning (started 14 Nov 2026, branch `planner`)
 - [x] Session 1 (14 Nov 2026): planner service, `POST /plan` (decision 63), arithmetic / spec-table / determinism / bounds / saved-score tests (real bundle opt-in), largest `/plan` request through the adapter, typed `api.plan()` with `mv` retry.
@@ -82,3 +82,16 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [x] Owner: Stage 4 gate approved, PR #31 merged (3:26 PM ET, 14 Nov 2026).
 - [x] Dependency updates #24 to #28 tested together on branch `deps-nov14`: four included, TypeScript 7 left out (`docs/QA_REPORTS/deps-nov14-checks.md`).
 - [ ] Owner: merge the dependency branch; close Dependabot #25 to #28 (superseded); decide on #24 (TypeScript 7).
+
+## Stage 5: Launch (started 14 Nov 2026, branch `model-perf`, stacked on `deps-nov14`)
+- [x] Session 1 (14 Nov 2026): Model Performance page built per the experience spec (header facts, shared cut-off control, one "Main model vs simple baseline" table read from the saved cut-off table, four charts with table views, "why accuracy misleads", limitations, loading / error / not-available / no-model states), NotBuilt placeholder removed, About & Data text updated, Vitest, Playwright synthetic + opt-in real, screenshots in `docs/QA_REPORTS/stage5-screenshots/` (`node scripts/screenshots.mjs --real --stage5`). Decision 68 records where the saved files differ from the spec's wording.
+- [ ] Owner: confirm or override decision 68 (evaluation date taken from the model build date; alerts per day and accuracy figures derived from saved counts).
+- [x] Session 2 and fix 2b (14 Nov 2026): full testing (contrast pairs, target sizes, keyboard, axe on all pages, notice, release hygiene, fresh-copy script); review round 1 fixes (build-date label, synthetic counts, "simulated" notice, decision 70). Report in `docs/QA_REPORTS/stage5-testing.md`.
+- [x] Fix 2c (14 Nov 2026), review round 2: rendered text and non-text contrast tests on all five pages (`contrast.spec.ts`), axe `color-contrast` proven enabled, exact 2px focus rule in keyboard and contrast specs, source colour scan widened (3-digit hex, rgb/hsl, Tailwind names, opacity, arbitrary), fresh-copy script skip wording and `REQUIRE_REAL=1`, hygiene xfail reason. Fixed: legend text 3.74:1, skip-link border, badge ring token.
+- [ ] Owner: decide what to do about commit 874a686 (personal author email; no rewrite done); see `docs/QA_REPORTS/stage5-history-scan.md` and step 0 of `docs/LAUNCH_CHECKLIST.md`.
+- [x] Session 3 (14 Nov 2026): limitations section, README, model card, production bundle download (decision 71, with unit tests), launch checklist, DEPLOY.md, history-wide scan.
+- [x] Fix 3c (14 Nov 2026): protection facts and production URL `predictiq-eight.vercel.app` written into the checklist, DEPLOY.md and README; review round 4: native range/checkbox/radio styled from tokens and measured in `contrast.spec.ts` (no blanket exemption; range track and thumb read from the declared stylesheet), source colour scan extended to JS/TSX style strings, axe "incomplete" acceptance limited to six documented cases; bundle-download script cases for wrong hash and unexpected file rebuilt (by the previous 3c session).
+- [x] Review round 5 (14 Nov 2026): production build always downloads and verifies the bundle (local folder never trusted, replaced by the verified staging copy); tests for tampered local bundle and download failure; DEPLOY.md, decision 71 and launch checklist step 4 command fixed (`verify_bundle_download.sh` unchanged: its worktree has no local bundle).
+- [ ] Run `scripts/verify_bundle_download.sh` (written, not run: the session was not allowed) and save `docs/QA_REPORTS/stage5-bundle-download.log`.
+- [ ] Optional: protected preview of this branch; independent review of session 3.
+- [ ] Owner: launch gate (`docs/LAUNCH_CHECKLIST.md`): go-ahead, approve decisions 70 and 71, choose a licence for the repo's own code. (Vercel protection needs no change: Standard Protection, checked 14 Nov 2026.)

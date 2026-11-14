@@ -43,13 +43,13 @@ How the screens work, in plain words. Everything shown is *simulated* sample dat
 
 The replay time is not a Planner input, but it changes every predicted chance, so it can change all four.
 
-**Model Performance.** Purpose: let a reviewer judge the model rather than trust it. Shows the model version, evaluation date, held-out test period and the 24-hour target in words. Then one comparison table, "Main model vs simple baseline", with the shared alert cut-off control directly above it and a line that states the held-out test period and the cut-off in use. The table has one row per measure and a column each for the main model and the baseline (desktop adds "Better is: higher / lower"):
+**Model Performance.** Purpose: let a reviewer judge the model rather than trust it. Shows the model version, the model build date (the saved evaluation has no date of its own; decision 68), held-out test period and the 24-hour target in words. Then one comparison table, "Main model vs simple baseline", with the shared alert cut-off control directly above it and a line that states the held-out test period and the cut-off in use. The table has one row per measure and a column each for the main model and the baseline (desktop adds "Better is: higher / lower"):
 - precision; recall; precision–recall area (marked as covering all cut-offs);
 - the right/wrong counts of machine-hours: caught, false alerts, missed, quiet and correct;
 - false alerts per 100 machine-days (a run of consecutive alert hours on one machine counts as one alert, and the row says so); share of failure events caught (a failure counts as caught if an alert came in the 24 hours before it), as "n of m (percent)";
 - a calibration summary (calibration gap, also called Brier score; covers all cut-offs) with a pointer to the calibration chart.
 
-Every row except precision–recall area and calibration is computed at the shared cut-off on the held-out test period, for both models at the same cut-off. Below the table: precision and recall by cut-off and alerts per day by cut-off for the main model, each with the cut-off marked; precision–recall curves for both models; a calibration chart for both models (circles main, squares baseline); why accuracy misleads; and limitations. Every number comes from the saved evaluation; until then values show "—". On mobile the table keeps its three columns and the "better is" rule moves to a line under it.
+Every row except precision–recall area and calibration is computed at the shared cut-off on the held-out test period, for both models at the same cut-off. Below the table: precision and recall by cut-off and alerts per day by cut-off for the main model, each with the cut-off marked; precision–recall curves for both models; a calibration chart for both models (circles main, squares baseline); why accuracy misleads; and limitations. The results come from the saved evaluation; the model version and build date come from the model record (the evaluation date itself is not saved); until then values show "—". On mobile the table keeps its three columns and the "better is" rule moves to a line under it.
 
 **About & Data.** Purpose: what this is and is not. The portfolio statement, how to read the three value labels, the approved data credit line, basic facts about the data, the replay window, known limitations and what is out of scope. No controls besides links. The "Full data record" link opens the public data provenance page in the project's code repository (source, pinned copy, file checks, license notes), in the same tab.
 
@@ -125,7 +125,7 @@ No control is decorative. If a control would do nothing on a page, it is not sho
   - **Predicted**: a model estimate (chance of failure, status, what pushed the estimate).
   - **Illustrative**: a user-set assumption or anything computed from one (costs, crew slots, exposure, net benefit).
   A value computed from both a prediction and an assumption is Illustrative.
-- **Persistent disclosure** at the top of every page, never dismissible: "Portfolio demo — historical sample data; estimated economics are illustrative."
+- **Persistent disclosure** at the top of every page, never dismissible: "Portfolio demo — simulated historical sample data; estimated economics are illustrative."
 - **"Historical replay", never "Live".** No "real-time", "now" or "current" for replayed data. Times say "replay time". "Live" appears only in denials such as "Nothing on this site is live."
 - **Expected exposure, never "savings".** No "saved", "savings", "return on investment" or "avoided cost", except in denials such as "It is not a saving." Net benefit appears only after the user sets an assumed risk reduction, and is labelled an estimate.
 - **Associations, not causes.** Explanations are "what pushed this estimate up or down", with the line "These are patterns the model found in the data, not causes. They are not repair advice."

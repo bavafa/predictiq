@@ -63,6 +63,18 @@ export function ChartCard({
   );
 }
 
-export const th = "border-b border-line px-3 py-2 text-left text-xs font-semibold text-ink-2";
+/**
+ * A table that can be taller than its box. A box that scrolls must be reachable by keyboard (WCAG 2.1.1), so it is
+ * focusable and named; the arrow keys then scroll it.
+ */
+export function ScrollRegion({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="max-h-72 overflow-auto" tabIndex={0} role="region" aria-label={label}>
+      {children}
+    </div>
+  );
+}
+
+export const th ="border-b border-line px-3 py-2 text-left text-xs font-semibold text-ink-2";
 export const td = "tabular border-b border-line px-3 py-1.5 text-sm";
 

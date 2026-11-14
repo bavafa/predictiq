@@ -1,8 +1,29 @@
 # Model card: PredictIQ failure-warning models
 
-**Model version:** `piq-20261114-efc9c243`. Every number on this page comes from simulated sample data. Nothing here describes real machines or a real company.
+**Model version:** `piq-20261114-efc9c243` (the final model of this demo). The performance results on this page were **measured on simulated held-out data** (the test window below, which the models were not fitted or tuned on). Where a figure comes from training or validation data instead, such as row counts or the validation numbers used to choose cut-offs, it says so. All of it is simulated. Nothing here describes real machines or a real company.
 
-Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e).
+Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e). Microsoft states content in that repository is licensed under CC BY 4.0; the repository's license file is MIT.
+
+| Fact | Value |
+|---|---|
+| Version / built | `piq-20261114-efc9c243`, built 2026-11-14 (the date inside the version name; the saved evaluation records no date of its own) |
+| Task | Chance that a machine has a recorded failure event within the next 24 hours, scored every hour |
+| Models | Main: XGBoost 3.4.1. Baseline: logistic regression (scikit-learn 1.9.1) |
+| Features | 35, all built from records before the scoring hour |
+| Test window | 2015-11-01 00:00 to 2015-12-30 06:00 (1,423 hours, 142,300 machine-hours for 100 machines; 110 failure events) |
+| Source of every metric below | `artifacts/piq-20261114-efc9c243/evaluation.json` (committed; `make verify` recomputes it from the saved models and compares) |
+| Metadata and file hashes | `artifacts/piq-20261114-efc9c243/metadata.json`, `manifest.json` |
+
+## Intended use and not intended use
+
+**Intended use.** A portfolio demonstration: to show how failure-warning scores, a plain baseline for comparison, risk drivers and a transparent assumption-based maintenance ranking fit together, using simulated public sample data. A reader can replay the test period, see which machines the model flagged, and check how the model was built and tested.
+
+**Not intended for.**
+- Any decision about real equipment, safety, scheduling, spending or staffing. This is not a production, certified or safety system, and it is not connected to any real machine.
+- Judging how well these models would do on real data. The data is simulated and its failures are easy to see in the sensors; real-world performance is not measured here and is expected to be lower.
+- Causal claims. The explanations ("what drove this score") describe patterns the model used, not physical causes.
+- Savings or return-on-investment claims. The costs in the planner are illustrative values, not real costs.
+- Use as a live monitoring tool. The demo replays a fixed historical period; it is not live.
 
 ## What was built
 
@@ -76,7 +97,12 @@ Right and wrong counts (true alerts, false alerts, misses, quiet and right) for 
 - **Cut-off is a default, not a rule.** It balances precision and recall on validation. A different cost of a miss or a false alarm needs a different cut-off. The cut-off table in `evaluation.json` shows every choice.
 - **Calibration was fitted on the same validation hours used to pick it.** The sigmoid has two numbers, so the risk of fooling ourselves is small, but it is not zero.
 - **Sample dates.** Events at 2015-12-31 06:00 are not test events, but they label the last test hours positive. Hours after the last observed failure are not scored, so the test ends at 2015-12-30 06:00.
-- **The test period was used once.** No setting changed after seeing it. A later fix gets a new model version and its own published result.
+- **The test period was used once.** No setting changed after seeing it. A later fix gets a new model version and its own published result. There is a single evaluation: no repeated runs, cross-validation or resampling, so no spread between runs is available.
+- **Twenty unseen machines.** The only evidence about machines the models never saw is 20 machines and 25 events.
+- **Replay, not live.** The demo steps through saved scores for a fixed historical period. Nothing is scored live, and no real-time data is read.
+- **Explanations are descriptive.** They come from the model's own feature contributions and show associations, not causes.
+- **Illustrative costs.** The maintenance planner's money amounts are assumptions you can change. They are not measured and give no estimate of real savings.
+- **No real-world claim.** Nothing here is evidence about real machines, a real company or any mine.
 
 ## Replay start
 

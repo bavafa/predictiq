@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { CartesianGrid, Line, LineChart, ReferenceDot, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
-import { ChartCard, td, th } from "@/components/chart-card";
+import { ChartCard, ScrollRegion, td, th } from "@/components/chart-card";
 import { Button } from "@/components/ui/button";
 import {
   SENSORS,
@@ -26,7 +26,7 @@ const FAILURE = "#b91c1c";
 const REPAIR = "#475569";
 const ERROR = "#6b7280";
 const INK2 = "#4b5563";
-const GRID = "#d9dee5";
+const GRID = "#e5e7eb";
 
 const label = (hour: string) => {
   const h = parseHour(hour.slice(0, 16));
@@ -101,7 +101,7 @@ function SensorChart({ telemetry, asset, sensor, range }: { telemetry: Telemetry
         </div>
       }
       table={
-        <div className="max-h-72 overflow-auto">
+        <ScrollRegion label={`${sensor.label} table`}>
           <table className="w-full border-collapse">
             <caption className="sr-only">{sensor.label} readings by hour, with recorded failures, repairs and errors on the same hour</caption>
             <thead>
@@ -126,7 +126,7 @@ function SensorChart({ telemetry, asset, sensor, range }: { telemetry: Telemetry
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollRegion>
       }
     />
   );
@@ -232,7 +232,7 @@ export function PastEstimatesChart({ asset, range }: { asset: Asset; range: Rang
         </div>
       }
       table={
-        <div className="max-h-72 overflow-auto">
+        <ScrollRegion label="Predicted chance by hour table">
           <table className="w-full border-collapse">
             <caption className="sr-only">Predicted chance of a recorded failure in the next 24 hours, by hour, beside recorded failures</caption>
             <thead>
@@ -257,7 +257,7 @@ export function PastEstimatesChart({ asset, range }: { asset: Asset; range: Rang
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollRegion>
       }
     />
   );

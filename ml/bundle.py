@@ -263,35 +263,92 @@ def synthetic_bundle(
     tel_hours = pd.date_range(hours[0] - LOOKBACK_HOURS * HOUR, hours[-1] - HOUR, freq="h")
     shape = (n_machines, n_hours)
     scores = {n: rng.beta(0.3, 6.0, shape).astype(np.float32) for n in MODEL_NAMES}
-    cutoffs = [
-        {
-            "cutoff": c,
-            "alerts": int(c),
-            "false_alerts": 0,
-            "events_caught": 0,
-            "precision": 0.5,
-            "recall": 0.5,
+    n_machine_hours = n_machines * n_hours
+    size = n_machine_hours / (100 * 1423)  # the default bundle (100 machines x 1,423 hours): 2,590 positives
+    positives = max(2, round(2590 * size))
+
+    def cutoff_table(quality: float) -> list[dict[str, Any]]:
+        """Fake cut-off rows with every field of the real table (counts add up; no alerts: null precision)."""
+        rows: list[dict[str, Any]] = []
+        for c in range(101):
+            fn = positives if c == 100 else min(positives - 1, round(positives * (c / 100) ** 2 * quality))
+            tp = positives - fn
+            fp = 0 if c == 100 else round((1 - c / 100) ** 2 * 3000 * (2 - quality) * size)
+            alerts = 0 if tp + fp == 0 else max(1, round((tp + fp) / 20))
+            caught = round(107 * (1 - (c / 100) ** 3 * quality))
+            false_alerts = alerts // 12
+            rows.append(
+                {
+                    "alerts": alerts,
+                    "cutoff": c,
+                    "events_caught": caught,
+                    "events_full_lookback": 107,
+                    "false_alerts": false_alerts,
+                    "false_alerts_per_100_machine_days": round(
+                        false_alerts / (n_machines * n_hours / 24 / 100), 6
+                    ),
+                    "fn": fn,
+                    "fp": fp,
+                    "precision": None if tp + fp == 0 else round(tp / (tp + fp), 6),
+                    "recall": round(tp / positives, 6),
+                    "share_events_caught": round(caught / 107, 6),
+                    "tn": n_machine_hours - positives - fp,
+                    "tp": tp,
+                }
+            )
+        return rows
+
+    def calibration_curve(scale: float, n_m: int) -> list[dict[str, Any]]:
+        return [
+            {
+                "bin": i + 1,
+                "mean_score": round((i + 1) ** 2 / 10000 * scale, 6),
+                "n": n_m * n_hours // 10,
+                "observed_rate": round((i + 1) ** 2 / 9000 * scale, 6),
+                "positives": positives * n_m // n_machines * (i + 1) // 55,
+            }
+            for i in range(10)
+        ]
+
+    def group(n_m: int, pr_auc: float, brier: float, scale: float) -> dict[str, Any]:
+        return {
+            "n_machines": n_m,
+            "n_machine_hours": n_m * n_hours,
+            "n_positive_hours": positives * n_m // n_machines,
+            "pr_auc": pr_auc,
+            "brier": brier,
+            "calibration_curve": calibration_curve(scale, n_m),
         }
-        for c in range(101)
-    ]
-    groups = {
-        g: {"n_machines": n_machines, "n_machine_hours": n_machines * n_hours}
-        for g in ("all", "seen", "unseen")
-    }
+
+    qualities = {"main": (0.4, 0.95, 0.0012, 1.0), "baseline": (1.0, 0.8, 0.006, 3.0)}
     evaluation = {
         "schema": 1,
         "model_version": "piq-synthetic-00000000",
         "alert_rule": "synthetic",
         "simulated": True,
+        "test_window": {
+            "start": "2015-11-01 00:00",
+            "end": hours[-1].strftime("%Y-%m-%d %H:%M"),
+            "hours": n_hours,
+        },
         "models": {
-            n: {"default_cutoff_percent": 51, "groups": {g: dict(v) for g, v in groups.items()}}
+            n: {
+                "default_cutoff_percent": 51,
+                "groups": {
+                    "all": group(n_machines, qualities[n][1], qualities[n][2], qualities[n][3]),
+                    "seen": group(n_machines * 4 // 5, qualities[n][1], qualities[n][2], qualities[n][3]),
+                    "unseen": group(n_machines // 5, qualities[n][1], qualities[n][2], qualities[n][3]),
+                },
+            }
             for n in MODEL_NAMES
         },
     }
     evaluation_for_split = json.loads(json.dumps(evaluation))
     for n in MODEL_NAMES:
-        for g in groups:
-            evaluation_for_split["models"][n]["groups"][g]["threshold_analysis"] = cutoffs
+        for g in ("all", "seen", "unseen"):
+            evaluation_for_split["models"][n]["groups"][g]["threshold_analysis"] = cutoff_table(
+                qualities[n][0]
+            )
     metrics, threshold = split_evaluation(evaluation_for_split)
     unseen = sorted(
         int(m) for m in rng.choice(np.arange(1, n_machines + 1), size=n_machines // 5, replace=False)

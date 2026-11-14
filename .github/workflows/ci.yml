@@ -70,7 +70,11 @@ jobs:
       - run: uv run --group ml ruff check .
       - run: uv run --group ml ruff format --check .
       - run: uv run --group ml mypy
+      # Includes scripts/tests/test_design_tokens.py (every contrast pair; the colours that ship equal tokens.json)
+      # and scripts/tests/test_release_hygiene.py (no secrets, personal emails, private paths or forbidden files tracked).
       - run: uv run --group ml pytest
+      - name: Design contrast table (docs/design/check-contrast.py; exits 1 on any unexpected result)
+        run: python3 -I docs/design/check-contrast.py
       - name: requirements.txt for Vercel is in sync with uv.lock
         run: |
           uv export --no-dev --no-hashes --frozen --no-emit-project -o /tmp/requirements.txt

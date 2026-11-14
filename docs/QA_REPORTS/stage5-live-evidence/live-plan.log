@@ -1,0 +1,10 @@
+model_version=piq-20261114-efc9c243 at=2015-12-30T06:00:00
+200 25466 | largest allowed request (100 machines listed, maximum inputs) | cache-control=no-store | rows=100 | 17:54:18
+200 25466 | same request again (determinism check below) | cache-control=no-store | rows=100 | 17:54:18
+200 25466 | same request a third time | cache-control=no-store | rows=100 | 17:54:18
+identical bodies: yes
+200 1809 | minimal request | cache-control=no-store | rows=1 | 17:54:19
+404 100 | wrong model version -> expect 404 | cache-control=no-store | rows=0 | 17:54:19
+422 135 | crew_slots 101 -> expect 422 | cache-control=no-store | rows=0 | 17:54:20
+422 269 | unknown field -> expect 422 | cache-control=no-store | rows=0 | 17:54:20
+413 118 | body over 4,096 bytes -> expect 413 | cache-control=no-store | rows=0 | 17:54:21

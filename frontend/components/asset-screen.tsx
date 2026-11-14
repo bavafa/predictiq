@@ -8,6 +8,7 @@ import { useData } from "@/components/data-provider";
 import { StatusTag } from "@/components/fleet-table";
 import { NoModelData, PanelError, Skeleton } from "@/components/states";
 import { Button } from "@/components/ui/button";
+import { Definition } from "@/components/definition";
 import { ValueLabel } from "@/components/value-label";
 import { CAVEAT_LINE, directionWord, inputName, recentFirst, rowHour, sameAnswer, signed } from "@/lib/asset";
 import { percent } from "@/lib/fleet";
@@ -177,7 +178,7 @@ function AssetBody({ id, total, modelVersion }: { id: number; total: number; mod
         </div>
         <span className="text-sm text-ink-2" data-testid="cutoff-readout">
           Alert cut-off: {cutoff}% (shared; change it on{" "}
-          <Link href={fleetHref} className="text-link underline">
+          <Link href={fleetHref} className="inline-flex min-h-11 items-center text-link underline">
             Fleet Overview
           </Link>
           )
@@ -290,33 +291,6 @@ function ScorePanel({ query, data, hourLabel, busy }: { query: Q; data: Asset | 
 }
 
 // --- what pushed the estimate ---------------------------------------------------------------------------------
-
-function Definition({ text, name }: { text: string; name: string }) {
-  const [open, setOpen] = useState(false);
-  const id = useId();
-  return (
-    <span className="inline-flex flex-col align-top">
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls={id}
-        aria-label={`What "${name}" means`}
-        className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-base"
-        onClick={() => setOpen((o) => !o)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") setOpen(false);
-        }}
-      >
-        <span aria-hidden="true">ⓘ</span>
-      </button>
-      {open && (
-        <span id={id} role="note" className="mb-2 max-w-sm rounded-md border border-input-edge bg-subtle px-2 py-1 text-xs leading-4 font-normal">
-          {text}
-        </span>
-      )}
-    </span>
-  );
-}
 
 function ExplanationPanel({ error, retry, data, dim }: { error: ApiError | null; retry: () => void; data: Explanation | null; dim: boolean }) {
   return (

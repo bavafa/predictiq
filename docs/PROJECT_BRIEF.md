@@ -65,7 +65,7 @@ Your responsibilities:
 ### 4.1 Global application shell
 - Desktop-first, polished responsive enterprise SaaS interface; accessible at common mobile/tablet widths.
 - Navigation: **Fleet Overview**, **Asset Details**, **Maintenance Planner**, **Model Performance**, plus concise **About/Data Provenance**.
-- Persistent disclosure: **Portfolio demo — historical sample data; estimated economics are illustrative.**
+- Persistent disclosure: **Portfolio demo — simulated historical sample data; estimated economics are illustrative.**
 - Global replay timestamp and a clear indicator that the application is showing archived data.
 - No login required; no personal information collection; no external production equipment control.
 

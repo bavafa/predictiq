@@ -13,14 +13,15 @@ from app import bundle as reader
 from ml import bundle as mb
 from ml import evaluate, replay, train
 from ml.artifacts import latest_version, write_manifest
-from ml.data import load_tables
-from ml.models import Calibrator
+from ml.data import RAW_DIR, load_tables
+from ml.models import MODEL_NAMES, Calibrator
 from ml.scoring import compute_test_scores
 from ml.tests.synthetic import make_year_tables
 
 SMALL = copy.deepcopy(train.CONFIG)
 SMALL["main"]["grid"] = {"max_depth": [2], "n_estimators": [15]}
 UNSEEN = [9, 10]
+RAW_FILES = ["PdM_telemetry.csv", "PdM_errors.csv", "PdM_maint.csv", "PdM_failures.csv", "PdM_machines.csv"]
 
 
 @pytest.fixture(scope="module")
@@ -100,6 +101,32 @@ def test_synthetic_bundle_is_marked_and_loads_through_the_reader(tmp_path: Path)
     assert b.synthetic and b.n_machines == 12 and b.n_hours == 200
 
 
+SIZES = [(1, 3), (5, 60), (12, 200), (3, 800), (100, 1423), (120, 1500)]
+
+
+@pytest.mark.parametrize(("n_machines", "n_hours"), SIZES)
+def test_synthetic_counts_are_consistent_for_any_size(tmp_path: Path, n_machines: int, n_hours: int) -> None:
+    mb.synthetic_bundle(tmp_path, n_machines=n_machines, n_hours=n_hours)
+    ev = json.loads((tmp_path / "evaluation.json").read_text())
+    thr = json.loads((tmp_path / "threshold_analysis.json").read_text())
+    total = n_machines * n_hours
+    if (n_machines, n_hours) == (100, 1423):
+        assert ev["models"]["main"]["groups"]["all"]["n_positive_hours"] == 2590
+    for name in MODEL_NAMES:
+        groups = ev["models"][name]["groups"]
+        positives = groups["all"]["n_positive_hours"]
+        assert 0 < positives < total
+        for g in groups.values():
+            assert 0 <= g["n_positive_hours"] <= g["n_machine_hours"]
+            assert all(0 <= b["positives"] <= b["n"] <= g["n_machine_hours"] for b in g["calibration_curve"])
+        rows = thr["models"][name]["all"]
+        assert len(rows) == 101
+        for r in rows:
+            assert min(r["tp"], r["fp"], r["fn"], r["tn"]) >= 0
+            assert r["tp"] + r["fp"] + r["fn"] + r["tn"] == total
+            assert r["tp"] + r["fn"] == positives
+
+
 def test_data_credit_is_the_approved_line() -> None:
     text = (Path(__file__).resolve().parents[2] / "docs" / "DATA_PROVENANCE.md").read_text()
     assert mb.DATA_CREDIT in text
@@ -111,6 +138,9 @@ def test_real_bundle_scores_equal_the_saved_model() -> None:
     out = vdir / "bundle"
     if not (out / "meta.json").exists():
         pytest.skip("no real bundle built (run scripts/build_bundle.py)")
+    missing = [f for f in RAW_FILES if not (RAW_DIR / f).exists()]
+    if missing:
+        pytest.skip(f"data/raw is missing {', '.join(missing)}; run `make data`")
     fresh = compute_test_scores(vdir, load_tables())
     b = reader.load_bundle(out)
     assert b.model_version == vdir.name and not b.synthetic

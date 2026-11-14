@@ -1,12 +1,16 @@
 // Prebuild step. Copies, for the Vercel Python function:
 //   ../backend/app                      -> _backend/app     (backend/ stays the only source)
 //   ../artifacts/<latest>/bundle         -> _backend/bundle  (only if present; never a synthetic one)
+// On a production build (VERCEL_ENV=production) the bundle is always downloaded from the public release and verified first,
+// replacing any local folder; with BUNDLE_FETCH=1 it is downloaded when there is no local bundle (fetch-bundle.mjs, decision 71). On production a missing,
+// failed or mismatched bundle FAILS the build. Without those variables (previews, local builds) nothing is downloaded.
 // _backend/ is generated and git-ignored.
 //
 // Options (used by the tests): --backend <dir> --artifacts <dir> --out <dir>
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { BundleError, ensureBundle } from "./fetch-bundle.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const frontend = resolve(here, "..");
@@ -32,6 +36,15 @@ function latestBundle(root) {
     if (existsSync(join(dir, "meta.json"))) return { version: v, dir };
   }
   return null;
+}
+
+try {
+  await ensureBundle({ artifacts });
+} catch (e) {
+  if (!(e instanceof BundleError)) throw e;
+  console.error(`sync-backend: ${e.message}`);
+  console.error("sync-backend: the bundle is required for this build, so the build stops here. Nothing is deployed without model data.");
+  process.exit(1);
 }
 
 const found = latestBundle(artifacts);

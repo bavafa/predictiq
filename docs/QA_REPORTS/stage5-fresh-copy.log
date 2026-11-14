@@ -1,0 +1,947 @@
+
+==================================================================================
+== clone HEAD into a temporary folder
+==================================================================================
+commit under test: 758023d117ff633af7b32800620e3f4ee8aed167
+branch:            model-perf
+files in the copy: 410
+
+==================================================================================
+== web: npm ci
+==================================================================================
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: eslint-plugin-import@2.32.0
+npm warn Found: eslint@10.15.0
+npm warn node_modules/eslint
+npm warn   dev eslint@"^10.14.0" from the root project
+npm warn   10 more (@eslint-community/eslint-utils, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer eslint@"^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8 || ^9" from eslint-plugin-import@2.32.0
+npm warn node_modules/eslint-config-next/node_modules/eslint-plugin-import
+npm warn   eslint-plugin-import@"^2.32.0" from eslint-config-next@16.4.6
+npm warn   node_modules/eslint-config-next
+npm warn   1 more (eslint-import-resolver-typescript)
+npm warn
+npm warn Conflicting peer dependency: eslint@9.39.5
+npm warn node_modules/eslint
+npm warn   peer eslint@"^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8 || ^9" from eslint-plugin-import@2.32.0
+npm warn   node_modules/eslint-config-next/node_modules/eslint-plugin-import
+npm warn     eslint-plugin-import@"^2.32.0" from eslint-config-next@16.4.6
+npm warn     node_modules/eslint-config-next
+npm warn     1 more (eslint-import-resolver-typescript)
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: eslint-plugin-jsx-a11y@6.10.2
+npm warn Found: eslint@10.15.0
+npm warn node_modules/eslint
+npm warn   dev eslint@"^10.14.0" from the root project
+npm warn   10 more (@eslint-community/eslint-utils, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer eslint@"^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9" from eslint-plugin-jsx-a11y@6.10.2
+npm warn node_modules/eslint-config-next/node_modules/eslint-plugin-jsx-a11y
+npm warn   eslint-plugin-jsx-a11y@"^6.10.0" from eslint-config-next@16.4.6
+npm warn   node_modules/eslint-config-next
+npm warn
+npm warn Conflicting peer dependency: eslint@9.39.5
+npm warn node_modules/eslint
+npm warn   peer eslint@"^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9" from eslint-plugin-jsx-a11y@6.10.2
+npm warn   node_modules/eslint-config-next/node_modules/eslint-plugin-jsx-a11y
+npm warn     eslint-plugin-jsx-a11y@"^6.10.0" from eslint-config-next@16.4.6
+npm warn     node_modules/eslint-config-next
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: eslint-plugin-react@7.37.5
+npm warn Found: eslint@10.15.0
+npm warn node_modules/eslint
+npm warn   dev eslint@"^10.14.0" from the root project
+npm warn   10 more (@eslint-community/eslint-utils, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer eslint@"^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7" from eslint-plugin-react@7.37.5
+npm warn node_modules/eslint-config-next/node_modules/eslint-plugin-react
+npm warn   eslint-plugin-react@"^7.37.0" from eslint-config-next@16.4.6
+npm warn   node_modules/eslint-config-next
+npm warn
+npm warn Conflicting peer dependency: eslint@9.39.5
+npm warn node_modules/eslint
+npm warn   peer eslint@"^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7" from eslint-plugin-react@7.37.5
+npm warn   node_modules/eslint-config-next/node_modules/eslint-plugin-react
+npm warn     eslint-plugin-react@"^7.37.0" from eslint-config-next@16.4.6
+npm warn     node_modules/eslint-config-next
+
+added 476 packages in 14s
+
+==================================================================================
+== web: lint
+==================================================================================
+
+> predictiq-frontend@0.1.0 lint
+> eslint .
+
+
+==================================================================================
+== web: typecheck
+==================================================================================
+
+> predictiq-frontend@0.1.0 typecheck
+> tsc --noEmit
+
+
+==================================================================================
+== web: Vitest
+==================================================================================
+
+> predictiq-frontend@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.0 <tmp>/predictiq/frontend
+
+
+ Test Files  13 passed (13)
+      Tests  181 passed (181)
+   Start at  18:10:32
+   Duration  4.41s (tests 42%, environment 29%, import 13%, transform 9%, setup 6%)
+
+Environment  jsdom was created 13 times · 7.30s total, 29% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+==================================================================================
+== web: build
+==================================================================================
+
+> predictiq-frontend@0.1.0 prebuild
+> node scripts/sync-backend.mjs
+
+synced <tmp>/predictiq/backend/app -> <tmp>/predictiq/frontend/_backend/app
+no bundle found under artifacts/: the data endpoints will answer 503 (no data is faked)
+
+> predictiq-frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 44ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.9s
+  Running TypeScript ...
+  Finished TypeScript in 5.1s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/7) ...
+  Generating static pages using 7 workers (1/7) 
+  Generating static pages using 7 workers (3/7) 
+  Generating static pages using 7 workers (5/7) 
+✓ Generating static pages using 7 workers (7/7) in 292ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about-data
+├ ○ /asset-details
+├ ○ /maintenance-planner
+└ ○ /model-performance
+
+
+○  (Static)  prerendered as static content
+
+
+==================================================================================
+== web: Playwright, synthetic bundle, then no bundle (npm run e2e)
+==================================================================================
+
+> predictiq-frontend@0.1.0 e2e
+> node scripts/e2e.mjs
+
+Using CPython 3.12.16
+Creating virtual environment at: .venv
+Installed 66 packages in 120ms
+synthetic bundle piq-synthetic-00000000 written to <tmp>/predictiq/frontend/.e2e/bundle (replay starts 2015-11-02T00:00:00)
+
+> predictiq-frontend@0.1.0 prebuild
+> node scripts/sync-backend.mjs
+
+synced <tmp>/predictiq/backend/app -> <tmp>/predictiq/frontend/_backend/app
+no bundle found under artifacts/: the data endpoints will answer 503 (no data is faked)
+
+> predictiq-frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 36ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 494ms
+  Running TypeScript ...
+  Finished TypeScript in 5.2s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/7) ...
+  Generating static pages using 7 workers (1/7) 
+  Generating static pages using 7 workers (3/7) 
+  Generating static pages using 7 workers (5/7) 
+✓ Generating static pages using 7 workers (7/7) in 287ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about-data
+├ ○ /asset-details
+├ ○ /maintenance-planner
+└ ○ /model-performance
+
+
+○  (Static)  prerendered as static content
+
+[WebServer] INFO:     Started server process [239214]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+
+Running 223 tests using 4 workers
+
+(node:239287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:239293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:239299) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:239286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /asset-details (desktop) (2.0s)
+  ✓    2 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /maintenance-planner (desktop) (2.3s)
+  ✓    3 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /model-performance (desktop) (2.7s)
+  ✓    4 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on / (desktop) (2.9s)
+  ✓    5 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /about-data (desktop) (1.2s)
+  ✓    7 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /asset-details (mobile) (1.3s)
+  ✓    6 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on / (mobile) (2.0s)
+  ✓    8 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /maintenance-planner (mobile) (1.7s)
+  ✓    9 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /model-performance (mobile) (2.0s)
+  ✓   10 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /about-data (mobile) (1.3s)
+  -   14 [chromium] › e2e/asset-real.spec.ts:9:1 › Asset Details shows the API score and status (real bundle)
+  ✓   12 [chromium] › e2e/a11y.spec.ts:38:1 › focus: Escape closes the mobile menu and returns focus to the Menu button (750ms)
+  ✓   11 [chromium] › e2e/a11y.spec.ts:30:1 › axe: the open mobile menu dialog has no serious or critical violations (1.9s)
+  ✓   13 [chromium] › e2e/a11y.spec.ts:49:1 › focus: the chart table toggle keeps focus on its button, both ways (1.1s)
+  ✓   16 [chromium] › e2e/asset.spec.ts:68:1 › the factors are labelled patterns, not causes: top 8 plus all others, with the caveat (1.3s)
+  ✓   15 [chromium] › e2e/asset.spec.ts:39:1 › the machine picker and the web address choose the machine; the score is the data service's score (2.0s)
+  ✓   18 [chromium] › e2e/asset.spec.ts:107:1 › stepping the replay changes the score to the data service's score for the next hour (1.8s)
+  ✓   19 [chromium] › e2e/asset.spec.ts:133:1 › the range toggle switches the sensor history between 24 hours and 7 days (1.7s)
+  ✓   20 [chromium] › e2e/asset.spec.ts:146:1 › a machine outside 1 to 100 shows the not-found state with a selector and a way back (1.3s)
+  ✓   21 [chromium] › e2e/asset.spec.ts:157:1 › when the sensor history fails, only that panel shows an error and Try again fixes it (1.3s)
+  ✓   17 [chromium] › e2e/asset.spec.ts:87:1 › no error, repair or failure at or after the replay hour is shown, for many machines and hours (3.8s)
+  ✓   25 [chromium] › e2e/asset.spec.ts:226:1 › mobile: sensors are tabs, one chart at a time, and nothing scrolls sideways (738ms)
+  ✓   26 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › Fleet Overview: main state (2.0s)
+  ✓   24 [chromium] › e2e/asset.spec.ts:209:3 › axe: a loaded machine and the not-found state have no serious or critical violations (mobile) (4.7s)
+  ✓   23 [chromium] › e2e/asset.spec.ts:209:3 › axe: a loaded machine and the not-found state have no serious or critical violations (desktop) (5.9s)
+  ✓   22 [chromium] › e2e/asset.spec.ts:175:1 › replay control on this screen: 'Historical replay' wording, clean stop at the end and at the start (6.4s)
+  ✓   27 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › Asset Details: main state (2.0s)
+  ✓   30 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › About & Data: main state (1.4s)
+  ✓   29 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › Model Performance: main state (2.0s)
+  ✓   28 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › Maintenance Planner: main state (2.3s)
+  ✓   31 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, desktop › Fleet Overview: every chart shown as a table (2.5s)
+  ✓   32 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, desktop › Asset Details: every chart shown as a table (2.9s)
+  ✓   34 [chromium] › e2e/axe-all.spec.ts:86:7 › axe, desktop › Asset Details: every ⓘ definition open (3.0s)
+  ✓   35 [chromium] › e2e/axe-all.spec.ts:86:7 › axe, desktop › Model Performance: every ⓘ definition open (2.7s)
+  ✓   33 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, desktop › Model Performance: every chart shown as a table (3.9s)
+  ✓   36 [chromium] › e2e/axe-all.spec.ts:97:5 › axe, desktop › Fleet Overview: filtered to nothing (empty state) (1.8s)
+  ✓   37 [chromium] › e2e/axe-all.spec.ts:104:5 › axe, desktop › Asset Details: no machine chosen, and machine not found (2.4s)
+  ✓   40 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, desktop › Fleet Overview: the data service cannot be reached (error state) (1.3s)
+  ✓   42 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, desktop › Asset Details: the data service cannot be reached (error state) (1.3s)
+  ✓   38 [chromium] › e2e/axe-all.spec.ts:114:5 › axe, desktop › Maintenance Planner: nothing at or above the cut-off (empty), and an invalid input (3.6s)
+  ✓   39 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, desktop › Fleet Overview: loading state and "waking up" state (4.6s)
+  ✓   44 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, desktop › Maintenance Planner: the data service cannot be reached (error state) (1.4s)
+  ✓   46 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, desktop › Model Performance: the data service cannot be reached (error state) (1.3s)
+  ✓   41 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, desktop › Asset Details: loading state and "waking up" state (4.7s)
+  ✓   43 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, desktop › Maintenance Planner: loading state and "waking up" state (4.5s)
+  ✓   48 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › Asset Details: main state (1.8s)
+  ✓   47 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › Fleet Overview: main state (2.1s)
+  ✓   45 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, desktop › Model Performance: loading state and "waking up" state (4.7s)
+  ✓   51 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › About & Data: main state (1.2s)
+  ✓   49 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › Maintenance Planner: main state (2.0s)
+  ✓   50 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › Model Performance: main state (2.1s)
+  ✓   53 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, mobile › Asset Details: every chart shown as a table (2.3s)
+  ✓   52 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, mobile › Fleet Overview: every chart shown as a table (2.4s)
+  ✓   55 [chromium] › e2e/axe-all.spec.ts:86:7 › axe, mobile › Asset Details: every ⓘ definition open (2.6s)
+  ✓   57 [chromium] › e2e/axe-all.spec.ts:97:5 › axe, mobile › Fleet Overview: filtered to nothing (empty state) (1.6s)
+  ✓   54 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, mobile › Model Performance: every chart shown as a table (3.9s)
+  ✓   56 [chromium] › e2e/axe-all.spec.ts:86:7 › axe, mobile › Model Performance: every ⓘ definition open (2.7s)
+  ✓   58 [chromium] › e2e/axe-all.spec.ts:104:5 › axe, mobile › Asset Details: no machine chosen, and machine not found (2.3s)
+  ✓   61 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, mobile › Fleet Overview: the data service cannot be reached (error state) (1.4s)
+  ✓   59 [chromium] › e2e/axe-all.spec.ts:114:5 › axe, mobile › Maintenance Planner: nothing at or above the cut-off (empty), and an invalid input (3.5s)
+  ✓   63 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, mobile › Asset Details: the data service cannot be reached (error state) (1.1s)
+  ✓   65 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, mobile › Maintenance Planner: the data service cannot be reached (error state) (1.3s)
+  ✓   60 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, mobile › Fleet Overview: loading state and "waking up" state (4.6s)
+  ✓   67 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, mobile › Model Performance: the data service cannot be reached (error state) (969ms)
+  ✓   62 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, mobile › Asset Details: loading state and "waking up" state (4.4s)
+  ✓   68 [chromium] › e2e/axe-all.spec.ts:156:1 › axe: the open mobile Menu panel (1.5s)
+  ✓   69 [chromium] › e2e/axe-all.spec.ts:164:1 › axe: a panel that failed to load (Fleet Overview, desktop) (1.3s)
+  ✓   64 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, mobile › Maintenance Planner: loading state and "waking up" state (4.6s)
+  ✓   66 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, mobile › Model Performance: loading state and "waking up" state (4.3s)
+  ✓   71 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Asset Details (desktop) (2.1s)
+  ✓   70 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Fleet Overview (desktop) (2.4s)
+  ✓   72 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Maintenance Planner (desktop) (2.1s)
+  ✓   75 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on About & Data (desktop) (1.3s)
+  ✓   73 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Model Performance (desktop) (2.0s)
+  ✓   74 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Fleet Overview (mobile) (2.1s)
+  ✓   76 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Asset Details (mobile) (2.0s)
+  ✓   80 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › Fleet Overview: control boundaries are at least 3:1 against the background behind them (837ms)
+  ✓   79 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on About & Data (mobile) (1.3s)
+  ✓   77 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Maintenance Planner (mobile) (2.3s)
+  ✓   78 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Model Performance (mobile) (2.3s)
+  ✓   81 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › Fleet Overview: every control's keyboard focus outline is the exact rule and at least 3:1 (860ms)
+  ✓   82 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › Asset Details: control boundaries are at least 3:1 against the background behind them (1.0s)
+  ✓   84 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › Maintenance Planner: control boundaries are at least 3:1 against the background behind them (991ms)
+  ✓   83 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › Asset Details: every control's keyboard focus outline is the exact rule and at least 3:1 (1.1s)
+  ✓   85 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › Maintenance Planner: every control's keyboard focus outline is the exact rule and at least 3:1 (1.0s)
+  ✓   88 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › About & Data: control boundaries are at least 3:1 against the background behind them (690ms)
+  ✓   86 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › Model Performance: control boundaries are at least 3:1 against the background behind them (1.1s)
+  ✓   89 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › About & Data: every control's keyboard focus outline is the exact rule and at least 3:1 (902ms)
+  ✓   87 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › Model Performance: every control's keyboard focus outline is the exact rule and at least 3:1 (1.5s)
+  ✓   91 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (desktop) › Asset Details: chart marks are at least 3:1 against the chart background (1.3s)
+  ✓   90 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (desktop) › Fleet Overview: chart marks are at least 3:1 against the chart background (1.4s)
+  ✓   92 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (desktop) › Model Performance: chart marks are at least 3:1 against the chart background (1.1s)
+  ✓   93 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › Fleet Overview: control boundaries are at least 3:1 against the background behind them (1.0s)
+  ✓   94 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › Fleet Overview: every control's keyboard focus outline is the exact rule and at least 3:1 (843ms)
+  ✓   95 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › Asset Details: control boundaries are at least 3:1 against the background behind them (793ms)
+  ✓   97 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › Maintenance Planner: control boundaries are at least 3:1 against the background behind them (598ms)
+  ✓   96 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › Asset Details: every control's keyboard focus outline is the exact rule and at least 3:1 (868ms)
+  ✓   98 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › Maintenance Planner: every control's keyboard focus outline is the exact rule and at least 3:1 (752ms)
+  ✓  101 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › About & Data: control boundaries are at least 3:1 against the background behind them (580ms)
+  ✓   99 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › Model Performance: control boundaries are at least 3:1 against the background behind them (1.0s)
+  ✓  102 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › About & Data: every control's keyboard focus outline is the exact rule and at least 3:1 (491ms)
+  ✓  100 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › Model Performance: every control's keyboard focus outline is the exact rule and at least 3:1 (1.1s)
+  ✓  104 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (mobile) › Asset Details: chart marks are at least 3:1 against the chart background (856ms)
+  ✓  103 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (mobile) › Fleet Overview: chart marks are at least 3:1 against the chart background (944ms)
+  ✓  105 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (mobile) › Model Performance: chart marks are at least 3:1 against the chart background (1.0s)
+  ✓  106 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Fleet Overview (desktop) (1.2s)
+  ✓  108 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Maintenance Planner (desktop) (1.1s)
+  ✓  107 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Asset Details (desktop) (1.3s)
+  ✓  110 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: About & Data (desktop) (758ms)
+  ✓  109 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Model Performance (desktop) (1.3s)
+  ✓  113 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Maintenance Planner (mobile) (984ms)
+  ✓  111 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Fleet Overview (mobile) (1.3s)
+  -  116 [chromium] › e2e/fleet-real.spec.ts:9:1 › Fleet Overview Alert count equals the /fleet API alert count at two cut-offs (real bundle)
+  ✓  112 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Asset Details (mobile) (1.2s)
+  ✓  115 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: About & Data (mobile) (496ms)
+  ✓  114 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Model Performance (mobile) (1.4s)
+  ✓  117 [chromium] › e2e/fleet.spec.ts:44:1 › the cards, charts and table show what the data service answers at the replay start (1.2s)
+  ✓  121 [chromium] › e2e/fleet.spec.ts:143:1 › a machine row opens Asset Details at the same replay time and cut-off (922ms)
+  ✓  119 [chromium] › e2e/fleet.spec.ts:96:1 › changing the cut-off updates the count and the table together (and Reset returns to the default) (2.4s)
+  ✓  122 [chromium] › e2e/fleet.spec.ts:159:1 › filters sit in the address, and Clear filters removes them (1.1s)
+  ✓  120 [chromium] › e2e/fleet.spec.ts:123:1 › stepping the replay changes the numbers, and they match the service at each hour (2.7s)
+  ✓  124 [chromium] › e2e/fleet.spec.ts:185:1 › ERROR: a failed request says what failed, keeps the settings and recovers on Try again (853ms)
+  ✓  123 [chromium] › e2e/fleet.spec.ts:169:1 › EMPTY FILTER RESULT: zero everywhere, filters stay in their fields (2.0s)
+  ✓  126 [chromium] › e2e/fleet.spec.ts:210:1 › charts can be read as tables, and have a text summary (914ms)
+  ✓  125 [chromium] › e2e/fleet.spec.ts:199:1 › LOADING: grey blocks while the first answer is awaited (2.0s)
+  ✓  129 [chromium] › e2e/fleet.spec.ts:251:1 › replay at the start and at the end still show the fleet for that hour (1.0s)
+  ✓  118 [chromium] › e2e/fleet.spec.ts:62:1 › the Alert count equals the Alert rows of the filtered table, for every filter (6.7s)
+  ✓  128 [chromium] › e2e/fleet.spec.ts:233:1 › axe and layout: Fleet Overview on a phone has a list, a Sort menu and no sideways scroll (2.3s)
+  ✓  127 [chromium] › e2e/fleet.spec.ts:225:1 › axe: Fleet Overview loaded, with the charts as tables and the empty state (desktop) (3.5s)
+  ✓  131 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › Asset Details: Tab reaches every control, focus is always visible, no trap (1.7s)
+  ✓  134 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › About & Data: Tab reaches every control, focus is always visible, no trap (795ms)
+  ✓  130 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › Fleet Overview: Tab reaches every control, focus is always visible, no trap (2.9s)
+  ✓  133 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › Model Performance: Tab reaches every control, focus is always visible, no trap (1.5s)
+  ✓  132 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › Maintenance Planner: Tab reaches every control, focus is always visible, no trap (2.8s)
+  ✓  136 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › Asset Details: Tab reaches every control, focus is always visible, no trap (1.4s)
+  ✓  139 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › About & Data: Tab reaches every control, focus is always visible, no trap (431ms)
+  ✓  138 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › Model Performance: Tab reaches every control, focus is always visible, no trap (1.2s)
+  ✓  135 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › Fleet Overview: Tab reaches every control, focus is always visible, no trap (2.4s)
+  ✓  141 [chromium] › e2e/keyboard.spec.ts:145:3 › keyboard: the Menu panel (mobile) › Menu opens with Space, Close menu closes it with Enter and focus returns to Menu (815ms)
+  ✓  137 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › Maintenance Planner: Tab reaches every control, focus is always visible, no trap (2.4s)
+  ✓  140 [chromium] › e2e/keyboard.spec.ts:122:3 › keyboard: the Menu panel (mobile) › Menu opens with Enter, focus moves in and stays in, Escape closes and returns focus (1.6s)
+  ✓  142 [chromium] › e2e/keyboard.spec.ts:157:3 › keyboard: the Menu panel (mobile) › a page link in the Menu is followed with Enter, the panel closes and focus goes to the page (1.4s)
+  ✓  145 [chromium] › e2e/keyboard.spec.ts:174:5 › ⓘ buttons open and close from the keyboard on Asset Details (mobile) (1.1s)
+  ✓  144 [chromium] › e2e/keyboard.spec.ts:174:5 › ⓘ buttons open and close from the keyboard on Model Performance (desktop) (1.5s)
+  ✓  143 [chromium] › e2e/keyboard.spec.ts:174:5 › ⓘ buttons open and close from the keyboard on Asset Details (desktop) (1.6s)
+  ✓  146 [chromium] › e2e/keyboard.spec.ts:174:5 › ⓘ buttons open and close from the keyboard on Model Performance (mobile) (1.4s)
+  ✓  148 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Fleet Overview (desktop) (1.3s)
+  ✓  150 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Fleet Overview (mobile) (1.0s)
+  ✓  147 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Asset Details (desktop) (1.7s)
+  ✓  149 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Model Performance (desktop) (2.0s)
+  ✓  151 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Asset Details (mobile) (1.2s)
+  ✓  152 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Model Performance (mobile) (2.1s)
+  ✓  153 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Fleet Overview (desktop) (6.0s)
+  ✓  155 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Maintenance Planner (desktop) (5.3s)
+  ✓  154 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Asset Details (desktop) (6.6s)
+  ✓  156 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Fleet Overview (mobile) (5.4s)
+  ✓  160 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Maintenance Planner (desktop) (801ms)
+  ✓  159 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Fleet Overview (desktop) (1.5s)
+  ✓  161 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Model Performance (desktop) (1.2s)
+  ✓  162 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Fleet Overview (mobile) (1.3s)
+  ✓  163 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Maintenance Planner (mobile) (685ms)
+  ✓  164 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Model Performance (mobile) (1.3s)
+  ✓  158 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Maintenance Planner (mobile) (5.0s)
+  ✓  157 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Asset Details (mobile) (5.5s)
+  -  168 [chromium] › e2e/model-performance-real.spec.ts:10:1 › real bundle: the page equals /model/metrics and /model/threshold-analysis at the default and at another cut-off
+  ✓  167 [chromium] › e2e/keyboard.spec.ts:411:1 › keyboard: Try again in the error state is reachable and works (915ms)
+  ✓  165 [chromium] › e2e/keyboard.spec.ts:354:3 › Maintenance Planner: inputs and Apply buttons work by keyboard (desktop) (2.3s)
+  ✓  166 [chromium] › e2e/keyboard.spec.ts:354:3 › Maintenance Planner: inputs and Apply buttons work by keyboard (mobile) (2.1s)
+  ✓  170 [chromium] › e2e/model-performance.spec.ts:38:1 › changing the cut-off with the keyboard updates every cut-off row for both models (1.7s)
+  ✓  169 [chromium] › e2e/model-performance.spec.ts:19:1 › the table equals the saved evaluation at the default cut-off, and header facts are shown (desktop) (2.7s)
+  ✓  172 [chromium] › e2e/model-performance.spec.ts:77:1 › keyboard: Tab reaches the cut-off slider and the ⓘ buttons; Enter opens a definition and Escape closes it (1.4s)
+  ✓  173 [chromium] › e2e/model-performance.spec.ts:100:1 › the charts have text summaries and a table view, and the calibration chart says circles and squares (1.4s)
+  ✓  171 [chromium] › e2e/model-performance.spec.ts:53:1 › mobile: the table keeps three columns, the rule moves under it, nothing scrolls sideways, axe passes (2.8s)
+  ✓  177 [chromium] › e2e/notice.spec.ts:31:5 › notice: Fleet Overview shows the simulated-data and illustrative-costs notice (desktop) (772ms)
+  ✓  175 [chromium] › e2e/model-performance.spec.ts:127:1 › error state: a plain message and Try again, no table or numbers; Try again recovers (1.9s)
+  ✓  176 [chromium] › e2e/model-performance.spec.ts:143:1 › results not available: says so and shows no numbers (1.4s)
+  ✓  178 [chromium] › e2e/notice.spec.ts:31:5 › notice: Asset Details shows the simulated-data and illustrative-costs notice (desktop) (838ms)
+  ✓  179 [chromium] › e2e/notice.spec.ts:31:5 › notice: Maintenance Planner shows the simulated-data and illustrative-costs notice (desktop) (672ms)
+  ✓  181 [chromium] › e2e/notice.spec.ts:31:5 › notice: About & Data shows the simulated-data and illustrative-costs notice (desktop) (565ms)
+  ✓  180 [chromium] › e2e/notice.spec.ts:31:5 › notice: Model Performance shows the simulated-data and illustrative-costs notice (desktop) (937ms)
+  ✓  174 [chromium] › e2e/model-performance.spec.ts:112:1 › loading state: header, cut-off control and test period show; table and charts are grey blocks (3.7s)
+  ✓  182 [chromium] › e2e/notice.spec.ts:37:3 › notice: it is still there after scrolling and in the error state (desktop) (1.1s)
+  ✓  183 [chromium] › e2e/notice.spec.ts:31:5 › notice: Fleet Overview shows the simulated-data and illustrative-costs notice (mobile) (707ms)
+  ✓  184 [chromium] › e2e/notice.spec.ts:31:5 › notice: Asset Details shows the simulated-data and illustrative-costs notice (mobile) (725ms)
+  ✓  185 [chromium] › e2e/notice.spec.ts:31:5 › notice: Maintenance Planner shows the simulated-data and illustrative-costs notice (mobile) (684ms)
+  -  189 [chromium] › e2e/planner-real.spec.ts:9:1 › the Planner screen's shortlist equals POST /plan's shortlist for the default inputs, per-model costs included (real bundle)
+  -  190 [chromium] › e2e/planner-real.spec.ts:39:1 › Apply to all models with equal failure costs matches POST /plan with equal costs (real bundle)
+  ✓  187 [chromium] › e2e/notice.spec.ts:31:5 › notice: About & Data shows the simulated-data and illustrative-costs notice (mobile) (578ms)
+  ✓  186 [chromium] › e2e/notice.spec.ts:31:5 › notice: Model Performance shows the simulated-data and illustrative-costs notice (mobile) (955ms)
+  ✓  188 [chromium] › e2e/notice.spec.ts:37:3 › notice: it is still there after scrolling and in the error state (mobile) (1.2s)
+  ✓  191 [chromium] › e2e/planner.spec.ts:26:1 › a cost per machine model reorders the list and shows Moved marks (931ms)
+  ✓  193 [chromium] › e2e/planner.spec.ts:76:1 › crew slots change the shortlist only, not the order (1.0s)
+  ✓  192 [chromium] › e2e/planner.spec.ts:45:1 › Apply to all models writes the shared cost into every model's field: equal costs, no Moved, order by chance alone (1.4s)
+  ✓  195 [chromium] › e2e/planner.spec.ts:103:1 › also listing machines below the cut-off adds marked rows that are never shortlisted (978ms)
+  ✓  194 [chromium] › e2e/planner.spec.ts:88:1 › the alert cut-off changes which machines are listed, matching the Alert count (1.1s)
+  ✓  196 [chromium] › e2e/planner.spec.ts:114:1 › the risk-reduction toggle shows and hides the net benefit, labelled as an estimate (966ms)
+  ✓  197 [chromium] › e2e/planner.spec.ts:125:1 › an invalid input is refused with a message and the list keeps the last valid result (969ms)
+  ✓  199 [chromium] › e2e/planner.spec.ts:148:1 › a machine link opens Asset Details at the same time and cut-off (717ms)
+  ✓  198 [chromium] › e2e/planner.spec.ts:138:1 › the page labels money as illustrative and never claims savings or live data (962ms)
+  ✓  200 [chromium] › e2e/planner.spec.ts:156:1 › the error state keeps the assumptions and Try again recovers (802ms)
+  ✓  203 [chromium] › e2e/planner.spec.ts:186:1 › mobile: no sideways scrolling and the buttons and disclosure are at least 44px (774ms)
+  ✓  204 [chromium] › e2e/replay.spec.ts:8:1 › starts at the replay start from /metadata and says Historical replay, never live (780ms)
+  ✓  205 [chromium] › e2e/replay.spec.ts:18:1 › step forward and back move by the step size and the time sits in the web address (1.4s)
+  ✓  202 [chromium] › e2e/planner.spec.ts:174:3 › axe: the Planner has no serious or critical violations (mobile) (3.3s)
+  ✓  201 [chromium] › e2e/planner.spec.ts:174:3 › axe: the Planner has no serious or critical violations (desktop) (3.8s)
+  ✓  208 [chromium] › e2e/replay.spec.ts:72:1 › at the start, Start and Step back are unavailable with a visible reason (551ms)
+  ✓  209 [chromium] › e2e/replay.spec.ts:81:1 › works by keyboard: Space toggles Play, the timeline moves with keys, focus stays put (1.4s)
+  ✓  211 [chromium] › e2e/replay.spec.ts:120:1 › the replay time, cut-off and machine follow the reader to another page; a bad address is ignored (827ms)
+  ✓  212 [chromium] › e2e/replay.spec.ts:138:1 › Model Performance shows the replay time read-only (551ms)
+  ✓  210 [chromium] › e2e/replay.spec.ts:111:1 › with reduced motion, replay still steps (2.6s)
+  ✓  206 [chromium] › e2e/replay.spec.ts:35:1 › play advances once per second and pause stops it (5.1s)
+  ✓  214 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on Fleet Overview is at least 44x44 (mobile) (742ms)
+  ✓  215 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on Asset Details is at least 44x44 (mobile) (689ms)
+  ✓  213 [chromium] › e2e/smoke.spec.ts:3:1 › shell, banner, and every route render honestly (1.4s)
+  ✓  216 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on Maintenance Planner is at least 44x44 (mobile) (636ms)
+  ✓  218 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on About & Data is at least 44x44 (mobile) (497ms)
+  ✓  217 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on Model Performance is at least 44x44 (mobile) (993ms)
+  ✓  221 [chromium] › e2e/target-size.spec.ts:42:1 › target size: Asset Details states without data (no machine, machine not found) keep 44x44 (701ms)
+  ✓  220 [chromium] › e2e/target-size.spec.ts:33:1 › target size: the open Menu panel is at least 44x44 on every control (885ms)
+  ✓  207 [chromium] › e2e/replay.spec.ts:48:1 › playback stops cleanly at the end: visible end state, nothing later, never wraps (7.7s)
+  ✓  223 [chromium] › e2e/target-size.spec.ts:60:1 › target size: Maintenance Planner with the reduction assumption on and a failed field keeps 44x44 (796ms)
+  ✓  219 [chromium] › e2e/target-size.spec.ts:23:1 › target size: charts shown as tables keep every control at least 44x44 (mobile) (2.5s)
+  ✓  222 [chromium] › e2e/target-size.spec.ts:51:1 › target size: ⓘ definition buttons are 44x44 when open too (1.4s)
+
+  5 skipped
+  218 passed (1.8m)
+[WebServer] INFO:     Started server process [251933]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+
+Running 18 tests using 4 workers
+
+(node:251997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:251996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:252003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:252004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 [chromium] › e2e/no-model.spec.ts:9:1 › the data service really has no model data (93ms)
+  ✓   2 [chromium] › e2e/no-model.spec.ts:18:3 › / says the model data isn't installed, with no numbers and no replay controls (2.2s)
+  ✓   3 [chromium] › e2e/no-model.spec.ts:18:3 › /asset-details says the model data isn't installed, with no numbers and no replay controls (2.3s)
+  ✓   5 [chromium] › e2e/no-model.spec.ts:18:3 › /model-performance says the model data isn't installed, with no numbers and no replay controls (2.3s)
+  ✓   1 [chromium] › e2e/no-model.spec.ts:18:3 › /maintenance-planner says the model data isn't installed, with no numbers and no replay controls (2.4s)
+  ✓   6 [chromium] › e2e/no-model.spec.ts:41:5 › / with no model data: notice present and axe finds nothing at all (desktop) (1.4s)
+  ✓   7 [chromium] › e2e/no-model.spec.ts:41:5 › /asset-details with no model data: notice present and axe finds nothing at all (desktop) (1.6s)
+  ✓   8 [chromium] › e2e/no-model.spec.ts:41:5 › /maintenance-planner with no model data: notice present and axe finds nothing at all (desktop) (1.7s)
+  ✓   9 [chromium] › e2e/no-model.spec.ts:41:5 › /model-performance with no model data: notice present and axe finds nothing at all (desktop) (1.6s)
+  ✓  10 [chromium] › e2e/no-model.spec.ts:41:5 › /about-data with no model data: notice present and axe finds nothing at all (desktop) (1.7s)
+  ✓  13 [chromium] › e2e/no-model.spec.ts:41:5 › /maintenance-planner with no model data: notice present and axe finds nothing at all (mobile) (1.4s)
+  ✓  12 [chromium] › e2e/no-model.spec.ts:41:5 › /asset-details with no model data: notice present and axe finds nothing at all (mobile) (1.5s)
+  ✓  11 [chromium] › e2e/no-model.spec.ts:41:5 › / with no model data: notice present and axe finds nothing at all (mobile) (1.6s)
+  ✓  17 [chromium] › e2e/no-model.spec.ts:63:1 › the link to About & Data from the state works (639ms)
+  ✓  18 [chromium] › e2e/no-model.spec.ts:69:1 › mobile: the state fits without sideways scrolling (369ms)
+  ✓  16 [chromium] › e2e/no-model.spec.ts:53:1 › mobile: every control in the no-model state is at least 44x44 (docs/ux-spec.md, Accessibility, Mobile) (1.2s)
+  ✓  14 [chromium] › e2e/no-model.spec.ts:41:5 › /model-performance with no model data: notice present and axe finds nothing at all (mobile) (1.4s)
+  ✓  15 [chromium] › e2e/no-model.spec.ts:41:5 › /about-data with no model data: notice present and axe finds nothing at all (mobile) (1.5s)
+
+  18 passed (10.4s)
+
+==================================================================================
+== python: uv sync --frozen --group ml
+==================================================================================
+Checked 66 packages in 0.60ms
+
+==================================================================================
+== python: ruff check
+==================================================================================
+All checks passed!
+
+==================================================================================
+== python: ruff format --check
+==================================================================================
+70 files already formatted
+
+==================================================================================
+== python: mypy
+==================================================================================
+Success: no issues found in 64 source files
+
+==================================================================================
+== python: pytest (default)
+==================================================================================
+============================= test session starts ==============================
+platform linux -- Python 3.12.16, pytest-9.2.0, pluggy-1.7.0
+rootdir: <tmp>/predictiq
+configfile: pyproject.toml
+testpaths: backend/tests, ml/tests, scripts/tests
+plugins: platformdirs-4.14.5, anyio-4.16.0
+collected 369 items / 16 deselected / 353 selected
+
+backend/tests/test_answers_match_scores.py .....                         [  1%]
+backend/tests/test_api.py ...............                                [  5%]
+backend/tests/test_data_api.py ......................................    [ 16%]
+backend/tests/test_data_api_rules.py .........                           [ 18%]
+backend/tests/test_deploy_layout.py .........                            [ 21%]
+backend/tests/test_plan_api.py ......................................... [ 33%]
+.............                                                            [ 36%]
+backend/tests/test_planner.py ..................                         [ 41%]
+backend/tests/test_sizes.py 
+Largest allowed request per endpoint (synthetic bundle):
+  metadata                                   200      7,177 bytes
+  health                                     200         79 bytes
+  fleet (100 machines, no filter)            200     15,578 bytes
+  fleet/trend (7d)                           200      9,381 bytes
+  assets/{id} (largest of all machines)      200      8,375 bytes
+  assets/{id}/telemetry (7d)                 200     16,845 bytes
+  assets/{id}/explanation                    200        811 bytes
+  model/metrics                              200      5,781 bytes
+  model/threshold-analysis                   200    147,991 bytes
+  fleet (first hour)                         200     14,275 bytes
+  POST plan (100 machines listed, maximum inputs) 200     25,730 bytes
+.s                                           [ 42%]
+ml/tests/test_bundle.py .............                                    [ 46%]
+ml/tests/test_features.py .........                                      [ 48%]
+ml/tests/test_labels.py ..........                                       [ 51%]
+ml/tests/test_leakage.py ......                                          [ 53%]
+ml/tests/test_metrics.py ..............                                  [ 57%]
+ml/tests/test_pipeline.py .................                              [ 62%]
+ml/tests/test_skeleton.py .                                              [ 62%]
+ml/tests/test_splits.py ......                                           [ 64%]
+ml/tests/test_validate.py .........                                      [ 66%]
+scripts/tests/test_design_tokens.py .................................... [ 76%]
+..............................................................           [ 94%]
+scripts/tests/test_download_data.py ......                               [ 96%]
+scripts/tests/test_fetch_bundle.py ......                                [ 97%]
+scripts/tests/test_release_hygiene.py .......x                           [100%]
+
+=========================== short test summary info ============================
+SKIPPED [1] backend/tests/test_sizes.py:83: no real bundle in artifacts/ (run scripts/build_bundle.py or scripts/fetch_bundle.py)
+XFAIL scripts/tests/test_release_hygiene.py::test_commit_author_and_committer_emails_are_noreply - owner decision before going public (see docs/LAUNCH_CHECKLIST.md): one early commit in the history has a personal address as its AUTHOR (the committer is the no-reply address). Files are clean. Removing it needs a history rewrite, which this test suite does not do. The test passes (XPASS) in a shallow clone that does not contain it.
+========== 351 passed, 1 skipped, 16 deselected, 1 xfailed in 40.49s ===========
+
+==================================================================================
+== release hygiene test
+==================================================================================
+============================= test session starts ==============================
+platform linux -- Python 3.12.16, pytest-9.2.0, pluggy-1.7.0
+rootdir: <tmp>/predictiq
+configfile: pyproject.toml
+plugins: platformdirs-4.14.5, anyio-4.16.0
+collected 8 items
+
+scripts/tests/test_release_hygiene.py .......x                           [100%]
+
+=========================== short test summary info ============================
+XFAIL scripts/tests/test_release_hygiene.py::test_commit_author_and_committer_emails_are_noreply - owner decision before going public (see docs/LAUNCH_CHECKLIST.md): one early commit in the history has a personal address as its AUTHOR (the committer is the no-reply address). Files are clean. Removing it needs a history rewrite, which this test suite does not do. The test passes (XPASS) in a shallow clone that does not contain it.
+========================= 7 passed, 1 xfailed in 0.52s =========================
+
+==================================================================================
+== design token and contrast test, and the contrast script
+==================================================================================
+........................................................................ [ 73%]
+..........................                                               [100%]
+98 passed in 0.18s
+| `brand.link` #1D4ED8 | `notice.disclosure-bg` #E8EDF3 | 5.69 | 4.5 | Pass |
+
+0 unexpected result(s)
+
+==================================================================================
+== real bundle: fetch and verify (python -m scripts.fetch_bundle)
+==================================================================================
+bundle for piq-20261114-efc9c243 verified and unpacked to <tmp>/predictiq/artifacts/piq-20261114-efc9c243/bundle
+
+==================================================================================
+== real bundle: Playwright (npm run e2e:real)
+==================================================================================
+
+> predictiq-frontend@0.1.0 e2e:real
+> node scripts/e2e.mjs --real
+
+
+> predictiq-frontend@0.1.0 prebuild
+> node scripts/sync-backend.mjs
+
+synced <tmp>/predictiq/backend/app -> <tmp>/predictiq/frontend/_backend/app
+synced bundle piq-20261114-efc9c243 -> <tmp>/predictiq/frontend/_backend/bundle
+
+> predictiq-frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 42ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 417ms
+  Running TypeScript ...
+  Finished TypeScript in 2.4s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/7) ...
+  Generating static pages using 7 workers (1/7) 
+  Generating static pages using 7 workers (3/7) 
+  Generating static pages using 7 workers (5/7) 
+✓ Generating static pages using 7 workers (7/7) in 273ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about-data
+├ ○ /asset-details
+├ ○ /maintenance-planner
+└ ○ /model-performance
+
+
+○  (Static)  prerendered as static content
+
+[WebServer] INFO:     Started server process [256600]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+
+Running 223 tests using 4 workers
+
+(node:256670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:256664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:256662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:256663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    3 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /asset-details (desktop) (2.0s)
+  ✓    1 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /maintenance-planner (desktop) (2.2s)
+  ✓    2 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /model-performance (desktop) (2.6s)
+  ✓    4 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on / (desktop) (2.8s)
+  ✓    5 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /about-data (desktop) (1.5s)
+  ✓    7 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /asset-details (mobile) (1.4s)
+  ✓    6 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on / (mobile) (2.2s)
+  ✓    8 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /maintenance-planner (mobile) (1.8s)
+  ✓   12 [chromium] › e2e/a11y.spec.ts:38:1 › focus: Escape closes the mobile menu and returns focus to the Menu button (785ms)
+  ✓   10 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /about-data (mobile) (1.4s)
+  ✓    9 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /model-performance (mobile) (2.4s)
+  ✓   11 [chromium] › e2e/a11y.spec.ts:30:1 › axe: the open mobile menu dialog has no serious or critical violations (2.0s)
+  ✓   13 [chromium] › e2e/a11y.spec.ts:49:1 › focus: the chart table toggle keeps focus on its button, both ways (1.3s)
+  ✓   14 [chromium] › e2e/asset-real.spec.ts:9:1 › Asset Details shows the API score and status (real bundle) (2.2s)
+  ✓   16 [chromium] › e2e/asset.spec.ts:68:1 › the factors are labelled patterns, not causes: top 8 plus all others, with the caveat (1.3s)
+  ✓   15 [chromium] › e2e/asset.spec.ts:39:1 › the machine picker and the web address choose the machine; the score is the data service's score (2.2s)
+  ✓   18 [chromium] › e2e/asset.spec.ts:107:1 › stepping the replay changes the score to the data service's score for the next hour (1.8s)
+  ✓   20 [chromium] › e2e/asset.spec.ts:146:1 › a machine outside 1 to 100 shows the not-found state with a selector and a way back (1.5s)
+  ✓   19 [chromium] › e2e/asset.spec.ts:133:1 › the range toggle switches the sensor history between 24 hours and 7 days (1.8s)
+  ✓   21 [chromium] › e2e/asset.spec.ts:157:1 › when the sensor history fails, only that panel shows an error and Try again fixes it (1.3s)
+  ✓   17 [chromium] › e2e/asset.spec.ts:87:1 › no error, repair or failure at or after the replay hour is shown, for many machines and hours (4.3s)
+  ✓   25 [chromium] › e2e/asset.spec.ts:226:1 › mobile: sensors are tabs, one chart at a time, and nothing scrolls sideways (806ms)
+  ✓   26 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › Fleet Overview: main state (2.1s)
+  ✓   23 [chromium] › e2e/asset.spec.ts:209:3 › axe: a loaded machine and the not-found state have no serious or critical violations (desktop) (6.1s)
+  ✓   24 [chromium] › e2e/asset.spec.ts:209:3 › axe: a loaded machine and the not-found state have no serious or critical violations (mobile) (5.0s)
+  ✓   22 [chromium] › e2e/asset.spec.ts:175:1 › replay control on this screen: 'Historical replay' wording, clean stop at the end and at the start (6.3s)
+  ✓   27 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › Asset Details: main state (2.2s)
+  ✓   30 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › About & Data: main state (1.5s)
+  ✓   28 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › Maintenance Planner: main state (1.9s)
+  ✓   29 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, desktop › Model Performance: main state (2.5s)
+  ✓   31 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, desktop › Fleet Overview: every chart shown as a table (2.8s)
+  ✓   32 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, desktop › Asset Details: every chart shown as a table (2.9s)
+  ✓   34 [chromium] › e2e/axe-all.spec.ts:86:7 › axe, desktop › Asset Details: every ⓘ definition open (2.7s)
+  ✓   35 [chromium] › e2e/axe-all.spec.ts:86:7 › axe, desktop › Model Performance: every ⓘ definition open (2.7s)
+  ✓   33 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, desktop › Model Performance: every chart shown as a table (4.1s)
+  ✓   36 [chromium] › e2e/axe-all.spec.ts:97:5 › axe, desktop › Fleet Overview: filtered to nothing (empty state) (1.7s)
+  ✓   40 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, desktop › Fleet Overview: the data service cannot be reached (error state) (1.3s)
+  ✓   37 [chromium] › e2e/axe-all.spec.ts:104:5 › axe, desktop › Asset Details: no machine chosen, and machine not found (2.3s)
+  ✓   42 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, desktop › Asset Details: the data service cannot be reached (error state) (1.3s)
+  ✓   38 [chromium] › e2e/axe-all.spec.ts:114:5 › axe, desktop › Maintenance Planner: nothing at or above the cut-off (empty), and an invalid input (3.3s)
+  ✓   44 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, desktop › Maintenance Planner: the data service cannot be reached (error state) (1.3s)
+  ✓   39 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, desktop › Fleet Overview: loading state and "waking up" state (4.6s)
+  ✓   46 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, desktop › Model Performance: the data service cannot be reached (error state) (1.2s)
+  ✓   41 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, desktop › Asset Details: loading state and "waking up" state (4.6s)
+  ✓   43 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, desktop › Maintenance Planner: loading state and "waking up" state (4.3s)
+  ✓   47 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › Fleet Overview: main state (1.9s)
+  ✓   48 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › Asset Details: main state (1.8s)
+  ✓   49 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › Maintenance Planner: main state (1.6s)
+  ✓   45 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, desktop › Model Performance: loading state and "waking up" state (4.5s)
+  ✓   51 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › About & Data: main state (1.2s)
+  ✓   50 [chromium] › e2e/axe-all.spec.ts:67:7 › axe, mobile › Model Performance: main state (1.9s)
+  ✓   52 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, mobile › Fleet Overview: every chart shown as a table (2.2s)
+  ✓   53 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, mobile › Asset Details: every chart shown as a table (2.2s)
+  ✓   55 [chromium] › e2e/axe-all.spec.ts:86:7 › axe, mobile › Asset Details: every ⓘ definition open (2.6s)
+  ✓   57 [chromium] › e2e/axe-all.spec.ts:97:5 › axe, mobile › Fleet Overview: filtered to nothing (empty state) (1.5s)
+  ✓   54 [chromium] › e2e/axe-all.spec.ts:74:7 › axe, mobile › Model Performance: every chart shown as a table (4.0s)
+  ✓   56 [chromium] › e2e/axe-all.spec.ts:86:7 › axe, mobile › Model Performance: every ⓘ definition open (2.8s)
+  ✓   58 [chromium] › e2e/axe-all.spec.ts:104:5 › axe, mobile › Asset Details: no machine chosen, and machine not found (2.3s)
+  ✓   61 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, mobile › Fleet Overview: the data service cannot be reached (error state) (1.1s)
+  ✓   59 [chromium] › e2e/axe-all.spec.ts:114:5 › axe, mobile › Maintenance Planner: nothing at or above the cut-off (empty), and an invalid input (2.9s)
+  ✓   63 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, mobile › Asset Details: the data service cannot be reached (error state) (1.2s)
+  ✓   65 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, mobile › Maintenance Planner: the data service cannot be reached (error state) (1.1s)
+  ✓   60 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, mobile › Fleet Overview: loading state and "waking up" state (4.6s)
+  ✓   67 [chromium] › e2e/axe-all.spec.ts:144:7 › axe, mobile › Model Performance: the data service cannot be reached (error state) (984ms)
+  ✓   62 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, mobile › Asset Details: loading state and "waking up" state (4.3s)
+  ✓   64 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, mobile › Maintenance Planner: loading state and "waking up" state (4.2s)
+  ✓   69 [chromium] › e2e/axe-all.spec.ts:164:1 › axe: a panel that failed to load (Fleet Overview, desktop) (1.4s)
+  ✓   68 [chromium] › e2e/axe-all.spec.ts:156:1 › axe: the open mobile Menu panel (1.7s)
+  ✓   66 [chromium] › e2e/axe-all.spec.ts:127:7 › axe, mobile › Model Performance: loading state and "waking up" state (4.2s)
+  ✓   70 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Fleet Overview (desktop) (2.1s)
+  ✓   72 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Maintenance Planner (desktop) (1.7s)
+  ✓   71 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Asset Details (desktop) (2.2s)
+  ✓   74 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on About & Data (desktop) (1.3s)
+  ✓   73 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Model Performance (desktop) (2.0s)
+  ✓   76 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Asset Details (mobile) (1.7s)
+  ✓   75 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Fleet Overview (mobile) (2.1s)
+  ✓   77 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Maintenance Planner (mobile) (1.5s)
+  ✓   80 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › Fleet Overview: control boundaries are at least 3:1 against the background behind them (751ms)
+  ✓   81 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › Fleet Overview: every control's keyboard focus outline is the exact rule and at least 3:1 (796ms)
+  ✓   79 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on About & Data (mobile) (1.5s)
+  ✓   78 [chromium] › e2e/axe-all.spec.ts:179:5 › axe color-contrast rule ran on Model Performance (mobile) (2.1s)
+  ✓   82 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › Asset Details: control boundaries are at least 3:1 against the background behind them (859ms)
+  ✓   84 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › Maintenance Planner: control boundaries are at least 3:1 against the background behind them (853ms)
+  ✓   85 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › Maintenance Planner: every control's keyboard focus outline is the exact rule and at least 3:1 (913ms)
+  ✓   83 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › Asset Details: every control's keyboard focus outline is the exact rule and at least 3:1 (1.4s)
+  ✓   86 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › Model Performance: control boundaries are at least 3:1 against the background behind them (1.2s)
+  ✓   88 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (desktop) › About & Data: control boundaries are at least 3:1 against the background behind them (625ms)
+  ✓   87 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › Model Performance: every control's keyboard focus outline is the exact rule and at least 3:1 (1.2s)
+  ✓   89 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (desktop) › About & Data: every control's keyboard focus outline is the exact rule and at least 3:1 (820ms)
+  ✓   90 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (desktop) › Fleet Overview: chart marks are at least 3:1 against the chart background (1.2s)
+  ✓   91 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (desktop) › Asset Details: chart marks are at least 3:1 against the chart background (1.2s)
+  ✓   93 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › Fleet Overview: control boundaries are at least 3:1 against the background behind them (1.0s)
+  ✓   92 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (desktop) › Model Performance: chart marks are at least 3:1 against the chart background (1.2s)
+  ✓   94 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › Fleet Overview: every control's keyboard focus outline is the exact rule and at least 3:1 (994ms)
+  ✓   95 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › Asset Details: control boundaries are at least 3:1 against the background behind them (894ms)
+  ✓   96 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › Asset Details: every control's keyboard focus outline is the exact rule and at least 3:1 (873ms)
+  ✓   97 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › Maintenance Planner: control boundaries are at least 3:1 against the background behind them (734ms)
+  ✓   98 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › Maintenance Planner: every control's keyboard focus outline is the exact rule and at least 3:1 (705ms)
+  ✓  101 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › About & Data: control boundaries are at least 3:1 against the background behind them (451ms)
+  ✓   99 [chromium] › e2e/contrast.spec.ts:195:7 › rendered non-text contrast (mobile) › Model Performance: control boundaries are at least 3:1 against the background behind them (883ms)
+  ✓  102 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › About & Data: every control's keyboard focus outline is the exact rule and at least 3:1 (541ms)
+  ✓  100 [chromium] › e2e/contrast.spec.ts:204:7 › rendered non-text contrast (mobile) › Model Performance: every control's keyboard focus outline is the exact rule and at least 3:1 (884ms)
+  ✓  103 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (mobile) › Fleet Overview: chart marks are at least 3:1 against the chart background (816ms)
+  ✓  104 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (mobile) › Asset Details: chart marks are at least 3:1 against the chart background (948ms)
+  ✓  105 [chromium] › e2e/contrast.spec.ts:213:7 › rendered non-text contrast (mobile) › Model Performance: chart marks are at least 3:1 against the chart background (957ms)
+  ✓  106 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Fleet Overview (desktop) (903ms)
+  ✓  108 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Maintenance Planner (desktop) (715ms)
+  ✓  110 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: About & Data (desktop) (617ms)
+  ✓  107 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Asset Details (desktop) (1.1s)
+  ✓  109 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Model Performance (desktop) (1.1s)
+  ✓  111 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Fleet Overview (mobile) (767ms)
+  ✓  113 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Maintenance Planner (mobile) (615ms)
+  ✓  112 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Asset Details (mobile) (786ms)
+  ✓  115 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: About & Data (mobile) (601ms)
+  ✓  114 [chromium] › e2e/contrast.spec.ts:231:5 › rendered text contrast: Model Performance (mobile) (1.0s)
+  ✓  117 [chromium] › e2e/fleet.spec.ts:44:1 › the cards, charts and table show what the data service answers at the replay start (1.1s)
+  ✓  116 [chromium] › e2e/fleet-real.spec.ts:9:1 › Fleet Overview Alert count equals the /fleet API alert count at two cut-offs (real bundle) (1.7s)
+  ✓  121 [chromium] › e2e/fleet.spec.ts:143:1 › a machine row opens Asset Details at the same replay time and cut-off (824ms)
+  ✓  119 [chromium] › e2e/fleet.spec.ts:96:1 › changing the cut-off updates the count and the table together (and Reset returns to the default) (2.5s)
+  ✓  122 [chromium] › e2e/fleet.spec.ts:159:1 › filters sit in the address, and Clear filters removes them (1.1s)
+  ✓  120 [chromium] › e2e/fleet.spec.ts:123:1 › stepping the replay changes the numbers, and they match the service at each hour (2.7s)
+  ✓  124 [chromium] › e2e/fleet.spec.ts:185:1 › ERROR: a failed request says what failed, keeps the settings and recovers on Try again (942ms)
+  ✓  123 [chromium] › e2e/fleet.spec.ts:169:1 › EMPTY FILTER RESULT: zero everywhere, filters stay in their fields (2.2s)
+  ✓  126 [chromium] › e2e/fleet.spec.ts:210:1 › charts can be read as tables, and have a text summary (1.0s)
+  ✓  125 [chromium] › e2e/fleet.spec.ts:199:1 › LOADING: grey blocks while the first answer is awaited (2.1s)
+  ✓  129 [chromium] › e2e/fleet.spec.ts:251:1 › replay at the start and at the end still show the fleet for that hour (1.1s)
+  ✓  118 [chromium] › e2e/fleet.spec.ts:62:1 › the Alert count equals the Alert rows of the filtered table, for every filter (7.6s)
+  ✓  128 [chromium] › e2e/fleet.spec.ts:233:1 › axe and layout: Fleet Overview on a phone has a list, a Sort menu and no sideways scroll (2.7s)
+  ✓  127 [chromium] › e2e/fleet.spec.ts:225:1 › axe: Fleet Overview loaded, with the charts as tables and the empty state (desktop) (4.5s)
+  ✓  132 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › Maintenance Planner: Tab reaches every control, focus is always visible, no trap (1.9s)
+  ✓  131 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › Asset Details: Tab reaches every control, focus is always visible, no trap (2.2s)
+  ✓  130 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › Fleet Overview: Tab reaches every control, focus is always visible, no trap (3.4s)
+  ✓  134 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › About & Data: Tab reaches every control, focus is always visible, no trap (1.0s)
+  ✓  133 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (desktop) › Model Performance: Tab reaches every control, focus is always visible, no trap (2.5s)
+  ✓  136 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › Asset Details: Tab reaches every control, focus is always visible, no trap (1.9s)
+  ✓  137 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › Maintenance Planner: Tab reaches every control, focus is always visible, no trap (1.8s)
+  ✓  139 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › About & Data: Tab reaches every control, focus is always visible, no trap (622ms)
+  ✓  135 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › Fleet Overview: Tab reaches every control, focus is always visible, no trap (3.3s)
+  ✓  138 [chromium] › e2e/keyboard.spec.ts:78:7 › keyboard Tab walkthrough (mobile) › Model Performance: Tab reaches every control, focus is always visible, no trap (1.7s)
+  ✓  141 [chromium] › e2e/keyboard.spec.ts:145:3 › keyboard: the Menu panel (mobile) › Menu opens with Space, Close menu closes it with Enter and focus returns to Menu (917ms)
+  ✓  140 [chromium] › e2e/keyboard.spec.ts:122:3 › keyboard: the Menu panel (mobile) › Menu opens with Enter, focus moves in and stays in, Escape closes and returns focus (1.7s)
+  ✓  142 [chromium] › e2e/keyboard.spec.ts:157:3 › keyboard: the Menu panel (mobile) › a page link in the Menu is followed with Enter, the panel closes and focus goes to the page (1.3s)
+  ✓  143 [chromium] › e2e/keyboard.spec.ts:174:5 › ⓘ buttons open and close from the keyboard on Asset Details (desktop) (1.5s)
+  ✓  144 [chromium] › e2e/keyboard.spec.ts:174:5 › ⓘ buttons open and close from the keyboard on Model Performance (desktop) (1.7s)
+  ✓  145 [chromium] › e2e/keyboard.spec.ts:174:5 › ⓘ buttons open and close from the keyboard on Asset Details (mobile) (1.6s)
+  ✓  146 [chromium] › e2e/keyboard.spec.ts:174:5 › ⓘ buttons open and close from the keyboard on Model Performance (mobile) (1.9s)
+  ✓  147 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Fleet Overview (desktop) (1.7s)
+  ✓  150 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Fleet Overview (mobile) (1.2s)
+  ✓  148 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Asset Details (desktop) (2.4s)
+  ✓  151 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Asset Details (mobile) (1.2s)
+  ✓  149 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Model Performance (desktop) (2.3s)
+  ✓  152 [chromium] › e2e/keyboard.spec.ts:203:5 › View as table toggles from the keyboard on every chart of Model Performance (mobile) (2.2s)
+  ✓  155 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Maintenance Planner (desktop) (4.8s)
+  ✓  153 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Fleet Overview (desktop) (6.2s)
+  ✓  154 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Asset Details (desktop) (7.0s)
+  ✓  156 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Fleet Overview (mobile) (5.5s)
+  ✓  160 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Maintenance Planner (desktop) (1.1s)
+  ✓  159 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Fleet Overview (desktop) (1.8s)
+  ✓  161 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Model Performance (desktop) (1.6s)
+  ✓  162 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Fleet Overview (mobile) (1.5s)
+  ✓  158 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Maintenance Planner (mobile) (4.7s)
+  ✓  157 [chromium] › e2e/keyboard.spec.ts:242:5 › replay controls work by keyboard on Asset Details (mobile) (5.6s)
+  ✓  163 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Maintenance Planner (mobile) (1.2s)
+  ✓  167 [chromium] › e2e/keyboard.spec.ts:411:1 › keyboard: Try again in the error state is reachable and works (975ms)
+  ✓  164 [chromium] › e2e/keyboard.spec.ts:313:5 › the alert cut-off slider moves with the keys on Model Performance (mobile) (2.1s)
+  ✓  165 [chromium] › e2e/keyboard.spec.ts:354:3 › Maintenance Planner: inputs and Apply buttons work by keyboard (desktop) (2.3s)
+  ✓  166 [chromium] › e2e/keyboard.spec.ts:354:3 › Maintenance Planner: inputs and Apply buttons work by keyboard (mobile) (2.4s)
+  ✓  168 [chromium] › e2e/model-performance-real.spec.ts:10:1 › real bundle: the page equals /model/metrics and /model/threshold-analysis at the default and at another cut-off (2.3s)
+  ✓  170 [chromium] › e2e/model-performance.spec.ts:38:1 › changing the cut-off with the keyboard updates every cut-off row for both models (1.9s)
+  ✓  169 [chromium] › e2e/model-performance.spec.ts:19:1 › the table equals the saved evaluation at the default cut-off, and header facts are shown (desktop) (3.0s)
+  ✓  172 [chromium] › e2e/model-performance.spec.ts:77:1 › keyboard: Tab reaches the cut-off slider and the ⓘ buttons; Enter opens a definition and Escape closes it (1.5s)
+  ✓  171 [chromium] › e2e/model-performance.spec.ts:53:1 › mobile: the table keeps three columns, the rule moves under it, nothing scrolls sideways, axe passes (2.9s)
+  ✓  173 [chromium] › e2e/model-performance.spec.ts:100:1 › the charts have text summaries and a table view, and the calibration chart says circles and squares (1.4s)
+  ✓  177 [chromium] › e2e/notice.spec.ts:31:5 › notice: Fleet Overview shows the simulated-data and illustrative-costs notice (desktop) (774ms)
+  ✓  176 [chromium] › e2e/model-performance.spec.ts:143:1 › results not available: says so and shows no numbers (1.4s)
+  ✓  175 [chromium] › e2e/model-performance.spec.ts:127:1 › error state: a plain message and Try again, no table or numbers; Try again recovers (1.9s)
+  ✓  178 [chromium] › e2e/notice.spec.ts:31:5 › notice: Asset Details shows the simulated-data and illustrative-costs notice (desktop) (1.0s)
+  ✓  179 [chromium] › e2e/notice.spec.ts:31:5 › notice: Maintenance Planner shows the simulated-data and illustrative-costs notice (desktop) (706ms)
+  ✓  181 [chromium] › e2e/notice.spec.ts:31:5 › notice: About & Data shows the simulated-data and illustrative-costs notice (desktop) (620ms)
+  ✓  180 [chromium] › e2e/notice.spec.ts:31:5 › notice: Model Performance shows the simulated-data and illustrative-costs notice (desktop) (1.0s)
+  ✓  174 [chromium] › e2e/model-performance.spec.ts:112:1 › loading state: header, cut-off control and test period show; table and charts are grey blocks (3.9s)
+  ✓  182 [chromium] › e2e/notice.spec.ts:37:3 › notice: it is still there after scrolling and in the error state (desktop) (1.4s)
+  ✓  184 [chromium] › e2e/notice.spec.ts:31:5 › notice: Asset Details shows the simulated-data and illustrative-costs notice (mobile) (959ms)
+  ✓  183 [chromium] › e2e/notice.spec.ts:31:5 › notice: Fleet Overview shows the simulated-data and illustrative-costs notice (mobile) (1.0s)
+  ✓  185 [chromium] › e2e/notice.spec.ts:31:5 › notice: Maintenance Planner shows the simulated-data and illustrative-costs notice (mobile) (817ms)
+  ✓  187 [chromium] › e2e/notice.spec.ts:31:5 › notice: About & Data shows the simulated-data and illustrative-costs notice (mobile) (521ms)
+  ✓  186 [chromium] › e2e/notice.spec.ts:31:5 › notice: Model Performance shows the simulated-data and illustrative-costs notice (mobile) (1.0s)
+  ✓  189 [chromium] › e2e/planner-real.spec.ts:9:1 › the Planner screen's shortlist equals POST /plan's shortlist for the default inputs, per-model costs included (real bundle) (876ms)
+  ✓  188 [chromium] › e2e/notice.spec.ts:37:3 › notice: it is still there after scrolling and in the error state (mobile) (1.4s)
+  ✓  190 [chromium] › e2e/planner-real.spec.ts:39:1 › Apply to all models with equal failure costs matches POST /plan with equal costs (real bundle) (859ms)
+  ✓  191 [chromium] › e2e/planner.spec.ts:26:1 › a cost per machine model reorders the list and shows Moved marks (836ms)
+  ✓  194 [chromium] › e2e/planner.spec.ts:76:1 › crew slots change the shortlist only, not the order (961ms)
+  ✓  193 [chromium] › e2e/planner.spec.ts:88:1 › the alert cut-off changes which machines are listed, matching the Alert count (995ms)
+  ✓  192 [chromium] › e2e/planner.spec.ts:45:1 › Apply to all models writes the shared cost into every model's field: equal costs, no Moved, order by chance alone (1.4s)
+  ✓  195 [chromium] › e2e/planner.spec.ts:103:1 › also listing machines below the cut-off adds marked rows that are never shortlisted (1.2s)
+  ✓  196 [chromium] › e2e/planner.spec.ts:114:1 › the risk-reduction toggle shows and hides the net benefit, labelled as an estimate (1.2s)
+  ✓  197 [chromium] › e2e/planner.spec.ts:125:1 › an invalid input is refused with a message and the list keeps the last valid result (1.3s)
+  ✓  198 [chromium] › e2e/planner.spec.ts:138:1 › the page labels money as illustrative and never claims savings or live data (1.3s)
+  ✓  199 [chromium] › e2e/planner.spec.ts:148:1 › a machine link opens Asset Details at the same time and cut-off (1.3s)
+  ✓  200 [chromium] › e2e/planner.spec.ts:156:1 › the error state keeps the assumptions and Try again recovers (1.0s)
+  ✓  203 [chromium] › e2e/planner.spec.ts:186:1 › mobile: no sideways scrolling and the buttons and disclosure are at least 44px (750ms)
+  ✓  204 [chromium] › e2e/replay.spec.ts:8:1 › starts at the replay start from /metadata and says Historical replay, never live (899ms)
+  ✓  205 [chromium] › e2e/replay.spec.ts:18:1 › step forward and back move by the step size and the time sits in the web address (1.7s)
+  ✓  202 [chromium] › e2e/planner.spec.ts:174:3 › axe: the Planner has no serious or critical violations (mobile) (3.4s)
+  ✓  201 [chromium] › e2e/planner.spec.ts:174:3 › axe: the Planner has no serious or critical violations (desktop) (3.9s)
+  ✓  208 [chromium] › e2e/replay.spec.ts:72:1 › at the start, Start and Step back are unavailable with a visible reason (683ms)
+  ✓  209 [chromium] › e2e/replay.spec.ts:81:1 › works by keyboard: Space toggles Play, the timeline moves with keys, focus stays put (1.3s)
+  ✓  211 [chromium] › e2e/replay.spec.ts:120:1 › the replay time, cut-off and machine follow the reader to another page; a bad address is ignored (883ms)
+  ✓  212 [chromium] › e2e/replay.spec.ts:138:1 › Model Performance shows the replay time read-only (556ms)
+  ✓  210 [chromium] › e2e/replay.spec.ts:111:1 › with reduced motion, replay still steps (2.6s)
+  ✓  206 [chromium] › e2e/replay.spec.ts:35:1 › play advances once per second and pause stops it (5.2s)
+  ✓  214 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on Fleet Overview is at least 44x44 (mobile) (687ms)
+  ✓  215 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on Asset Details is at least 44x44 (mobile) (736ms)
+  ✓  216 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on Maintenance Planner is at least 44x44 (mobile) (475ms)
+  ✓  213 [chromium] › e2e/smoke.spec.ts:3:1 › shell, banner, and every route render honestly (1.4s)
+  ✓  218 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on About & Data is at least 44x44 (mobile) (544ms)
+  ✓  217 [chromium] › e2e/target-size.spec.ts:14:3 › target size: every control on Model Performance is at least 44x44 (mobile) (836ms)
+  ✓  220 [chromium] › e2e/target-size.spec.ts:33:1 › target size: the open Menu panel is at least 44x44 on every control (780ms)
+  ✓  221 [chromium] › e2e/target-size.spec.ts:42:1 › target size: Asset Details states without data (no machine, machine not found) keep 44x44 (645ms)
+  ✓  223 [chromium] › e2e/target-size.spec.ts:60:1 › target size: Maintenance Planner with the reduction assumption on and a failed field keeps 44x44 (746ms)
+  ✓  219 [chromium] › e2e/target-size.spec.ts:23:1 › target size: charts shown as tables keep every control at least 44x44 (mobile) (2.3s)
+  ✓  207 [chromium] › e2e/replay.spec.ts:48:1 › playback stops cleanly at the end: visible end state, nothing later, never wraps (7.5s)
+  ✓  222 [chromium] › e2e/target-size.spec.ts:51:1 › target size: ⓘ definition buttons are 44x44 when open too (1.2s)
+
+  223 passed (1.8m)
+
+==================================================================================
+== real data: download and verify SHA-256 (scripts/download_data.py, as in make data)
+==================================================================================
+ok       PdM_telemetry.csv (downloaded, fingerprint matches)
+ok       PdM_errors.csv (downloaded, fingerprint matches)
+ok       PdM_maint.csv (downloaded, fingerprint matches)
+ok       PdM_failures.csv (downloaded, fingerprint matches)
+ok       PdM_machines.csv (downloaded, fingerprint matches)
+All 5 files verified in <tmp>/predictiq/data/raw
+
+==================================================================================
+== real bundle: pytest -m ""
+==================================================================================
+============================= test session starts ==============================
+platform linux -- Python 3.12.16, pytest-9.2.0, pluggy-1.7.0
+rootdir: <tmp>/predictiq
+configfile: pyproject.toml
+testpaths: backend/tests, ml/tests, scripts/tests
+plugins: platformdirs-4.14.5, anyio-4.16.0
+collected 369 items
+
+backend/tests/test_answers_match_scores.py ..........                    [  2%]
+backend/tests/test_api.py ...............                                [  6%]
+backend/tests/test_data_api.py ......................................    [ 17%]
+backend/tests/test_data_api_rules.py .........                           [ 19%]
+backend/tests/test_deploy_layout.py .........                            [ 21%]
+backend/tests/test_plan_api.py ......................................... [ 33%]
+....................                                                     [ 38%]
+backend/tests/test_planner.py ..................                         [ 43%]
+backend/tests/test_sizes.py 
+Largest allowed request per endpoint (synthetic bundle):
+  metadata                                   200      7,177 bytes
+  health                                     200         79 bytes
+  fleet (100 machines, no filter)            200     15,578 bytes
+  fleet/trend (7d)                           200      9,381 bytes
+  assets/{id} (largest of all machines)      200      8,375 bytes
+  assets/{id}/telemetry (7d)                 200     16,845 bytes
+  assets/{id}/explanation                    200        811 bytes
+  model/metrics                              200      5,781 bytes
+  model/threshold-analysis                   200    147,991 bytes
+  fleet (first hour)                         200     14,275 bytes
+  POST plan (100 machines listed, maximum inputs) 200     25,730 bytes
+.
+real bundle piq-20261114-efc9c243: 10,127,369 bytes uncompressed
+
+Largest allowed request per endpoint (real bundle piq-20261114-efc9c243):
+  metadata                                   200      7,204 bytes
+  health                                     200         78 bytes
+  fleet (100 machines, no filter)            200     15,452 bytes
+  fleet/trend (7d)                           200      9,380 bytes
+  assets/{id} (largest of all machines)      200      8,455 bytes
+  assets/{id}/telemetry (7d)                 200     16,919 bytes
+  assets/{id}/explanation                    200        820 bytes
+  model/metrics                              200      8,065 bytes
+  model/threshold-analysis                   200    144,715 bytes
+  fleet (first hour)                         200     13,828 bytes
+  POST plan (100 machines listed, maximum inputs) 200     25,483 bytes
+.                                           [ 43%]
+ml/tests/test_bundle.py ..............                                   [ 47%]
+ml/tests/test_features.py .........                                      [ 50%]
+ml/tests/test_labels.py ..........                                       [ 52%]
+ml/tests/test_leakage.py ......                                          [ 54%]
+ml/tests/test_metrics.py ..............                                  [ 58%]
+ml/tests/test_pipeline.py .................                              [ 62%]
+ml/tests/test_realdata.py ...                                            [ 63%]
+ml/tests/test_skeleton.py .                                              [ 63%]
+ml/tests/test_splits.py ......                                           [ 65%]
+ml/tests/test_validate.py .........                                      [ 68%]
+scripts/tests/test_design_tokens.py .................................... [ 77%]
+..............................................................           [ 94%]
+scripts/tests/test_download_data.py ......                               [ 96%]
+scripts/tests/test_fetch_bundle.py ......                                [ 97%]
+scripts/tests/test_release_hygiene.py .......x                           [100%]
+
+=========================== short test summary info ============================
+XFAIL scripts/tests/test_release_hygiene.py::test_commit_author_and_committer_emails_are_noreply - owner decision before going public (see docs/LAUNCH_CHECKLIST.md): one early commit in the history has a personal address as its AUTHOR (the committer is the no-reply address). Files are clean. Removing it needs a history rewrite, which this test suite does not do. The test passes (XPASS) in a shallow clone that does not contain it.
+======================= 368 passed, 1 xfailed in 49.32s ========================
+
+==================================================================================
+FRESH COPY CHECK PASSED (every step above succeeded, including the real-bundle and real-data checks). Time: 406 s.
+==================================================================================
+exit=0

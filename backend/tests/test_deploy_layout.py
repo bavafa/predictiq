@@ -102,3 +102,40 @@ def test_prebuild_copies_a_real_bundle_and_works_without_one(tmp_path: Path) -> 
     assert code == 0 and not (out / "bundle").exists() and (out / "app" / "main.py").is_file()
     code, _, _ = _sync(tmp_path / "c", {"synthetic": False, "model_version": "piq-19990101-00000000"})
     assert code == 1  # folder name and meta.json disagree
+
+
+def test_node_and_python_bundle_fetchers_allow_the_same_files() -> None:
+    """fetch-bundle.mjs (production build) and scripts/fetch_bundle.py allow the same ten names."""
+    import re
+
+    from scripts.fetch_bundle import ALLOWED
+
+    js = (FRONTEND / "scripts" / "fetch-bundle.mjs").read_text(encoding="utf-8")
+    block = re.search(r"export const ALLOWED = \[(.*?)\];", js, re.S)
+    assert block is not None
+    assert set(re.findall(r'"([^"]+)"', block.group(1))) == set(ALLOWED)
+
+
+def test_prebuild_downloads_only_when_asked_and_production_fails_without_a_bundle(tmp_path: Path) -> None:
+    """No env (local, preview): passes without a bundle. VERCEL_ENV=production without one: fails."""
+    artifacts = tmp_path / "artifacts"
+    (artifacts / "piq-20260101-abcd1234").mkdir(parents=True)
+    (artifacts / "piq-20260101-abcd1234" / "manifest.json").write_text(
+        json.dumps({"bundle": {"file": "bundle.zip", "sha256": "0" * 64, "zip_bytes": 10}})
+    )
+    script = str(FRONTEND / "scripts" / "sync-backend.mjs")
+    base = {k: v for k, v in os.environ.items() if k not in {"VERCEL_ENV", "BUNDLE_FETCH", "BUNDLE_URL"}}
+
+    def run(extra: dict[str, str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(  # noqa: S603
+            ["node", script, "--artifacts", str(artifacts), "--out", str(tmp_path / "out")],  # noqa: S607
+            env={**base, **extra},
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+    assert run({}).returncode == 0
+    assert run({"VERCEL_ENV": "preview"}).returncode == 0
+    prod = run({"VERCEL_ENV": "production", "BUNDLE_URL": "http://127.0.0.1:9/bundle.zip"})
+    assert prod.returncode == 1 and "download failed" in prod.stderr

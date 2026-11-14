@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Database, Loader } from "lucide-react";
+import { AlertTriangle, ClipboardList, Database, Loader } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -75,7 +75,7 @@ export function NoModelData() {
       </p>
       <p className="mt-2 mb-0">
         You can still read what the sample data is and what this demo does not do on{" "}
-        <Link href="/about-data" className="text-link underline">
+        <Link href="/about-data" className="inline-flex min-h-11 items-center text-link underline">
           About &amp; Data
         </Link>
         .
@@ -109,7 +109,7 @@ export function WakingUp() {
     <Notice tone="info" icon={<Loader size={20} />} title="Waking up the data service…" testId="waking-up" role="status">
       <p className="m-0">This can take up to a minute. The page fills in by itself.</p>
       <p className="mt-2 mb-0">
-        <Link href="/about-data" className="text-link underline">
+        <Link href="/about-data" className="inline-flex min-h-11 items-center text-link underline">
           Read about the data while you wait
         </Link>
       </p>
@@ -125,6 +125,21 @@ export function PanelError({ message, onRetry, testId }: { message: string; onRe
       <Button className="mt-3" onClick={onRetry}>
         Try again
       </Button>
+    </Notice>
+  );
+}
+
+/** The model has not been evaluated yet (or the saved evaluation is not in a usable form): no numbers at all. */
+export function ResultsNotAvailable() {
+  return (
+    <Notice
+      tone="info"
+      icon={<ClipboardList size={20} />}
+      title="Results appear after the model is evaluated"
+      testId="results-not-available"
+      role="status"
+    >
+      <p className="m-0">There are no saved evaluation results to show yet, so no numbers appear here rather than made-up ones.</p>
     </Notice>
   );
 }
