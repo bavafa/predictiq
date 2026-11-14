@@ -346,7 +346,7 @@ function Limitations() {
           a clear mark in them. The very high scores are not a forecast for real equipment, where signs are weaker and
           noisier. Read the comparison between the two models as meaningful and the absolute levels as a feature of this data.
         </li>
-        <li>One year of data from a small set of machines, so every figure has a wide margin. No margins are shown because none were calculated.</li>
+        <li>One year of data from 100 machines, with 110 failure events in the test period, so every figure has a wide margin. No margins are shown because none were calculated. Only 20 machines were kept unseen, and this page does not show them separately.</li>
         <li>
           Hour-level precision and recall count overlapping hours, because one failure makes many earlier hours count as
           followed by a failure. The failure-event share and false alerts per 100 machine-days are the event-level measures.

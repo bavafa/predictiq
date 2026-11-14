@@ -25,6 +25,26 @@ describe("About & Data", () => {
     expect(container.textContent).toMatch(/Maintenance Planner.*illustrative.*Model Performance.*saved evaluation/);
   });
 
+  it("has a complete limitations section that matches the model card and Model Performance page", () => {
+    renderWithData(<AboutDataPage />, fakeFetch(readyMetadata()));
+    const box = screen.getByTestId("about-limitations");
+    expect(screen.getByRole("heading", { name: "Limitations and what this demo does not do" })).toBeInTheDocument();
+    for (const phrase of [
+      /simulated/i,
+      /One year of data from 100 machines/,
+      /110 failure\s+events/,
+      /20 machines they never saw/,
+      /looked at once/,
+      /Replay, not live/,
+      /patterns, not causes/,
+      /not real costs/,
+      /live sensor feeds/,
+      /real-world result/,
+    ]) {
+      expect(box.textContent).toMatch(phrase);
+    }
+  });
+
   it("reads the model version, date, cut-off and replay window from /metadata", async () => {
     renderWithData(
       <AboutDataPage />,

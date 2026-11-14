@@ -88,5 +88,8 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [ ] Owner: confirm or override decision 68 (evaluation date taken from the model build date; alerts per day and accuracy figures derived from saved counts).
 - [x] Session 2 and fix 2b (14 Nov 2026): full testing (contrast pairs, target sizes, keyboard, axe on all pages, notice, release hygiene, fresh-copy script); review round 1 fixes (build-date label, synthetic counts, "simulated" notice, decision 70). Report in `docs/QA_REPORTS/stage5-testing.md`.
 - [x] Fix 2c (14 Nov 2026), review round 2: rendered text and non-text contrast tests on all five pages (`contrast.spec.ts`), axe `color-contrast` proven enabled, exact 2px focus rule in keyboard and contrast specs, source colour scan widened (3-digit hex, rgb/hsl, Tailwind names, opacity, arbitrary), fresh-copy script skip wording and `REQUIRE_REAL=1`, hygiene xfail reason. Fixed: legend text 3.74:1, skip-link border, badge ring token.
-- [ ] Owner: decide what to do about commit 874a686 (personal author email; no rewrite done); to be recorded in `docs/LAUNCH_CHECKLIST.md` (session 3).
-- [ ] Session 3: launch preparation (limitations, README, model card, launch checklist, plan for getting the bundle to production), protected preview, review.
+- [ ] Owner: decide what to do about commit 874a686 (personal author email; no rewrite done); see `docs/QA_REPORTS/stage5-history-scan.md` and step 0 of `docs/LAUNCH_CHECKLIST.md`.
+- [x] Session 3 (14 Nov 2026): limitations section, README, model card, production bundle download (decision 71, with unit tests), launch checklist, DEPLOY.md, history-wide scan.
+- [ ] Run `scripts/verify_bundle_download.sh` (written, not run: the session was not allowed) and save `docs/QA_REPORTS/stage5-bundle-download.log`.
+- [ ] Optional: protected preview of this branch; independent review of session 3.
+- [ ] Owner: launch gate (`docs/LAUNCH_CHECKLIST.md`): go-ahead, approve decisions 70 and 71, choose a licence for the repo's own code, confirm the Vercel protection setting name.
