@@ -1,15 +1,13 @@
 # Status
 
-_Updated 2026-11-14 2:30 PM ET, Stage 4 ready for Meysam on branch `planner` (PR #31)._
+_Updated 2026-11-14 3:40 PM ET, dependency-update branch `deps-nov14`._
 
 ## Current stage
-**Stage 4, maintenance planning, on branch `planner`. Built, checked live, reviewed. Waiting for Meysam's gate decision and merge.**
-- **Built:** planner calculation and `POST /plan`; Maintenance Planner screen with decision 55 costs per machine model (all illustrative), "Apply to all models" controls (decision 65); visitor guide planner step restored; About & Data updated.
-- **Live check (protected preview, not production):** largest allowed planner answer 25,466 bytes, under the 256 KB limit (n=3, identical answers). See `docs/QA_REPORTS/stage4-live-checks.md`.
-- **Independent review:** 7 rounds. Rounds 1 and 2 found 4 Medium issues in code and behaviour, all fixed. Rounds 3 to 6 found wording in the spec and help text that claimed too much; fixed. Round 7: PASS WITH KNOWN ISSUES (one Low about the spec's net-benefit wording, fixed afterwards in docs; not re-reviewed).
-- **Tests (latest local run):** Vitest 142, Playwright synthetic 60 (4 skipped), no-bundle 7, real bundle 64, pytest 238 (254 with real data opt-in).
-- **Next:** Meysam reviews and merges PR #31; then the dependency-update branch; then Stage 5.
-- **Blockers:** none.
+**Stage 4 approved and merged (PR #31, 3:26 PM ET). Now testing dependency updates on branch `deps-nov14` (decision 67). Stage 5 has not started; it waits for Meysam.**
+- Included: fastapi 0.162.4 (#28), pydantic 2.14.3 (#25), pydantic-core 2.50.4 (#27), eslint 10 (#26). Left out: TypeScript 7 (#24), because typescript-eslint does not support it yet.
+- Every test passes after two test-only fixes (pytest 239, or 255 with real data). The protected preview built on the box works. See `docs/QA_REPORTS/deps-nov14-checks.md`.
+- Next: CI, review, then Meysam merges and closes the Dependabot pull requests he chooses.
+- Blockers: none.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
 **Done:** the data checks now run and pass on the real files: 761 failure rows become 719 events, and everything matches the recorded counts. The 24-hour failure label, the past-only features (nothing from the scoring hour or later is used, proven by an automated test that scrambles the future) and the train / tuning / test split with a 24-hour gap between periods are built and tested. Twenty machines are set aside once, with a fixed seed, to test how the model does on machines it never saw. Building every feature for all 100 machines over the whole year takes about 1.5 seconds.

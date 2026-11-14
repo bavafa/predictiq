@@ -1,0 +1,33 @@
+........................................................................ [ 28%]
+........................................................................ [ 56%]
+..............
+Largest allowed request per endpoint (synthetic bundle):
+  metadata                                   200      7,177 bytes
+  health                                     200         79 bytes
+  fleet (100 machines, no filter)            200     15,578 bytes
+  fleet/trend (7d)                           200      9,381 bytes
+  assets/{id} (largest of all machines)      200      8,375 bytes
+  assets/{id}/telemetry (7d)                 200     16,845 bytes
+  assets/{id}/explanation                    200        811 bytes
+  model/metrics                              200        514 bytes
+  model/threshold-analysis                   200     54,616 bytes
+  fleet (first hour)                         200     14,275 bytes
+  POST plan (100 machines listed, maximum inputs) 200     25,730 bytes
+.
+real bundle piq-20261114-efc9c243: 10,127,369 bytes uncompressed
+
+Largest allowed request per endpoint (real bundle piq-20261114-efc9c243):
+  metadata                                   200      7,204 bytes
+  health                                     200         78 bytes
+  fleet (100 machines, no filter)            200     15,452 bytes
+  fleet/trend (7d)                           200      9,380 bytes
+  assets/{id} (largest of all machines)      200      8,455 bytes
+  assets/{id}/telemetry (7d)                 200     16,919 bytes
+  assets/{id}/explanation                    200        820 bytes
+  model/metrics                              200      8,065 bytes
+  model/threshold-analysis                   200    144,715 bytes
+  fleet (first hour)                         200     13,828 bytes
+  POST plan (100 machines listed, maximum inputs) 200     25,483 bytes
+......................................................... [ 84%]
+.......................................                                  [100%]
+255 passed in 35.25s

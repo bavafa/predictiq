@@ -1,0 +1,121 @@
+
+> predictiq-frontend@0.1.0 e2e:real
+> node scripts/e2e.mjs --real
+
+
+> predictiq-frontend@0.1.0 prebuild
+> node scripts/sync-backend.mjs
+
+synced /workspace/predictiq/backend/app -> /workspace/predictiq/frontend/_backend/app
+synced bundle piq-20261114-efc9c243 -> /workspace/predictiq/frontend/_backend/bundle
+
+> predictiq-frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 95ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 329ms
+  Running TypeScript ...
+  Finished TypeScript in 2.4s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/7) ...
+  Generating static pages using 7 workers (1/7) 
+  Generating static pages using 7 workers (3/7) 
+  Generating static pages using 7 workers (5/7) 
+✓ Generating static pages using 7 workers (7/7) in 434ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about-data
+├ ○ /asset-details
+├ ○ /maintenance-planner
+└ ○ /model-performance
+
+
+○  (Static)  prerendered as static content
+
+[WebServer] INFO:     Started server process [790854]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+
+Running 64 tests using 4 workers
+
+(node:790911) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790910) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /model-performance (desktop) (1.8s)
+  ✓   1 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /asset-details (desktop) (1.9s)
+  ✓   4 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /maintenance-planner (desktop) (2.2s)
+  ✓   2 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on / (desktop) (2.7s)
+  ✓   5 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /about-data (desktop) (1.2s)
+  ✓   7 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /asset-details (mobile) (1.5s)
+  ✓   6 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on / (mobile) (2.2s)
+  ✓   9 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /model-performance (mobile) (1.3s)
+  ✓   8 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /maintenance-planner (mobile) (1.6s)
+  ✓  12 [chromium] › e2e/a11y.spec.ts:38:1 › focus: Escape closes the mobile menu and returns focus to the Menu button (765ms)
+  ✓  10 [chromium] › e2e/a11y.spec.ts:21:5 › axe: no serious or critical violations on /about-data (mobile) (1.3s)
+  ✓  13 [chromium] › e2e/a11y.spec.ts:49:1 › focus: the chart table toggle keeps focus on its button, both ways (871ms)
+  ✓  11 [chromium] › e2e/a11y.spec.ts:30:1 › axe: the open mobile menu dialog has no serious or critical violations (1.7s)
+  ✓  16 [chromium] › e2e/asset.spec.ts:68:1 › the factors are labelled patterns, not causes: top 8 plus all others, with the caveat (1.2s)
+  ✓  15 [chromium] › e2e/asset.spec.ts:39:1 › the machine picker and the web address choose the machine; the score is the data service's score (1.8s)
+  ✓  14 [chromium] › e2e/asset-real.spec.ts:9:1 › Asset Details shows the API score and status (real bundle) (2.1s)
+  ✓  18 [chromium] › e2e/asset.spec.ts:107:1 › stepping the replay changes the score to the data service's score for the next hour (1.6s)
+  ✓  20 [chromium] › e2e/asset.spec.ts:146:1 › a machine outside 1 to 100 shows the not-found state with a selector and a way back (1.3s)
+  ✓  19 [chromium] › e2e/asset.spec.ts:133:1 › the range toggle switches the sensor history between 24 hours and 7 days (1.9s)
+  ✓  21 [chromium] › e2e/asset.spec.ts:157:1 › when the sensor history fails, only that panel shows an error and Try again fixes it (1.2s)
+  ✓  17 [chromium] › e2e/asset.spec.ts:87:1 › no error, repair or failure at or after the replay hour is shown, for many machines and hours (3.8s)
+  ✓  25 [chromium] › e2e/asset.spec.ts:226:1 › mobile: sensors are tabs, one chart at a time, and nothing scrolls sideways (726ms)
+  ✓  26 [chromium] › e2e/fleet-real.spec.ts:9:1 › Fleet Overview Alert count equals the /fleet API alert count at two cut-offs (real bundle) (1.2s)
+  ✓  27 [chromium] › e2e/fleet.spec.ts:44:1 › the cards, charts and table show what the data service answers at the replay start (662ms)
+  ✓  24 [chromium] › e2e/asset.spec.ts:209:3 › axe: a loaded machine and the not-found state have no serious or critical violations (mobile) (4.8s)
+  ✓  22 [chromium] › e2e/asset.spec.ts:175:1 › replay control on this screen: 'Historical replay' wording, clean stop at the end and at the start (5.6s)
+  ✓  23 [chromium] › e2e/asset.spec.ts:209:3 › axe: a loaded machine and the not-found state have no serious or critical violations (desktop) (5.4s)
+  ✓  31 [chromium] › e2e/fleet.spec.ts:143:1 › a machine row opens Asset Details at the same replay time and cut-off (605ms)
+  ✓  29 [chromium] › e2e/fleet.spec.ts:96:1 › changing the cut-off updates the count and the table together (and Reset returns to the default) (1.7s)
+  ✓  32 [chromium] › e2e/fleet.spec.ts:159:1 › filters sit in the address, and Clear filters removes them (786ms)
+  ✓  30 [chromium] › e2e/fleet.spec.ts:123:1 › stepping the replay changes the numbers, and they match the service at each hour (1.9s)
+  ✓  34 [chromium] › e2e/fleet.spec.ts:185:1 › ERROR: a failed request says what failed, keeps the settings and recovers on Try again (587ms)
+  ✓  36 [chromium] › e2e/fleet.spec.ts:210:1 › charts can be read as tables, and have a text summary (592ms)
+  ✓  28 [chromium] › e2e/fleet.spec.ts:62:1 › the Alert count equals the Alert rows of the filtered table, for every filter (4.8s)
+  ✓  33 [chromium] › e2e/fleet.spec.ts:169:1 › EMPTY FILTER RESULT: zero everywhere, filters stay in their fields (1.4s)
+  ✓  35 [chromium] › e2e/fleet.spec.ts:199:1 › LOADING: grey blocks while the first answer is awaited (1.7s)
+  ✓  38 [chromium] › e2e/fleet.spec.ts:251:1 › replay at the start and at the end still show the fleet for that hour (775ms)
+  ✓  40 [chromium] › e2e/planner-real.spec.ts:9:1 › the Planner screen's shortlist equals POST /plan's shortlist for the default inputs, per-model costs included (real bundle) (467ms)
+  ✓  41 [chromium] › e2e/planner-real.spec.ts:39:1 › Apply to all models with equal failure costs matches POST /plan with equal costs (real bundle) (489ms)
+  ✓  42 [chromium] › e2e/planner.spec.ts:26:1 › a cost per machine model reorders the list and shows Moved marks (476ms)
+  ✓  39 [chromium] › e2e/fleet.spec.ts:233:1 › axe and layout: Fleet Overview on a phone has a list, a Sort menu and no sideways scroll (1.8s)
+  ✓  43 [chromium] › e2e/planner.spec.ts:45:1 › Apply to all models writes the shared cost into every model's field: equal costs, no Moved, order by chance alone (875ms)
+  ✓  44 [chromium] › e2e/planner.spec.ts:76:1 › crew slots change the shortlist only, not the order (566ms)
+  ✓  45 [chromium] › e2e/planner.spec.ts:88:1 › the alert cut-off changes which machines are listed, matching the Alert count (768ms)
+  ✓  37 [chromium] › e2e/fleet.spec.ts:225:1 › axe: Fleet Overview loaded, with the charts as tables and the empty state (desktop) (2.9s)
+  ✓  47 [chromium] › e2e/planner.spec.ts:114:1 › the risk-reduction toggle shows and hides the net benefit, labelled as an estimate (578ms)
+  ✓  46 [chromium] › e2e/planner.spec.ts:103:1 › also listing machines below the cut-off adds marked rows that are never shortlisted (714ms)
+  ✓  48 [chromium] › e2e/planner.spec.ts:125:1 › an invalid input is refused with a message and the list keeps the last valid result (586ms)
+  ✓  49 [chromium] › e2e/planner.spec.ts:138:1 › the page labels money as illustrative and never claims savings or live data (581ms)
+  ✓  50 [chromium] › e2e/planner.spec.ts:148:1 › a machine link opens Asset Details at the same time and cut-off (673ms)
+  ✓  51 [chromium] › e2e/planner.spec.ts:156:1 › the error state keeps the assumptions and Try again recovers (616ms)
+  ✓  55 [chromium] › e2e/replay.spec.ts:8:1 › starts at the replay start from /metadata and says Historical replay, never live (468ms)
+  ✓  54 [chromium] › e2e/planner.spec.ts:186:1 › mobile: no sideways scrolling and the buttons and disclosure are at least 44px (535ms)
+  ✓  56 [chromium] › e2e/replay.spec.ts:18:1 › step forward and back move by the step size and the time sits in the web address (945ms)
+  ✓  53 [chromium] › e2e/planner.spec.ts:174:3 › axe: the Planner has no serious or critical violations (mobile) (2.0s)
+  ✓  52 [chromium] › e2e/planner.spec.ts:174:3 › axe: the Planner has no serious or critical violations (desktop) (2.2s)
+  ✓  59 [chromium] › e2e/replay.spec.ts:72:1 › at the start, Start and Step back are unavailable with a visible reason (439ms)
+  ✓  60 [chromium] › e2e/replay.spec.ts:81:1 › works by keyboard: Space toggles Play, the timeline moves with keys, focus stays put (813ms)
+  ✓  62 [chromium] › e2e/replay.spec.ts:120:1 › the replay time, cut-off and machine follow the reader to another page; a bad address is ignored (626ms)
+  ✓  63 [chromium] › e2e/replay.spec.ts:138:1 › Model Performance shows the replay time read-only (213ms)
+  ✓  64 [chromium] › e2e/smoke.spec.ts:3:1 › shell, banner, and every route render honestly (633ms)
+  ✓  61 [chromium] › e2e/replay.spec.ts:111:1 › with reduced motion, replay still steps (2.3s)
+  ✓  57 [chromium] › e2e/replay.spec.ts:35:1 › play advances once per second and pause stops it (4.8s)
+  ✓  58 [chromium] › e2e/replay.spec.ts:48:1 › playback stops cleanly at the end: visible end state, nothing later, never wraps (6.3s)
+
+  64 passed (31.4s)

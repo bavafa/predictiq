@@ -53,19 +53,44 @@ def test_pinned_commit_matches_provenance_document() -> None:
 
 
 def test_routes_are_exactly_the_contract() -> None:
-    paths = {getattr(r, "path", "") for r in app.routes if getattr(r, "path", "").startswith("/api/v1/")}
-    assert paths == {
-        "/api/v1/health",
-        "/api/v1/metadata",
-        "/api/v1/fleet",
-        "/api/v1/fleet/trend",
-        "/api/v1/assets/{machine_id}",
-        "/api/v1/assets/{machine_id}/telemetry",
-        "/api/v1/assets/{machine_id}/explanation",
-        "/api/v1/model/metrics",
-        "/api/v1/model/threshold-analysis",
-        "/api/v1/plan",
+    # The public OpenAPI schema is generated from the routes the app actually serves,
+    # so it does not depend on how FastAPI stores included routers internally.
+    contract = {
+        "/api/v1/health": {"get"},
+        "/api/v1/metadata": {"get"},
+        "/api/v1/fleet": {"get"},
+        "/api/v1/fleet/trend": {"get"},
+        "/api/v1/assets/{machine_id}": {"get"},
+        "/api/v1/assets/{machine_id}/telemetry": {"get"},
+        "/api/v1/assets/{machine_id}/explanation": {"get"},
+        "/api/v1/model/metrics": {"get"},
+        "/api/v1/model/threshold-analysis": {"get"},
+        "/api/v1/plan": {"post"},
     }
+    served = {path: set(ops) for path, ops in app.openapi()["paths"].items() if path.startswith("/api/v1/")}
+    assert served == contract
+    # Behaviour check: anything outside the contract is a 404.
+    assert client.get("/api/v1/not-in-the-contract").status_code == 404
+
+
+def test_no_served_route_can_bypass_the_openapi_contract_check() -> None:
+    # test_routes_are_exactly_the_contract derives the served routes from the OpenAPI schema.
+    # That check is only exact if every served route appears in the schema, so forbid the
+    # constructs that can serve a path without it: include_in_schema=False, mounted apps,
+    # raw Starlette routes and websockets. The only allowed add_api_route calls are the two
+    # contract routes in data.py (they are in the schema, so the contract test covers them).
+    allowed_add_api_route = {"backend/app/api/data.py": 2}
+    forbidden = ("include_in_schema", ".mount(", "add_route(", "websocket", "add_websocket_route")
+    files = sorted((ROOT / "backend" / "app").rglob("*.py")) + [ROOT / "frontend" / "api" / "index.py"]
+    assert len(files) > 1
+    problems: list[str] = []
+    for f in files:
+        rel = f.relative_to(ROOT).as_posix()
+        text = f.read_text(encoding="utf-8")
+        problems += [f"{rel}: {token}" for token in forbidden if token in text.lower()]
+        if text.count("add_api_route(") != allowed_add_api_route.get(rel, 0):
+            problems.append(f"{rel}: unexpected add_api_route( count")
+    assert problems == []
 
 
 def test_unknown_path_404_with_problem_json_and_no_store() -> None:
