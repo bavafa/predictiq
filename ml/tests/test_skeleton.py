@@ -2,20 +2,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[2]
-MODULES = ["train", "evaluate", "replay"]
 
 
-@pytest.mark.parametrize("name", MODULES)
-def test_stub_exits_non_zero_with_message(name: str) -> None:
+def test_evaluate_needs_a_mode() -> None:
+    """`python -m ml.evaluate` with neither --write nor --verify must fail, not guess."""
     r = subprocess.run(  # noqa: S603
-        [sys.executable, "-m", f"ml.{name}"],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
+        [sys.executable, "-m", "ml.evaluate"], cwd=ROOT, capture_output=True, text=True, check=False
     )
     assert r.returncode != 0
-    assert "not implemented in the skeleton story" in r.stderr
+    assert "--write" in r.stderr and "--verify" in r.stderr
