@@ -22,7 +22,7 @@ These rules apply to every Claude Code session in this repository.
 - No secrets, tokens or bypass values in the repository, logs, pull requests or chat. `scripts/tests/test_release_hygiene.py` checks the tracked files.
 - The repository stays **private** and Vercel deployment protection stays **on** until Meysam gives the launch go-ahead (`docs/LAUNCH_CHECKLIST.md`). Do not add domains, promote to production, or spend money.
 - Never use the `VERCEL_TOKEN` environment variable. Run every Vercel command as `env -u VERCEL_TOKEN vercel ...`.
-- Do not touch the "insider" project.
+- Do not touch any other Vercel project or repository on the same accounts (only PredictIQ).
 - Never set `ANTHROPIC_API_KEY` and never accept credit top-ups.
 - If something only Meysam can do comes up (sign-in, 2FA, payment, licence or scope decision), stop and ask him.
 

@@ -2,7 +2,7 @@
 
 Run on 14 Nov 2026 at about 5:54 PM, Toronto time. Raw output is in `stage5-live-evidence/`.
 
-The preview `dpl_7zzg8naq7yXKrrYFNXRyD2AZfM6M` was built on the build machine from commit `f29e567`. The later commits on this branch change only documents and evidence, not app or build code. It used the real bundle `piq-20261114-efc9c243`, hash-checked by `scripts.fetch_bundle`. Protection was on (Vercel Authentication), and nothing was promoted to production.
+The preview `dpl_7zzg8naq7yXKrrYFNXRyD2AZfM6M` was built on the build machine from commit `f29e567`. Later commits on this branch changed documents, evidence, tests and the fresh-copy script, but no app code and no build or deploy code. This preview is evidence for commit `f29e567`. It used the real bundle `piq-20261114-efc9c243`, hash-checked by `scripts.fetch_bundle`. Protection was on (Vercel Authentication), and nothing was promoted to production.
 
 ## Results
 - **Data service:** function size 30,292,792 bytes (limit 500 MB).
