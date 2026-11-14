@@ -28,6 +28,7 @@ button,select,input{font:inherit;color:#111}
 .menu-btn,.brand-m{display:none}
 .badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #666;background:#eee;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}
 .replaybar{background:#fafafa;border-bottom:1px solid #bbb;padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.replay-note{flex-basis:100%;margin:0}
 .replaybar .time{font-weight:700;font-variant-numeric:tabular-nums;margin-right:8px}
 .btn{border:1px solid #555;background:#fff;border-radius:6px;padding:6px 12px;min-height:36px;cursor:pointer;white-space:nowrap}
 .btn.primary{background:#333;color:#fff;border-color:#333}
@@ -166,6 +167,7 @@ details summary{cursor:pointer;font-weight:600}
       <label class="cap" for="step">Step</label>
       <select id="step" class="sel"><option>1 hour</option><option>6 hours</option><option>24 hours</option></select>
       <span class="slider timeline"><label for="rt" class="cap"><b>Replay time</b></label><span class="mm">First hour —</span><input type="range" id="rt" min="0" max="100" step="1" value="62" aria-valuetext="2015-11-14 06:00"><span class="mm">Last hour —</span></span>
+      <p class="cap replay-note" id="replay-why"><span data-hide="replay-fallback">Replay starts at the first test-period hour where any machine is at or above the default alert cut-off (cut-off set on validation data). Rule fixed before results were seen.</span><span data-show="replay-fallback" hidden>No test-period hour had a machine at or above the default alert cut-off, so the replay starts at the first test hour. Rule fixed before results were seen.</span></p>
     </div>
 
     <main id="main">
@@ -180,7 +182,7 @@ details summary{cursor:pointer;font-weight:600}
             <div class="grid2" style="gap:8px">
               <div class="field" style="margin:0"><label for="m1">model1 (USD)</label><input id="m1" value=""></div>
               <div class="field" style="margin:0"><label for="m2">model2 (USD)</label><input id="m2" value=""></div>
-              <div class="field" style="margin:0"><label for="m3">model3 (USD)</label><input id="m3" value="—" data-show="per-model-cost" hidden><input value="" data-hide="per-model-cost"><span class="example" data-show="per-model-cost" hidden>example: set higher than the rest</span></div>
+              <div class="field" style="margin:0"><label for="m3">model3 (USD)</label><input id="m3" value=""><span class="example" data-show="per-model-cost" hidden>example: set higher than the rest</span></div>
               <div class="field" style="margin:0"><label for="m4">model4 (USD)</label><input id="m4" value=""></div>
             </div>
           </details>
@@ -209,11 +211,13 @@ details summary{cursor:pointer;font-weight:600}
                 <tr><td class="num">2</td><td><a href="asset-details.html">Machine —</a></td><td>—</td><td class="num">—% <span class="tag tag-alert">▲ Alert</span></td><td class="num">$—</td><td class="num">$—</td><td class="num">$—</td><td class="num" data-show="effectiveness-on" hidden>$—</td><td>✓ Slot 2</td></tr>
                 <tr><td class="num">3</td><td><a href="asset-details.html">Machine —</a></td><td>—</td><td class="num">—% <span class="tag tag-alert">▲ Alert</span></td><td class="num">$—</td><td class="num">$—</td><td class="num">$—</td><td class="num" data-show="effectiveness-on" hidden>$—</td><td>— Over capacity</td></tr>
               </tbody>
+              <!-- Earlier order (by predicted chance alone): P1, P2, P3, P4. New order: row1=P3 (earlier 3), row2=P1 (earlier 1), row3=P4 (earlier 4), row4=P2 (earlier 2).
+                   Moved = earlier position minus new position: P3 3-1=up 2; P1 1-2=down 1; P4 4-3=up 1; P2 2-4=down 2. Positions 3,1,4,2 are a permutation of 1-4. P3 and P4 are the model3 machines. -->
               <tbody data-show="per-model-cost" hidden>
                 <tr><td class="num">1</td><td><a href="asset-details.html">Machine —</a></td><td><b>model3</b> <span class="example">example</span></td><td class="num">—% <span class="tag tag-alert">▲ Alert</span></td><td class="num">$— <b>(model3)</b></td><td class="num">$—</td><td class="num">$—</td><td class="moved"><b>▲ up 2</b></td><td>✓ Slot 1</td></tr>
                 <tr><td class="num">2</td><td><a href="asset-details.html">Machine —</a></td><td>—</td><td class="num">—% <span class="tag tag-alert">▲ Alert</span></td><td class="num">$—</td><td class="num">$—</td><td class="num">$—</td><td class="moved">▼ down 1</td><td>✓ Slot 2</td></tr>
-                <tr><td class="num">3</td><td><a href="asset-details.html">Machine —</a></td><td><b>model3</b> <span class="example">example</span></td><td class="num">—% <span class="tag tag-alert">▲ Alert</span></td><td class="num">$— <b>(model3)</b></td><td class="num">$—</td><td class="num">$—</td><td class="moved"><b>▲ up 2</b></td><td>— Over capacity</td></tr>
-                <tr><td class="num">4</td><td><a href="asset-details.html">Machine —</a></td><td>—</td><td class="num">—% <span class="tag tag-alert">▲ Alert</span></td><td class="num">$—</td><td class="num">$—</td><td class="num">$—</td><td class="moved">▼ down 3</td><td>— Over capacity</td></tr>
+                <tr><td class="num">3</td><td><a href="asset-details.html">Machine —</a></td><td><b>model3</b> <span class="example">example</span></td><td class="num">—% <span class="tag tag-alert">▲ Alert</span></td><td class="num">$— <b>(model3)</b></td><td class="num">$—</td><td class="num">$—</td><td class="moved"><b>▲ up 1</b></td><td>— Over capacity</td></tr>
+                <tr><td class="num">4</td><td><a href="asset-details.html">Machine —</a></td><td>—</td><td class="num">—% <span class="tag tag-alert">▲ Alert</span></td><td class="num">$—</td><td class="num">$—</td><td class="num">$—</td><td class="moved">▼ down 2</td><td>— Over capacity</td></tr>
               </tbody>
             </table>
           </div>
@@ -242,7 +246,7 @@ document.querySelectorAll('[data-show]').forEach(function(e){e.hidden=e.dataset.
 document.querySelectorAll('[data-hide]').forEach(function(e){if(e.dataset.hide.split(' ').indexOf(s)>=0)e.hidden=true});
 document.querySelectorAll('[data-disable]').forEach(function(e){if(e.dataset.disable.split(' ').indexOf(s)>=0)e.disabled=true});
 document.querySelectorAll('[data-enable]').forEach(function(e){e.disabled=e.dataset.enable.split(' ').indexOf(s)<0&&e.hasAttribute('disabled')?true:false;if(e.dataset.enable.split(' ').indexOf(s)>=0)e.disabled=false});
-document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var rt=document.getElementById('rt');if(rt&&s==='replay-end')rt.value=rt.max;if(rt&&s==='replay-start')rt.value=rt.min;document.querySelectorAll('[data-open]').forEach(function(e){e.open=e.dataset.open.split(' ').indexOf(s)>=0});
+document.querySelectorAll('[data-check]').forEach(function(e){e.checked=e.dataset.check.split(' ').indexOf(s)>=0});var m3=document.getElementById('m3');if(m3&&s==='per-model-cost')m3.value='—';var rt=document.getElementById('rt');if(rt&&s==='replay-end')rt.value=rt.max;if(rt&&s==='replay-start')rt.value=rt.min;document.querySelectorAll('[data-open]').forEach(function(e){e.open=e.dataset.open.split(' ').indexOf(s)>=0});
 })();
 </script>
 </body>
