@@ -35,6 +35,29 @@ Vercel's Python pages say that running a Python backend beside another framework
 
 `frontend/vercel.json` sets `functions["api/index.py"].excludeFiles` to drop `node_modules`, `.next`, `e2e`, `tests`, `components`, `lib`, `public` and test reports from the Python function. Python tests, `ml/`, `data/` and `artifacts/` are outside the Root Directory and are not part of the function. The runtime dependencies are only FastAPI and Pydantic. No model libraries (decision 32). Vercel's limit is 500 MB uncompressed; the trial deploy records the real size.
 
+## The model bundle (data-and-model stage, session 3)
+
+The data endpoints read a **serving bundle**: one folder per model version, about 10.1 MB uncompressed (10 files: NumPy arrays plus small JSON), 8.1 MB as `bundle.zip`. It is never committed. The service finds it in `_backend/bundle/` beside the app (the Vercel copy), or in `artifacts/<version>/bundle/` in a git checkout. **If no bundle is present, every data endpoint answers 503 (never cached), `/health` says `model_available: false`, and nothing is faked.**
+
+### Making and publishing a bundle (owner or orchestrator)
+1. Build it from the saved model and the real data: `uv run --group ml python -m scripts.build_bundle`. It prints the byte totals and writes `artifacts/<version>/bundle.zip`, `bundle.sha256` (committed) and a `bundle` entry in `manifest.json` (committed). Running it twice gives the same hash.
+2. Create the release once (not done by any script; this is the exact command, run from the repository root):
+
+```bash
+gh release create bundle-piq-20261114-efc9c243 artifacts/piq-20261114-efc9c243/bundle.zip \
+  --repo bavafa/predictiq --prerelease \
+  --title "Serving bundle piq-20261114-efc9c243 (simulated data)" \
+  --notes "Serving bundle for model version piq-20261114-efc9c243. Simulated sample data. SHA-256 is in artifacts/piq-20261114-efc9c243/manifest.json."
+```
+
+3. Anyone else gets it with `uv run python -m scripts.fetch_bundle`. It runs `gh release download bundle-<version> --repo bavafa/predictiq --pattern bundle.zip`, checks the SHA-256 against the committed manifest, refuses anything that does not match (or that is marked synthetic), and unpacks into `artifacts/<version>/bundle/`.
+
+### Putting it in the Vercel function
+`npm run build` runs `frontend/scripts/sync-backend.mjs` first. It copies `artifacts/<latest version>/bundle/` into `frontend/_backend/bundle/` (git-ignored) when it exists, and `vercel.json` includes `_backend/bundle/**` in the function. **The copy refuses to run (exit 1) if the bundle's `meta.json` is not marked `"synthetic": false`**, so a test bundle can never be deployed. Because `artifacts/*/bundle/` is git-ignored, a build that Vercel runs from a Git push has no bundle (data endpoints answer 503). A deploy made from a machine that has run `fetch_bundle.py` (or `build_bundle.py`) includes it. Measure with `/workspace/predictiq-logs/verify-fn.sh` and the deploy as before; the function should grow by about 10 MB plus numpy (about 30 MB). The largest-request test (`backend/tests/test_sizes.py`) prints the response sizes; against the real bundle the biggest answer is `model/threshold-analysis` at about 145 KB (limit 256 KB).
+
+### Runtime
+Only `numpy` was added to the function's dependencies (pinned in `pyproject.toml` and `frontend/requirements.txt`). Arrays are read memory-mapped. Explanations use XGBoost's own `pred_contribs` at build time, so `shap` is not used anywhere. No model library is imported at runtime.
+
 ## Builds are skipped for `main`
 
 `frontend/vercel.json`:

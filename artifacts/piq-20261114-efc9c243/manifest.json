@@ -1,0 +1,17 @@
+{
+  "bundle": {
+    "file": "bundle.zip",
+    "sha256": "0ad2916e96323e9b95a86d306924b5d66beb3c1f3185efc510a7bcbc4b2d57d2",
+    "uncompressed_bytes": 10127369,
+    "zip_bytes": 8122585
+  },
+  "sha256": {
+    "baseline.json": "b9fb93fd9eee1f424f675d0df4ebda1d3c28c5dfa5de80aadca25bc73d72343f",
+    "baseline_calibration.json": "8c59d8096fcdc34539def9f88af0ee4a7e8c8305ac2b0f298cc547b3ab83e8b6",
+    "evaluation.json": "fbff8114225bb52db96dce287768837c5f89ed95f6f60c22c86b1ad524a42a8c",
+    "feature_fingerprint.json": "cd301dab6744ed61703e0ec4bdfb939a2b6d07a79e97c5f33f6339b470c48728",
+    "main_calibration.json": "a12ce26112e40c91a62fb47d85ed00dbef5e7bc56b4d5a0ac1abc7785245ebcf",
+    "main_xgboost.ubj": "877add1565b80782f910b40e7a5746060adcc9c1d79b6a1d9286234736364126",
+    "metadata.json": "ea04392f34dffa30e9a326b17420493ec3b6050c806a96dcd7fa22bc220aeeb0"
+  }
+}

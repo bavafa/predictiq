@@ -11,7 +11,7 @@
   "functions": {
     "api/index.py": {
       "excludeFiles": "{app/**,node_modules/**,.next/**,e2e/**,tests/**,components/**,lib/**,public/**,playwright-report/**,test-results/**}",
-      "includeFiles": "_backend/app/**"
+      "includeFiles": "{_backend/app/**,_backend/bundle/**}"
     }
   }
 }

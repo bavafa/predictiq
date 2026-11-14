@@ -1,7 +1,5 @@
-"""Past-only feature code. Placeholder: arrives in the data-and-model stage."""
+"""Past-only feature code (see ml/features/build.py for the rules)."""
 
-from ml._stub import not_implemented
+from ml.features.build import FEATURE_COLUMNS, build_features, feature_fingerprint
 
-
-def main() -> int:
-    return not_implemented("ml.features")
+__all__ = ["FEATURE_COLUMNS", "build_features", "feature_fingerprint"]

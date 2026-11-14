@@ -1,7 +1,6 @@
 import re
 from pathlib import Path
 
-import pytest
 from app import config
 from app.main import app, create_app
 from fastapi import FastAPI
@@ -15,7 +14,7 @@ def test_health_ok_and_never_cached() -> None:
     r = client.get("/api/v1/health")
     assert r.status_code == 200
     assert r.headers["cache-control"] == "no-store"
-    assert r.json() == {"status": "ok", "model_version": None}
+    assert r.json() == {"status": "ok", "model_version": None, "model_available": False}
 
 
 def test_metadata_has_no_fake_model_fields() -> None:
@@ -27,15 +26,10 @@ def test_metadata_has_no_fake_model_fields() -> None:
     assert body["app_name"] == "PredictIQ"
     assert body["dataset"]["simulated"] is True
     assert body["dataset"]["source"] == "https://github.com/microsoft/sqlworkshops"
-    # Only these keys: no metrics, scores, cut-offs or machine data until a model exists.
-    assert set(body) == {
-        "app_name",
-        "version",
-        "dataset",
-        "model_version",
-        "model_available",
-        "replay_window",
-    }
+    # No metrics, scores, cut-offs or machine data until a bundle is present.
+    assert body["default_cutoff_percent"] is None and body["machines"] == [] and body["splits"] is None
+    assert body["data_credit"] is None and body["synthetic"] is False
+    assert body["planner_defaults"]["label"] == "illustrative"
 
 
 def test_metadata_cache_header_matches_architecture_table() -> None:
@@ -58,29 +52,23 @@ def test_pinned_commit_matches_provenance_document() -> None:
     assert re.fullmatch(r"[0-9a-f]{40}", config.DATASET_PINNED_COMMIT)
 
 
-def test_only_health_and_metadata_are_routed() -> None:
-    paths = {getattr(r, "path", "") for r in app.routes}
-    assert {"/api/v1/health", "/api/v1/metadata"} <= paths
-    assert not any(
-        p.startswith("/api/v1/") and p not in {"/api/v1/health", "/api/v1/metadata"} for p in paths
-    )
-
-
-@pytest.mark.parametrize(
-    "path",
-    [
+def test_routes_are_exactly_the_contract_without_plan() -> None:
+    paths = {getattr(r, "path", "") for r in app.routes if getattr(r, "path", "").startswith("/api/v1/")}
+    assert paths == {
+        "/api/v1/health",
+        "/api/v1/metadata",
         "/api/v1/fleet",
         "/api/v1/fleet/trend",
-        "/api/v1/assets/1",
-        "/api/v1/assets/1/telemetry",
-        "/api/v1/assets/1/explanation",
+        "/api/v1/assets/{machine_id}",
+        "/api/v1/assets/{machine_id}/telemetry",
+        "/api/v1/assets/{machine_id}/explanation",
         "/api/v1/model/metrics",
         "/api/v1/model/threshold-analysis",
-        "/api/v1/nope",
-    ],
-)
-def test_unbuilt_endpoints_404_with_problem_json_and_no_store(path: str) -> None:
-    r = client.get(path)
+    }
+
+
+def test_unknown_path_404_with_problem_json_and_no_store() -> None:
+    r = client.get("/api/v1/nope")
     assert r.status_code == 404
     assert r.headers["cache-control"] == "no-store"
     assert r.headers["content-type"].startswith("application/problem+json")

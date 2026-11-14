@@ -60,11 +60,11 @@ jobs:
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           enable-cache: true
-      - run: uv sync --frozen
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run mypy
-      - run: uv run pytest
+      - run: uv sync --frozen --group ml
+      - run: uv run --group ml ruff check .
+      - run: uv run --group ml ruff format --check .
+      - run: uv run --group ml mypy
+      - run: uv run --group ml pytest
       - name: requirements.txt for Vercel is in sync with uv.lock
         run: |
           uv export --no-dev --no-hashes --frozen --no-emit-project -o /tmp/requirements.txt

@@ -1,0 +1,4 @@
+200 60
+{"status":"ok","model_version":null,"model_available":false}
+503 130
+{"type":"about:blank","title":"Model data unavailable","status":503,"detail":"No serving bundle is installed in this deployment."}

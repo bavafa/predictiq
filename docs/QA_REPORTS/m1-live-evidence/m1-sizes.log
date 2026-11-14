@@ -1,0 +1,15 @@
+model_version=piq-20261114-efc9c243 replay=2015-11-01T00:00:00..2015-12-30T06:00:00
+09:15:57 | health | status,bytes,secs=200 78 0.480088 | cache-control=no-store | x-vercel-cache=MISS
+09:15:58 | metadata | status,bytes,secs=200 7167 0.310056 | cache-control=public, max-age=0 | x-vercel-cache=HIT
+09:15:58 | fleet (100 machines, no filter) | status,bytes,secs=200 9152 0.515008 | cache-control=public, max-age=3600 | x-vercel-cache=MISS
+09:15:59 | fleet/trend (7d) | status,bytes,secs=200 9380 0.426993 | cache-control=public, max-age=3600 | x-vercel-cache=MISS
+09:16:40 | assets/{id} (largest machine = 20 of 100 probed) | status,bytes,secs=200 8455 0.359453 | cache-control=public, max-age=3600 | x-vercel-cache=HIT
+09:16:41 | assets/{id}/telemetry (7d) | status,bytes,secs=200 16919 0.371260 | cache-control=public, max-age=3600 | x-vercel-cache=MISS
+09:16:41 | assets/{id}/explanation | status,bytes,secs=200 820 0.357433 | cache-control=public, max-age=3600 | x-vercel-cache=MISS
+09:16:42 | model/metrics | status,bytes,secs=200 8065 0.485424 | cache-control=public, max-age=3600 | x-vercel-cache=MISS
+09:16:42 | model/threshold-analysis | status,bytes,secs=200 144715 0.440858 | cache-control=public, max-age=3600 | x-vercel-cache=MISS
+09:16:43 | model/threshold-analysis (repeat) | status,bytes,secs=200 144715 0.521253 | cache-control=public, max-age=3600 | x-vercel-cache=HIT
+09:16:43 | fleet (first hour) | status,bytes,secs=200 9807 0.347865 | cache-control=public, max-age=3600 | x-vercel-cache=MISS
+09:16:43 | wrong mv -> expect 404 | status,bytes,secs=404 100 0.433652 | cache-control=no-store | x-vercel-cache=MISS
+09:16:44 | machine 101 -> expect 404 | status,bytes,secs=404 83 0.395468 | cache-control=no-store | x-vercel-cache=MISS
+09:16:44 | cutoff 101 -> expect refuse | status,bytes,secs=422 131 0.326274 | cache-control=no-store | x-vercel-cache=MISS

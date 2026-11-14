@@ -1,9 +1,37 @@
 # Status
 
-_Updated 2026-11-13, after the skeleton review fix round._
+_Updated 2026-11-14, 9:25 AM ET, data-and-model stage ready for owner review._
 
 ## Current stage
-**Build stage, story 1: the project skeleton, on branch `skeleton` (PR #23). The architecture gate is approved by Meysam (Owner) (13 Nov 2026, 10:05 PM ET).** The independent skeleton review passed with known issues; its fix round is done (see below). Sections further down that describe the architecture stage are history.
+**Data-and-model stage built and reviewed, on branch `data-model`; waiting for the owner to review and merge.** The project skeleton was merged by Meysam (Owner) on 14 Nov 2026 at 8:08 AM ET.
+- **Done:** data checks, the 24-hour label, past-only features, the baseline and main models, the alert cut-off and event measures, the twenty-machine unseen test, and the serving bundle for the latest model only. The bundle is kept on a GitHub pre-release, not in git.
+- **Data service:** answers every data question from the bundle.
+- **Size checks** re-measured live on a protected preview, both met:
+  - the data service is about 30 MB as Vercel reports it (75 MB uncompressed in the local build);
+  - the largest answer is 144,715 bytes.
+- **Independent review:** round 1 found one Medium and one Low, both fixed. Round 2 passed with known issues; its one Low (a missing raw record) is fixed.
+- **Next:** the owner reviews; then Stage 3, the core screens.
+- **Blockers:** none. The owner has two decisions to make: the example planner costs, and how model data reaches the public launch.
+
+## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
+**Done:** the data checks now run and pass on the real files: 761 failure rows become 719 events, and everything matches the recorded counts. The 24-hour failure label, the past-only features (nothing from the scoring hour or later is used, proven by an automated test that scrambles the future) and the train / tuning / test split with a 24-hour gap between periods are built and tested. Twenty machines are set aside once, with a fixed seed, to test how the model does on machines it never saw. Building every feature for all 100 machines over the whole year takes about 1.5 seconds.
+**Checked against the architecture:** every data fact matched (events per period 17 / 473 / 3 / 109 / 3 / 110 / 4, 107 of 110 test events with a full lookback, 142,300 test machine-hours). Nothing needed changing.
+**Next:** session 2: the simple baseline and the main model, calibration and cut-off.
+**Blockers:** none.
+**Note:** the extra data-science libraries live in a separate optional group, so the website's server stays as small as before; CI now installs that group to run the new tests.
+
+## Data and model, session 2 of 3 (branch `data-model`, 14 Nov 2026)
+**Done:** the simple baseline (logistic regression) and the main model (XGBoost, a four-setting grid compared on validation only) are trained on the 80 seen machines. Calibration and the default cut-off were chosen on validation: baseline sigmoid and 27%, main none and 51%. The test period was evaluated once (`artifacts/piq-20261114-efc9c243/evaluation.json`, committed; `make verify` passes) for both models, on the 80 seen machines, the 20 unseen machines and all 100, with both models at every whole-percent cut-off. The replay starts at 2015-11-01 00:00 (an alert is already present). Running the whole pipeline twice from scratch gave byte-identical files. All numbers are simulated; the plain-English results are in `docs/MODEL_CARD.md`.
+**Headline (simulated, test window, all 100 machines):** main model precision 0.971, recall 0.947, 107 of 107 countable events caught, 0.10 false alerts per 100 machine-days; baseline 0.734, 0.900, 107 of 107, 1.50. Unseen 20 machines, main: precision 0.975, recall 0.920, 25 of 25 events caught.
+**Worth knowing:** the scores are very high because the simulated failures leave a clear mark in the sensors; the model card says not to read them as real-world performance. The data checks and the past-only leakage test from session 1 still pass.
+**Next:** session 3 (the remaining artifacts for the data service: replay scores, explanations).
+**Blockers:** none.
+
+## Data and model, session 3 of 3 (branch `data-model`, 14 Nov 2026)
+**Done:** the real serving bundle for `piq-20261114-efc9c243` is built (`scripts/build_bundle.py`): 10,127,369 bytes uncompressed, `bundle.zip` 8,122,585 bytes, SHA-256 `0ad2916e96323e9b95a86d306924b5d66beb3c1f3185efc510a7bcbc4b2d57d2` (same on a second build). A test proves the stored scores equal the saved model on freshly built features, and that the explanations add up to the score. `scripts/fetch_bundle.py` downloads a release asset, checks the hash in the committed manifest and unpacks it. The data service now answers all contract endpoints (`/metadata`, `/fleet`, `/fleet/trend`, `/assets/{id}`, `/telemetry`, `/explanation`, `/model/metrics`, `/model/threshold-analysis`) with the exact validation, `mv` and cache rules; with no bundle they answer 503 and `/health` says `model_available: false`. The Vercel prebuild copies the bundle into the function and refuses a synthetic one. The largest allowed request per endpoint is under 256 KB on the real bundle (largest: threshold analysis, 144,715 bytes; fleet list 9,152 bytes). Example planner costs are in config and `/metadata`, labelled illustrative, as decision 55 (proposed).
+**Next for the orchestrator:** create the release with the command in `docs/DEPLOY.md` (nothing was released or deployed by me), deploy the protected preview, run `verify-fn.sh`, and record the function size and response sizes (decision 53 re-measure). Then Stage 3 (screens).
+**Worth knowing:** explanations use XGBoost's own contributions (no `shap`); a Git-triggered Vercel build has no bundle (it is git-ignored) and would serve 503 until the bundle is included; numpy is the only new runtime dependency.
+**Blockers:** none. Owner to confirm decision 55 (illustrative costs).
 
 ## Skeleton story (branch `skeleton`)
 **Done:** Next.js shell with five routes, disclosure banner, "Historical replay" badge and honest empty states (no numbers); FastAPI `/api/v1/health` and `/api/v1/metadata` only; `ml/` placeholders that exit 1; hash-checked `scripts/download_data.py` (run against the live source on 13 Nov 2026: all 5 files matched; `data/raw` is gitignored); Makefile; ruff/mypy/pytest, Vitest, Playwright smoke test plus axe accessibility checks (5 routes, desktop and mobile, plus the open menu); CI workflow with actions pinned to commit SHAs; Dependabot; Vercel layout and `ignoreCommand` (`docs/DEPLOY.md`); screenshots.
@@ -56,3 +84,4 @@ Independent review: first pass FAIL (1 High: the test window included hours with
 - 13 Nov 2026: Vercel Python function now bundles the backend (prebuild copy to frontend/_backend, includeFiles, Next.js app/ excluded); verify-fn.sh prints VERIFY_FN_OK.
 - 13 Nov 2026, 11:03 PM ET: preview of this branch deployed on Vercel (success); mobile menu now moves focus to the page after a link is used; independent review of the deploy evidence: hosting gate still open (only the non-commercial check is met).
 - 14 Nov 2026, 1:15 AM ET: live checks on the protected preview: routing, cold start, caching, rate limit and non-commercial use met; size checks met for the skeleton and to be measured again with the real model; one free rate-limit rule added; hosting stays on Vercel (independent review: its findings accepted and fixed).
+- 14 Nov 2026: QA fixes: `evaluate --verify` now recomputes the replay start from fresh scores (never the unhashed cache; new test covers a tampered cache); model card feature count corrected to 35. Model, results and bundle hash unchanged.

@@ -8,6 +8,8 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi==0.136.1",
     "pydantic==2.13.4",
+    # Reads the serving bundle (arrays only; no model libraries at runtime).
+    "numpy==2.5.4",
 ]
 
 [dependency-groups]
@@ -19,6 +21,13 @@ dev = [
     "ruff",
     "uvicorn",
 ]
+ml = [
+    "numpy>=2.5.4",
+    "pandas>=3.1.1",
+    "pandas-stubs>=3.1.0.261029",
+    "scikit-learn==1.9.1",
+    "xgboost==3.4.1",
+]
 
 [tool.uv]
 package = false
@@ -26,7 +35,8 @@ package = false
 [tool.pytest.ini_options]
 testpaths = ["backend/tests", "ml/tests", "scripts/tests"]
 pythonpath = [".", "backend"]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers -m 'not realdata'"
+markers = ["realdata: needs the downloaded files in data/raw (opt-in: run with -m realdata; skipped when they are missing)"]
 
 [tool.ruff]
 line-length = 110
@@ -38,6 +48,10 @@ select = ["E", "F", "I", "B", "UP", "S", "C4", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/**" = ["S101"]
+
+[[tool.mypy.overrides]]
+module = ["sklearn.*"]
+ignore_missing_imports = true
 
 [tool.mypy]
 python_version = "3.12"

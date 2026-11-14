@@ -1,4 +1,4 @@
-"""PredictIQ data service (FastAPI). Read-only; no model or scores exist yet."""
+"""PredictIQ data service (FastAPI). Read-only; serves precomputed scores from the bundle, if present."""
 
 import logging
 from collections.abc import Awaitable, Callable
@@ -10,6 +10,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import config
 from app.api.routes import router
+from app.problems import ProblemError
 from app.schemas import Problem
 
 logger = logging.getLogger("predictiq")
@@ -25,6 +26,12 @@ def _problem(status: int, title: str, detail: str | None = None) -> JSONResponse
         media_type=PROBLEM_JSON,
         headers={"Cache-Control": config.CACHE_NO_STORE},
     )
+
+
+async def _problem_error(_: Request, exc: Exception) -> JSONResponse:
+    if isinstance(exc, ProblemError):
+        return _problem(exc.status, exc.title, exc.detail)
+    return _problem(500, "Internal error")
 
 
 async def _http_error(_: Request, exc: Exception) -> JSONResponse:
@@ -53,6 +60,7 @@ def create_app() -> FastAPI:
         openapi_url=None,
     )
     app.include_router(router, prefix=config.API_PREFIX)
+    app.add_exception_handler(ProblemError, _problem_error)
     app.add_exception_handler(StarletteHTTPException, _http_error)
     app.add_exception_handler(RequestValidationError, _validation_error)
     app.add_exception_handler(Exception, _unexpected_error)

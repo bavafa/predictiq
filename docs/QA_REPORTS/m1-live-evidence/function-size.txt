@@ -1,0 +1,5 @@
+# vercel inspect dpl_2PHL3SCsQ8KXMvDnS9vXaApRDrh1 --json (captured 2026-11-14 09:21 EST), data-service function entry:
+{"deployment":"predictiq-b1onhqk0g-1shot.vercel.app","target":"preview","readyState":"READY"}
+{"path":"api/index","size":29996205,"runtime":"python3.12","memory":2048}
+# local build (vercel build, same commit plus fetched bundle): file count and summed bytes of the function's file map
+files 1175 bytes 75473468

@@ -58,3 +58,47 @@ def test_requirements_txt_pins_match_pyproject() -> None:
     for dep in project["dependencies"]:
         assert dep in lines
     assert (FRONTEND / ".python-version").read_text(encoding="utf-8").strip() == "3.12"
+
+
+def test_vercel_function_includes_the_app_and_the_bundle() -> None:
+    cfg = json.loads((FRONTEND / "vercel.json").read_text(encoding="utf-8"))
+    fn = cfg["functions"]["api/index.py"]
+    assert "_backend/app/**" in fn["includeFiles"] and "_backend/bundle/**" in fn["includeFiles"]
+    assert fn["excludeFiles"].startswith("{app/**")  # the Next.js app/ folder stays out
+
+
+def _sync(tmp: Path, bundle_meta: dict[str, object] | None) -> tuple[int, str, Path]:
+    artifacts = tmp / "artifacts"
+    artifacts.mkdir(parents=True)
+    if bundle_meta is not None:
+        bundle = artifacts / "piq-20260101-abcd1234" / "bundle"
+        bundle.mkdir(parents=True)
+        (bundle / "meta.json").write_text(json.dumps(bundle_meta))
+        (bundle / "scores_main.npy").write_bytes(b"x")
+    out = tmp / "out"
+    script = str(FRONTEND / "scripts" / "sync-backend.mjs")
+    r = subprocess.run(  # noqa: S603
+        ["node", script, "--artifacts", str(artifacts), "--out", str(out)],  # noqa: S607
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return r.returncode, r.stdout + r.stderr, out
+
+
+def test_prebuild_refuses_a_synthetic_bundle(tmp_path: Path) -> None:
+    code, text, out = _sync(tmp_path / "a", {"synthetic": True, "model_version": "piq-20260101-abcd1234"})
+    assert code == 1 and "REFUSING" in text
+    assert not (out / "bundle").exists()
+    code, _, _ = _sync(tmp_path / "b", {"model_version": "piq-20260101-abcd1234"})  # no flag: not real
+    assert code == 1
+
+
+def test_prebuild_copies_a_real_bundle_and_works_without_one(tmp_path: Path) -> None:
+    code, text, out = _sync(tmp_path / "a", {"synthetic": False, "model_version": "piq-20260101-abcd1234"})
+    assert code == 0, text
+    assert (out / "bundle" / "meta.json").is_file() and (out / "app" / "main.py").is_file()
+    code, text, out = _sync(tmp_path / "b", None)
+    assert code == 0 and not (out / "bundle").exists() and (out / "app" / "main.py").is_file()
+    code, _, _ = _sync(tmp_path / "c", {"synthetic": False, "model_version": "piq-19990101-00000000"})
+    assert code == 1  # folder name and meta.json disagree
