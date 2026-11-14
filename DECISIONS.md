@@ -72,6 +72,40 @@ Plain log of decisions. Newest last. Owner approval is noted where given; otherw
 
 **31. Design gate approved.** The architecture stage may start. *Status: Approved by Meysam (Owner), 2026-11-13 9:26 PM ET.*
 
+## 2026-11-13, architecture (proposed)
+
+Full detail in `docs/architecture.md`.
+
+**32. No live inference in the first release.** The app shows only precomputed test-period scores. The server holds no model libraries, so training and serving features cannot differ. Any later live scoring must import the training feature code; a mismatch is a release blocker. *Status: proposed, 2026-11-13.*
+
+**33. One as-of rule for every record type.** Scoring hour *t* happens at the start of the hour. Records stamped at *t* (telemetry, errors, maintenance, failures) are not available; features use records up to *t*−1h. Reason: 702 of 719 failure events have a same-hour repair record. The data service also returns only records stamped before the replay time. *Status: proposed, 2026-11-13.*
+
+**34. Label rules.** Positive if a failure event falls in (*t*, *t*+24h]. Failure rows sharing a machine-hour are one event. Hours after a failure are kept and labeled the same way. Hours whose window passes the end of failure records are dropped. *Status: proposed, 2026-11-13.*
+
+**35. Features and warm-up.** Telemetry last value, 3h/24h mean and spread, 24h slope; 24h error counts by type; hours since each component's last replacement (strictly earlier records); machine model and age. Longest window is 24h, so the first scored hour is 2015-01-02 06:00. No feature comes from the failure table. *Status: proposed, 2026-11-13.*
+
+**36. Split dates with 24-hour embargoes.** Train 2015-01-02 06:00 to 2015-08-30 23:00; embargo 31 Aug; validation 2015-09-01 to 2015-10-30 23:00; embargo 31 Oct; test 2015-11-01 00:00 to 2015-12-31 06:00, used once. The test period is also the replay window. The data and model stage confirms event counts per split before fitting. *Status: proposed, 2026-11-13.*
+
+**37. Calibration and default cut-off chosen on validation only.** Calibration: none or sigmoid, by validation Brier score. Default cut-off: the whole percent with the best validation F1, ties to the higher value (whole percent matches the slider's 1-point steps). Models train on the train period only. *Status: proposed, 2026-11-13.*
+
+**38. Event-level measures.** An event is caught if any alert occurred in the 24 hours before it; only events with a full lookback inside the test hours count. A run of consecutive alert hours on one machine is one alert, false if none of its hours is positive. *Status: proposed, 2026-11-13.*
+
+**39. Replay start computed offline.** Decision 30's rule runs on saved test scores in `ml/replay.py`; the hour and branch (rule or fallback) are stored in `metadata.json`. *Status: proposed, 2026-11-13.*
+
+**40. Data service contract.** Nine read-only GET endpoints under `/api/v1` plus one POST for the planner, which stores nothing. Cut-off is a whole percent. Fleet responses hold at most 100 machines; time series at most 168 points; every response under 256 KB. Out-of-range input is refused, not adjusted. *Status: proposed, 2026-11-13.*
+
+**41. Hosting: everything on one Vercel project (Next.js + FastAPI as a Python function), C$0/month.** Reason: no 15-minute sleep and one-minute wake-up as on Render's free tier, one origin, FastAPI kept. Fallback: Vercel frontend + Render free backend. Rejected: one host on Render free (whole site sleeps); Hugging Face Docker Spaces (now need a paid plan). Cold starts, bundle size and wiring are unmeasured; the skeleton stage runs a deploy spike before committing. *Status: proposed, 2026-11-13. Owner holds deploy credentials.*
+
+**42. Serving bundle delivered by version, not committed raw data.** A ~10–15 MB (estimate) bundle of derived scores, explanations, test-period telemetry and events is built offline per model version and checked by hash at build time. Where it is stored (repository or release asset) is for the owner. *Status: proposed, 2026-11-13.*
+
+**43. Reproducibility.** Python 3.12 (Vercel's default) pinned with `uv.lock`; `package-lock.json`; fixed seeds; `make train` / `make evaluate` / `make replay`; model version `piq-<date>-<8-character hash>`; `evaluation.json` with splits, cut-off, calibration, metrics, library versions. `evaluate.py` refuses a second test run per model version. *Status: proposed, 2026-11-13.*
+
+**44. Pull-request checks.** Lint, type checks, pytest, Vitest, Playwright with axe on a synthetic test bundle (kept out of release builds by a check), dependency audits and a secret scan on every pull request. The full pipeline runs on demand and before release. *Status: proposed, 2026-11-13.*
+
+**45. Rate limiting and caching.** GET responses are cached at Vercel's network edge per model version; `POST /plan` and telemetry get a per-instance limiter, plus platform rules if the Hobby plan offers them (not verified). *Status: proposed, 2026-11-13.*
+
 ## Pending owner decisions
 - Illustrative cost defaults (can wait until the planner is built).
-- Architecture gate approval, after independent review.
+- Architecture gate approval, after independent review (decisions 32–45).
+- Where the serving bundle lives (decision 42).
+- Hosting choice (decision 41) and creating the Vercel project.

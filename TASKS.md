@@ -1,26 +1,20 @@
 # Tasks
 
-Current stage: **User-experience design.**
+Current stage: **Architecture.**
 
-## Done (approved by Meysam (Owner), 13 Nov 2026 8:41 PM ET)
-- [x] Gate 0 data check, approved. License accepted and credit line applied.
-- [x] Requirements and stories, approved.
-- [x] Independent review rounds for Gate 0 and the requirements.
+## Done (approved by Meysam (Owner))
+- [x] Gate 0 data check, license accepted, credit line applied (13 Nov 2026, 8:41 PM ET).
+- [x] Requirements and stories (13 Nov 2026, 8:41 PM ET).
+- [x] User-experience design gate (13 Nov 2026, 9:26 PM ET; decisions 11–31).
 
-## Current stage: user-experience design
-- [x] Experience spec: users, the 90-second visitor path, screens, interactions, states, accessibility, labeling rules (`docs/ux-spec.md`)
-- [x] Low-fidelity wireframes, desktop and mobile, for the five screens, rendered to images, plus key states (`docs/wireframes/`)
-- [x] Component list (`docs/design/components.md`)
-- [x] Colour and type tokens, with computed contrast (`docs/design/tokens.md`, `tokens.json`)
-- [x] Independent review of the design documents (result: fail, 3 high and 3 medium findings; `docs/QA_REPORTS/ux-design-codex-review.md`)
-- [x] One bounded fix round: all six findings addressed, 13 Nov 2026 (decisions 21–27)
-- [ ] Owner approval of the design gate (includes design decisions 11–20 and the open questions)
+## Current stage: architecture
+- [x] Read approved documents and the parked architecture draft; reuse only what fits. The draft's "watch" level, same-hour records, float cut-off and Render-first hosting were dropped.
+- [x] Check free-tier limits on official Vercel, Render and Hugging Face docs (13 Nov 2026).
+- [x] Write `docs/architecture.md`: data flow, three modes, label, features and leakage test, splits (proposed), event measures, replay start, data service contract, layout, testing and CI, hosting comparison and recommendation, security, reproducibility.
+- [x] Decisions 32–45 in `DECISIONS.md` (proposed).
+- [ ] Independent review of the architecture.
+- [ ] Owner approval of the architecture gate and open questions (see `STATUS.md`).
 
 ## Next stages
-- [ ] Architecture: not started; waits for design approval
-- [ ] Build in stories (project skeleton, then data and model, screens, planner, launch): not started; waits for approval
-
-## Known issues from the design re-check (Medium, tracked; not fixed because the one fix round was used)
-- [x] Planner per-model-cost example: the "Moved" marks don't come from one consistent earlier order. Use a consistent example.
-- [x] Model comparison: state that a run of consecutive alert hours counts as one alert in "false alerts per 100 machine-days".
-- [x] Planner wireframe: the model3 cost field's label must point to the input that is visible in both states.
+- [ ] Project skeleton: repository layout, download script with hash check, empty app and data service, CI on pull requests, Vercel deploy spike (measure cold start and bundle size; fall back to Render if it fails).
+- [ ] Data and model, screens, planner, launch: wait for approval.
