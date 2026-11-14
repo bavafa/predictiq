@@ -1,0 +1,11 @@
+## Findings
+
+- **Medium — [backend/tests/test_api.py:70](/workspace/predictiq/backend/tests/test_api.py:70):** The rewritten test proves the ten OpenAPI paths and methods, but it does not prove the *exact served* contract. A route excluded from the schema would pass unnoticed; the single unknown-path 404 check cannot detect other extra routes. I inspected `backend/app`: no route declares `include_in_schema=False`, and the current OpenAPI schema contains the expected ten paths and methods. This is a test coverage gap, not an extra route found on this branch.
+- **Medium — [docs/QA_REPORTS/deps-nov14-checks.md:26](/workspace/predictiq/docs/QA_REPORTS/deps-nov14-checks.md:26):** The report and [STATUS.md:8](/workspace/predictiq/STATUS.md:8) claim all tests pass, but both checked-in pytest logs end in a failure from the *old* route test (237 passed/1 failed; 253 passed/1 failed). The folder has no passing post-fix pytest log or raw output for several other claimed checks, including lint, Vitest, and `pip-audit`. The Playwright and live-preview claims do have matching logs. This is an evidence gap, not proof the current tests fail.
+- **Low — [DECISIONS.md:195](/workspace/predictiq/DECISIONS.md:195):** Decision 67 says all five update PRs were “applied,” while the manifests and report show four included and TypeScript 7 left out. Decisions 63–66 otherwise match the recorded stage transition.
+
+The package lock’s additional major-version changes are within ESLint’s dependency tree, including `minimatch` 3→11; TypeScript remains 6.0.3. The Python pins and requirement versions match `uv.lock`. I found no specific new FastAPI/Pydantic behavior regression in the reviewed handlers, response models, middleware, or body-limit code, though the chunked/undeclared-length 413 path lacks a dedicated test.
+
+**Ran:** `git diff main...HEAD`, `git diff --check`, static lockfile comparisons, route registration/OpenAPI inspection, and evidence-log review. This read-only sandbox prevented `uv export` and pytest from creating temporary files, so I could not verify the required export byte-for-byte or rerun tests. No network was used. I could not inspect the PR body offline.
+
+**Verdict: PASS WITH KNOWN ISSUES**

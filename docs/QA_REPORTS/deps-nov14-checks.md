@@ -14,7 +14,7 @@ This branch applies the automatic update pull requests from Dependabot on top of
 `npm run lint` stops with "typescript-eslint does not support TS 7.0." The latest typescript-eslint, 8.72.2, supports only TypeScript up to 6.0. Next's lint setup (`eslint-config-next` 16.4.6) depends on typescript-eslint. Making TypeScript 7 work would mean dropping the TypeScript lint rules, which is not a clean fix. Type checking and the unit tests did pass with TypeScript 7. Try again when typescript-eslint supports TypeScript 7.
 
 ## The FastAPI fix
-In FastAPI 0.162, `app.routes` no longer lists the routes added through `include_router`; it holds one internal wrapper object instead. Only one test read that list: the route-contract test in `backend/tests/test_api.py`. It now reads the app's OpenAPI schema. It checks the same ten paths and, new, their methods. It also checks that an unknown `/api/v1` path returns 404. No app code changed.
+In FastAPI 0.162, `app.routes` no longer lists the routes added through `include_router`; it holds one internal wrapper object instead. Only one test read that list: the route-contract test in `backend/tests/test_api.py`. It now reads the app's OpenAPI schema. It checks the same ten paths and, new, their methods. It also checks that an unknown `/api/v1` path returns 404. A second new test fails if the app code ever serves a route the schema would not show (`include_in_schema`, mounted apps, raw routes, websockets, or extra `add_api_route` calls). I checked that this guard fails when such a line is added. No app code changed.
 
 ## ESLint 10 still applies the same rules
 - The resolved lint setup has 113 rules on both main (ESLint 9) and this branch.
@@ -23,7 +23,8 @@ In FastAPI 0.162, `app.routes` no longer lists the routes added through `include
 
 ## Results (box, 14 Nov 2026, about 3:15–3:35 PM Toronto time)
 - Python: ruff and mypy pass.
-- pytest: 238 passed, 16 deselected by default. 254 passed with the opt-in real-data and real-bundle tests. Before the fix, 1 test failed (the route-contract test).
+- pytest, after the fixes: 239 passed, 16 deselected by default; 255 passed with the opt-in real-data and real-bundle tests. Before the fix, 1 test failed (the old route-contract test).
+- `frontend/requirements.txt` matches `uv export` exactly.
 - Frontend: lint passes, typecheck passes, Vitest 142 passed, `next build` succeeds.
 - Playwright: synthetic 60 passed and 4 skipped; no-bundle 7 passed; real model bundle 64 passed.
 - Security audits: `pip-audit` found no known vulnerabilities. `npm audit --audit-level=high` passes. The 7 moderate warnings (minimatch, via typescript-eslint) are development-only tools.
@@ -33,4 +34,4 @@ In FastAPI 0.162, `app.routes` no longer lists the routes added through `include
   - The largest planner answer was 25,466 bytes, the same as main, over three identical answers. The error responses were unchanged: 404, 422, 422 and 413. All were no-store.
   - The pages return 200. Without the bypass, requests are redirected to sign-in (302).
 
-Raw output is in `deps-nov14-evidence/`.
+Raw output is in `deps-nov14-evidence/`. It holds pytest, static checks, the requirements sync, pip-audit, the frontend checks (lint, typecheck, Vitest, versions), Playwright and the live preview. `manual-checks.txt` holds the TypeScript 7 failure, the ESLint comparison and the route-guard probe, copied from the terminal. The Playwright and live-preview logs come from before the two test-only commits; those commits did not change app code.

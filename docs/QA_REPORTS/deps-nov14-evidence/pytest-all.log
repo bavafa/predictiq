@@ -1,6 +1,6 @@
-...............F........................................................ [ 28%]
+........................................................................ [ 28%]
 ........................................................................ [ 56%]
-.............
+..............
 Largest allowed request per endpoint (synthetic bundle):
   metadata                                   200      7,177 bytes
   health                                     200         79 bytes
@@ -28,37 +28,6 @@ Largest allowed request per endpoint (real bundle piq-20261114-efc9c243):
   model/threshold-analysis                   200    144,715 bytes
   fleet (first hour)                         200     13,828 bytes
   POST plan (100 machines listed, maximum inputs) 200     25,483 bytes
-.......................................................... [ 85%]
-......................................                                   [100%]
-=================================== FAILURES ===================================
-_____________________ test_routes_are_exactly_the_contract _____________________
-
-    def test_routes_are_exactly_the_contract() -> None:
-        paths = {getattr(r, "path", "") for r in app.routes if getattr(r, "path", "").startswith("/api/v1/")}
->       assert paths == {
-            "/api/v1/health",
-            "/api/v1/metadata",
-            "/api/v1/fleet",
-            "/api/v1/fleet/trend",
-            "/api/v1/assets/{machine_id}",
-            "/api/v1/assets/{machine_id}/telemetry",
-            "/api/v1/assets/{machine_id}/explanation",
-            "/api/v1/model/metrics",
-            "/api/v1/model/threshold-analysis",
-            "/api/v1/plan",
-        }
-E       AssertionError: assert set() == {'/api/v1/ass.../health', ...}
-E         
-E         Extra items in the right set:
-E         '/api/v1/fleet'
-E         '/api/v1/metadata'
-E         '/api/v1/assets/{machine_id}/explanation'
-E         '/api/v1/fleet/trend'
-E         '/api/v1/model/threshold-analysis'...
-E         
-E         ...Full output truncated, use '-vv' to show
-
-backend/tests/test_api.py:57: AssertionError
-=========================== short test summary info ============================
-FAILED backend/tests/test_api.py::test_routes_are_exactly_the_contract - Asse...
-1 failed, 253 passed in 33.71s
+......................................................... [ 84%]
+.......................................                                  [100%]
+255 passed in 35.25s

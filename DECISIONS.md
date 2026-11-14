@@ -192,7 +192,7 @@ Still Lead defaults: crew slots start at 5; the risk-reduction assumption is **o
 
 **66. Maintenance-planning gate (M3) approved.** PR #31 merged (6a33938); planner defaults in decisions 63 to 65 kept. Stage 5 waits for the owner's go. *Status: Approved by Meysam (Owner), 2026-11-14 3:26 PM ET.*
 
-**67. Dependency updates tested together on branch `deps-nov14`** (decision 62): the five automatic update pull requests #24 to #28 are applied on one branch and fully tested; the original pull requests are left for Meysam to close. *Status: Approved by Meysam (Owner) earlier; carried out 2026-11-14.*
+**67. Dependency updates tested together on branch `deps-nov14`** (decision 62): the five automatic update pull requests #24 to #28 are tested together on one branch: four are included (#25, #26, #27, #28) and TypeScript 7 (#24) is left out because typescript-eslint does not support it yet. The original pull requests are left for Meysam to close. *Status: Approved by Meysam (Owner) earlier; carried out 2026-11-14.*
 
 ## Pending owner decisions
 - None at present.

@@ -1,0 +1,16 @@
+Copied from the terminal on 14 Nov 2026, about 3:20 PM Toronto time (these runs did not write their own log files).
+
+1) TypeScript 7.0.2 with eslint 10 (`npm run lint`):
+   Oops! Something went wrong! :(  ESLint: 10.15.0
+   Error: typescript-eslint does not support TS 7.0.
+     at .../eslint-config-next/node_modules/typescript-eslint/dist/index.js:52:11
+   `npm view typescript-eslint@8.72.2 peerDependencies`: typescript ">=4.8.4 <6.1.0" (latest; canary 8.72.3-alpha.8)
+   With TypeScript 7.0.2: `tsc --noEmit` passed; Vitest 142 passed.
+
+2) ESLint 9 (main) vs ESLint 10 (this branch), same probe file with deliberate mistakes:
+   main:   @next/next/no-img-element, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react-hooks/rules-of-hooks, jsx-a11y/alt-text
+   branch: the same five rules
+   `eslint --print-config app/page.tsx | jq '.rules|keys|length'`: 113 on main, 113 on branch
+
+3) Route guard: adding "# include_in_schema probe" to backend/app/main.py made
+   test_no_served_route_can_bypass_the_openapi_contract_check fail (1 failed); file restored afterwards.

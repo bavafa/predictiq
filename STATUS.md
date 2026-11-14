@@ -5,7 +5,7 @@ _Updated 2026-11-14 3:40 PM ET, dependency-update branch `deps-nov14`._
 ## Current stage
 **Stage 4 approved and merged (PR #31, 3:26 PM ET). Now testing dependency updates on branch `deps-nov14` (decision 67). Stage 5 has not started; it waits for Meysam.**
 - Included: fastapi 0.162.4 (#28), pydantic 2.14.3 (#25), pydantic-core 2.50.4 (#27), eslint 10 (#26). Left out: TypeScript 7 (#24), because typescript-eslint does not support it yet.
-- Every test passes, and the protected preview built on the box works. See `docs/QA_REPORTS/deps-nov14-checks.md`.
+- Every test passes after two test-only fixes (pytest 239, or 255 with real data). The protected preview built on the box works. See `docs/QA_REPORTS/deps-nov14-checks.md`.
 - Next: CI, review, then Meysam merges and closes the Dependabot pull requests he chooses.
 - Blockers: none.
 
