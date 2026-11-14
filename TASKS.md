@@ -19,3 +19,8 @@ Current stage: **User-experience design.**
 ## Next stages
 - [ ] Architecture: not started; waits for design approval
 - [ ] Build in stories (project skeleton, then data and model, screens, planner, launch): not started; waits for approval
+
+## Known issues from the design re-check (Medium, tracked; not fixed because the one fix round was used)
+- [ ] Planner per-model-cost example: the "Moved" marks don't come from one consistent earlier order. Use a consistent example.
+- [ ] Model comparison: state that a run of consecutive alert hours counts as one alert in "false alerts per 100 machine-days".
+- [ ] Planner wireframe: the model3 cost field's label must point to the input that is visible in both states.

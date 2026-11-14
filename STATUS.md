@@ -25,6 +25,9 @@ User-experience design (branch `ux-design`, stacked on `gate0-prd-draft`). Gate 
 ## Blockers
 - None.
 
+## Review result
+Independent design review: first review FAIL (3 High, 3 Medium). After one fix round the re-check is PASS WITH KNOWN ISSUES: all 6 findings are resolved at design level, with three new Medium details tracked in the task list. Reports are in the QA reports folder.
+
 ## Owner decisions pending
 - Design gate approval (once the review is done).
 - Main model only on Fleet and Asset Details (decision 14).
