@@ -3,7 +3,7 @@
 _Updated 2026-11-14 11:36 AM ET, Stage 3 in review on branch `core-screens`._
 
 ## Current stage
-**Stage 3, core screens and data service, on branch `core-screens`. All three build sessions are done; independent review and fixes are in progress.**
+**Stage 3, core screens and data service, on branch `core-screens` (PR #30). Built and independently reviewed: passed with known issues. Waiting for the owner to review and merge.**
 - **QA fix round (14 Nov 2026):** Fleet and Asset screens now show one settled set of answers (same hour, cut-off, model version), the page follows refreshed `/metadata` after a model-version retry, and Escape on the mobile menu returns focus to the Menu button.
 - **Merged by Meysam (Owner):**
   - The data-and-model stage, on 14 Nov 2026 at 9:53 AM ET. He also approved the example planner costs (still illustrative units).
@@ -15,7 +15,8 @@ _Updated 2026-11-14 11:36 AM ET, Stage 3 in review on branch `core-screens`._
   - About & Data, updated.
   - A Playwright test stack using a synthetic model.
   - 38 screenshots from the real model data, all simulated.
-- **Next:** fix the review findings, verify again, open the pull request.
+- **Independent review:** three rounds. Round 1 found two Medium issues: numbers could briefly mismatch during changes, and a new model version didn't refresh the page facts. Round 2 found one Medium: the guide pointed to the unbuilt planner. All are fixed. What remains is a Low gap in the accessibility tests.
+- **Next:** owner review and merge; then Stage 4, the maintenance planner.
 - **Blockers:** none.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
