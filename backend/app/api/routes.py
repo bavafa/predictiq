@@ -61,12 +61,13 @@ def metadata(response: Response) -> Metadata:
         model_version=bundle.model_version,
         model_available=True,
         replay_window=ReplayWindow(
-            start=bundle.replay_start.isoformat(), end=bundle.replay_end.isoformat(), status="ready"
+            start=bundle.test_start.isoformat(), end=bundle.replay_end.isoformat(), status="ready"
         ),
         synthetic=bundle.synthetic,
         model_created=str(meta["created"]),
         default_cutoff_percent=bundle.default_cutoff,
         splits={k: [str(x) for x in v] for k, v in meta["splits"].items() if isinstance(v, list)},
+        replay_start=bundle.replay_start.isoformat(),
         replay_start_branch=str(meta["replay"]["branch"]),
         data_credit=str(meta["data_credit"]),
         machines=[

@@ -28,6 +28,7 @@ from app.schemas.data import (
     FleetCards,
     FleetRow,
     FleetTrend,
+    LatestError,
     RepairRecord,
     ScorePoint,
     Status,
@@ -108,6 +109,18 @@ def _population(
     return mask
 
 
+def _latest_error(b: Bundle, machine: int, before: int) -> LatestError | None:
+    """The most recent error of `machine` stamped strictly before telemetry-grid hour `before`, from the whole
+    record history (not only the last 7 days). Two errors in the same hour: the one recorded last."""
+    best: tuple[int, str] | None = None
+    for h, v in b.errors.get(machine, []):
+        if h < before and (best is None or h >= best[0]):
+            best = (h, v)
+    if best is None:
+        return None
+    return LatestError(error=best[1], time=_iso(b.tel_hour_at(best[0])))
+
+
 @router.get("/fleet", response_model=Fleet)
 def fleet(
     response: Response,
@@ -129,6 +142,7 @@ def fleet(
     # Rank: highest score first, ties to the lower machine number (stable sort on a descending key).
     order = ids[np.argsort(-scores[ids], kind="stable")]
     rows = []
+    before = b.tel_index(t)  # records stamped before `at` are those with an hour index < before
     for rank, i in enumerate(order, start=1):
         info = b.meta["machines"][int(i)]
         s = float(scores[i])
@@ -140,6 +154,7 @@ def fleet(
                 age=int(info["age"]),
                 score=_r(s),
                 status=_status(s, cut),
+                latest_error=_latest_error(b, int(i) + 1, before),
             )
         )
     in_alert = sum(1 for r in rows if r.status == "alert")

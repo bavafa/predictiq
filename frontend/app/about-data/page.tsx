@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { ModelFacts } from "@/components/model-facts";
+import { ValueLabel } from "@/components/value-label";
 import { PROVENANCE_URL } from "@/lib/nav";
 
 export const metadata: Metadata = { title: "About & Data — PredictIQ" };
@@ -13,11 +15,39 @@ export default function AboutDataPage() {
       <section className={card}>
         <h2 className={h2}>What this is</h2>
         <p className="m-0">
-          PredictIQ is a portfolio prototype that will turn machine-failure predictions into maintenance decisions. It
-          is built on a public predictive-maintenance sample dataset. <strong>Current status: project skeleton only.</strong>{" "}
-          No model has been trained and nothing is scored yet, so the other pages show &ldquo;not built yet&rdquo; states
-          instead of numbers.
+          PredictIQ is a portfolio prototype that estimates which machines may have a recorded failure in the next 24 hours
+          and, in a later stage, turns those estimates into an assumption-based maintenance list. It is built on a public
+          predictive-maintenance sample dataset. It is a demonstration of analytics and product design, not a deployed
+          production system.
         </p>
+        <p className="mt-3 mb-0">
+          <strong>Where it stands.</strong> Two models were trained on the sample data: a simple baseline (logistic
+          regression) and a main model (gradient-boosted trees). Their scores for every machine and every hour of a held-out
+          later period are saved, and the data service reads only those saved scores. <strong>Fleet Overview</strong> and{" "}
+          <strong>Asset Details</strong> work on them. The <strong>Maintenance Planner</strong> and{" "}
+          <strong>Model Performance</strong> pages are not built yet, and say so. Nothing is calculated live.
+        </p>
+        <ModelFacts />
+      </section>
+
+      <section className={card} aria-labelledby="labels">
+        <h2 id="labels" className={h2}>
+          How to read the labels
+        </h2>
+        <ul className="m-0 list-none p-0 text-sm leading-6">
+          <li>
+            <ValueLabel kind="Historical" /> Simulated sample data as recorded: sensor readings, errors, repairs, failures,
+            machine model and age. Not real plant, fleet or mine data.
+          </li>
+          <li>
+            <ValueLabel kind="Predicted" /> A model estimate: the chance of a recorded failure in the next 24 hours, the
+            Alert status, and what pushed the estimate up or down.
+          </li>
+          <li>
+            <ValueLabel kind="Illustrative" /> An assumption that can be changed, such as costs and crew slots. Not real costs.
+          </li>
+        </ul>
+        <p className="mt-3 mb-0 text-sm">&ldquo;Historical replay&rdquo; steps through old records in order. Nothing on this site is live.</p>
       </section>
 
       <section className={card} aria-labelledby="source">
@@ -55,7 +85,9 @@ export default function AboutDataPage() {
           <h2 className={h2}>Known limitations</h2>
           <ul className="m-0 list-disc pl-5 text-sm leading-6">
             <li>The data is simulated, so results may look better than on real machines.</li>
-            <li>There is no model yet. Nothing here is a prediction.</li>
+            <li>The scores are saved estimates for a held-out replay period, not forecasts for any real equipment.</li>
+            <li>The model was also tried on 20 machines it never saw, and results are in the model card; the Model Performance page is not built yet.</li>
+            <li>Explanations are patterns the model found, not causes.</li>
             <li>Costs, when added, will be illustrative. No savings are claimed.</li>
           </ul>
         </div>

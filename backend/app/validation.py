@@ -13,8 +13,8 @@ from app import config
 from app.bundle import Bundle
 from app.problems import ProblemError
 
-_AT = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:00(:00)?$")
-_WHOLE = re.compile(r"^\d{1,3}$")
+_AT = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:00(:00)?")
+_WHOLE = re.compile(r"[0-9]{1,3}")
 Range = Literal["24h", "7d"]
 RANGE_HOURS = {"24h": 24, "7d": 168}
 
@@ -31,7 +31,7 @@ def parse_at(bundle: Bundle, text: str | None) -> tuple[int, datetime]:
     """`at`: a whole hour inside the replay window, as 2015-11-01T00:00 or 2015-11-01T00:00:00."""
     if text is None:
         raise ProblemError(422, "Invalid request", "Missing parameter: at")
-    if not _AT.match(text):
+    if not _AT.fullmatch(text):
         raise ProblemError(
             422, "Invalid request", "Invalid parameter: at must be a whole hour, YYYY-MM-DDTHH:00"
         )
@@ -44,7 +44,7 @@ def parse_at(bundle: Bundle, text: str | None) -> tuple[int, datetime]:
         raise ProblemError(
             422,
             "Outside the replay window",
-            f"at must be from {bundle.replay_start.isoformat()} to {bundle.replay_end.isoformat()}.",
+            f"at must be from {bundle.test_start.isoformat()} to {bundle.replay_end.isoformat()}.",
         )
     return i, t
 
@@ -53,7 +53,7 @@ def parse_cutoff(bundle: Bundle, text: str | None) -> int:
     """`cutoff`: whole percent 0-100; defaults to the model's default cut-off."""
     if text is None:
         return bundle.default_cutoff
-    if not _WHOLE.match(text) or int(text) > 100:
+    if not _WHOLE.fullmatch(text) or int(text) > 100:
         raise ProblemError(
             422, "Invalid request", "Invalid parameter: cutoff must be a whole number, 0 to 100"
         )

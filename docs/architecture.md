@@ -85,7 +85,7 @@ Vercel's docs say the cache key is the request URL and ignore query strings only
 |---|---|
 | `GET /health` | Status, model version |
 | `GET /metadata` | Model version and date, splits, replay window and start, default cut-off, machines, data credit |
-| `GET /fleet?at&cutoff&machine_model&status&machine` | Cards, 10-bin distribution, ranked rows (≤100); Alert count from the same rows |
+| `GET /fleet?at&cutoff&machine_model&status&machine` | Cards, 10-bin distribution, ranked rows (≤100, each with its latest error type and hour, strictly before `at`, or null); Alert count from the same rows |
 | `GET /fleet/trend?at&cutoff&range&filters` | Machines in Alert per hour, ≤168 points |
 | `GET /assets/{id}?at&cutoff` | Model, age, score, status, last 7 days of errors and repairs, past estimates and failures |
 | `GET /assets/{id}/telemetry?at&range=24h\|7d` | ≤168 hourly rows |

@@ -5,15 +5,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
+import { useData } from "@/components/data-provider";
 import { ModelVersion } from "@/components/model-version";
+import { ReplayBar } from "@/components/replay-bar";
 import { Button } from "@/components/ui/button";
 import { ABOUT_NAV, DISCLOSURE, MAIN_NAV, titleFor, type NavItem } from "@/lib/nav";
+import { carriedSearch } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 
 function NavLink({ item, current, onNavigate }: { item: NavItem; current: boolean; onNavigate: () => void }) {
+  // The replay time, cut-off and selected machine travel with the reader from page to page (decision 13).
+  const { search } = useData();
   return (
     <Link
-      href={item.href}
+      href={`${item.href}${carriedSearch(search)}`}
       aria-current={current ? "page" : undefined}
       onClick={onNavigate}
       className={cn(
@@ -34,16 +39,21 @@ export function AppShell({ children }: { children: ReactNode }) {
   const panel = useRef<HTMLDivElement>(null);
   const main = useRef<HTMLElement>(null);
   const focusMainOnClose = useRef(false);
+  const focusMenuOnClose = useRef(false);
 
   const close = useCallback((restoreFocus: boolean) => {
+    // The page is inert while the panel is open, so focus goes back only after the close has rendered.
+    if (restoreFocus) focusMenuOnClose.current = true;
     setOpen(false);
-    if (restoreFocus) menuButton.current?.focus();
   }, []);
 
   // Move focus into the panel when it opens.
   useEffect(() => {
     if (open) closeButton.current?.focus();
-    else if (focusMainOnClose.current) {
+    else if (focusMenuOnClose.current) {
+      focusMenuOnClose.current = false;
+      menuButton.current?.focus();
+    } else if (focusMainOnClose.current) {
       // After a menu link is used the page content is no longer inert: move focus to it.
       focusMainOnClose.current = false;
       main.current?.focus();
@@ -167,6 +177,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span aria-hidden="true">⏱</span> Historical replay
             </span>
           </header>
+
+          <ReplayBar />
 
           <main ref={main} id="main" tabIndex={-1} className="flex max-w-[1440px] flex-col gap-4 p-3 sm:p-5">
             {children}

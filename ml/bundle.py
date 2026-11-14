@@ -252,8 +252,12 @@ def build_real(version_dir: Path, tables: Tables, out: Path) -> dict[str, Any]:
     return meta
 
 
-def synthetic_bundle(out: Path, seed: int = 0, n_machines: int = 100, n_hours: int = 1423) -> dict[str, Any]:
-    """A fake bundle of the real shapes for tests. `synthetic: true` in meta.json; the prebuild refuses it."""
+def synthetic_bundle(
+    out: Path, seed: int = 0, n_machines: int = 100, n_hours: int = 1423, replay_start_offset: int = 0
+) -> dict[str, Any]:
+    """A fake bundle of the real shapes for tests. `synthetic: true` in meta.json; the prebuild refuses it.
+    `replay_start_offset` moves where playback begins (hours after the first test hour), so the replay
+    window can start earlier than the replay start, as the rule in decision 30 allows."""
     rng = np.random.default_rng(seed)
     hours = pd.date_range("2015-11-01 00:00", periods=n_hours, freq="h")
     tel_hours = pd.date_range(hours[0] - LOOKBACK_HOURS * HOUR, hours[-1] - HOUR, freq="h")
@@ -312,7 +316,11 @@ def synthetic_bundle(out: Path, seed: int = 0, n_machines: int = 100, n_hours: i
             "telemetry_start": tel_hours[0].strftime(ISO),
             "telemetry_hours": len(tel_hours),
         },
-        "replay": {"start": hours[0].strftime(ISO), "end": hours[-1].strftime(ISO), "branch": "synthetic"},
+        "replay": {
+            "start": hours[replay_start_offset].strftime(ISO),
+            "end": hours[-1].strftime(ISO),
+            "branch": "synthetic",
+        },
         "models": {n: {"default_cutoff_percent": 51, "calibration": "none"} for n in MODEL_NAMES},
         "splits": {
             "train": ["2015-01-02 06:00", "2015-08-30 23:00"],

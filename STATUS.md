@@ -1,17 +1,23 @@
 # Status
 
-_Updated 2026-11-14, 9:25 AM ET, data-and-model stage ready for owner review._
+_Updated 2026-11-14 11:36 AM ET, Stage 3 in review on branch `core-screens`._
 
 ## Current stage
-**Data-and-model stage built and reviewed, on branch `data-model`; waiting for the owner to review and merge.** The project skeleton was merged by Meysam (Owner) on 14 Nov 2026 at 8:08 AM ET.
-- **Done:** data checks, the 24-hour label, past-only features, the baseline and main models, the alert cut-off and event measures, the twenty-machine unseen test, and the serving bundle for the latest model only. The bundle is kept on a GitHub pre-release, not in git.
-- **Data service:** answers every data question from the bundle.
-- **Size checks** re-measured live on a protected preview, both met:
-  - the data service is about 30 MB as Vercel reports it (75 MB uncompressed in the local build);
-  - the largest answer is 144,715 bytes.
-- **Independent review:** round 1 found one Medium and one Low, both fixed. Round 2 passed with known issues; its one Low (a missing raw record) is fixed.
-- **Next:** the owner reviews; then Stage 3, the core screens.
-- **Blockers:** none. The owner has two decisions to make: the example planner costs, and how model data reaches the public launch.
+**Stage 3, core screens and data service, on branch `core-screens` (PR #30). Built and independently reviewed: passed with known issues. Waiting for the owner to review and merge.**
+- **QA fix round (14 Nov 2026):** Fleet and Asset screens now show one settled set of answers (same hour, cut-off, model version), the page follows refreshed `/metadata` after a model-version retry, and Escape on the mobile menu returns focus to the Menu button.
+- **Merged by Meysam (Owner):**
+  - The data-and-model stage, on 14 Nov 2026 at 9:53 AM ET. He also approved the example planner costs (still illustrative units).
+  - The decision to make the repository public at launch, and only then. This lets Vercel's builds download the model data. Until launch, live checks use protected previews built on the build machine.
+- **Built:**
+  - Fleet Overview and Asset Details on the real data service.
+  - The historical replay bar.
+  - The "no model data" state and loading and error states.
+  - About & Data, updated.
+  - A Playwright test stack using a synthetic model.
+  - 38 screenshots from the real model data, all simulated.
+- **Independent review:** three rounds. Round 1 found two Medium issues: numbers could briefly mismatch during changes, and a new model version didn't refresh the page facts. Round 2 found one Medium: the guide pointed to the unbuilt planner. All are fixed. What remains is a Low gap in the accessibility tests.
+- **Next:** owner review and merge; then Stage 4, the maintenance planner.
+- **Blockers:** none.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
 **Done:** the data checks now run and pass on the real files: 761 failure rows become 719 events, and everything matches the recorded counts. The 24-hour failure label, the past-only features (nothing from the scoring hour or later is used, proven by an automated test that scrambles the future) and the train / tuning / test split with a 24-hour gap between periods are built and tested. Twenty machines are set aside once, with a fixed seed, to test how the model does on machines it never saw. Building every feature for all 100 machines over the whole year takes about 1.5 seconds.
@@ -32,6 +38,55 @@ _Updated 2026-11-14, 9:25 AM ET, data-and-model stage ready for owner review._
 **Next for the orchestrator:** create the release with the command in `docs/DEPLOY.md` (nothing was released or deployed by me), deploy the protected preview, run `verify-fn.sh`, and record the function size and response sizes (decision 53 re-measure). Then Stage 3 (screens).
 **Worth knowing:** explanations use XGBoost's own contributions (no `shap`); a Git-triggered Vercel build has no bundle (it is git-ignored) and would serve 503 until the bundle is included; numpy is the only new runtime dependency.
 **Blockers:** none. Owner to confirm decision 55 (illustrative costs).
+
+## Core screens, session 1 of 3: foundations (branch `core-screens`, 14 Nov 2026)
+**Done:**
+- **Data service:** checked every rule in the contract and tested it. Two gaps found and fixed: a trailing new line or a non-English digit in `at` or `cutoff` was accepted (now refused), and the replay window's first hour was taken from the replay start rather than the start of the test period (now the window starts at the first test hour; `/metadata` gains `replay_start`). New tests compare `/fleet`, `/fleet/trend` and `/assets/{id}` with the saved score arrays for sampled hours and cut-offs: a synthetic-bundle version runs in CI, and the same tests run on the real bundle with `pytest -m realbundle` (opt-in; they pass).
+- **Web data layer** (`frontend/lib/`): a typed client that reads the model version from `/metadata`, adds `mv` to every other request, and on a 404 re-reads `/metadata` once and retries only if the version really changed. "Model data unavailable" (503) is its own state: "The model data isn't installed in this preview", no numbers. Network and server failures show what failed with Try again; loading shows grey blocks; a slow service shows "Waking up the data service…".
+- **Shared address state:** replay hour, cut-off and filters live in the web address, are checked on read (a bad value is ignored with a short note), and replay time, cut-off and selected machine follow the reader to other pages.
+- **Replay control** in the shared frame: Start, Step back, Play/Pause, Step forward, step size (1, 6, 24 h) and a native timeline slider (keys apply at once, a drag applies on release, Page Up/Down move 10 hours). It starts at the replay start from `/metadata`, says "Historical replay" and never "live", stops at both ends with a visible end state and Jump to start, keeps unavailable buttons focusable with a visible reason, announces the time every sixth step, and still steps with reduced motion. Model Performance and About & Data show the time read-only. The four screen bodies are still "not built" placeholders; the states and the replay bar already work on them.
+- **End-to-end tests now run against a real stack:** uvicorn serving a synthetic test bundle plus the production Next.js build proxying to it (`npm run e2e`, also in CI, which has no real data), then a second run with no bundle for the no-model-data state. `npm run e2e:real` (or `make e2e-real`) runs the same specs against the real bundle on this machine. Accessibility checks are kept.
+**Results:** pytest 165 passed (+8 opt-in, the 4 new real-bundle ones pass when run); Vitest 70 passed; Playwright 21 passed on the synthetic bundle, 7 with no bundle, 21 on the real bundle; lint, types, formatting and build pass.
+**Worth knowing:**
+- The About & Data page still says "skeleton only / no model trained". That text is out of date but belongs to the About page work, so I left it.
+- `/metadata` `replay_window.start` is now the first test hour; the replay start is `replay_start`. On the real bundle they are the same hour (2015-11-01 00:00).
+- A 404 on a data request is retried only if `/metadata` reports a different model version; retrying an unchanged version could not give a different answer.
+- The e2e build bakes the local data service address into the web build, so `npm run e2e` rebuilds `.next` (a Vercel build is unaffected).
+**Next:** session 2 (Fleet Overview body), session 3 (Machine Details body).
+**Blockers:** none.
+
+## Core screens, session 2 of 3: Fleet Overview (branch `core-screens`, 14 Nov 2026)
+**Done:** Fleet Overview at `/` on the real endpoints (`/fleet`, `/fleet/trend`), built to the spec and wireframes:
+- Four cards (machines shown, machines in Alert, highest predicted chance, scored hour), the 10-bar predicted-risk chart with the cut-off marked, the "machines in Alert over time" chart (24 h / 7 days; "Only n hours of history before this point" at the start), and the ranked table (riskiest first, 25 rows a page, sortable headers; a list with a Sort menu below 768 px). Filters for machine model, status and machine number sit in the web address; Clear filters; every machine links to Asset Details with the same replay time and cut-off.
+- The shared **cut-off control** (native slider, 0–100%, "(default)/(custom)", Reset, keys apply at once, drag on release; Page Up/Down ten points) lives in the address and drives the Alert count, the tags, the chart line and the table. A note and one screen-reader announcement say "Cut-off n percent. m machines are in Alert."
+- Value labels (Historical, Predicted) on every number group; "Hide guide"; every chart has a one-line summary and "View as table" (Recharts, no animation, drawing hidden from screen readers).
+- States: loading (grey blocks, last answer dimmed while the next loads), error with Try again (one failed panel does not blank the rest; trend failing leaves the cards and table), empty filter result (all zeros, filters kept), no model data, replay start and end (replay bar), cut-off changed.
+- **Tests:** Vitest 83 passed (14 new); Playwright synthetic 34 passed + 7 no-bundle; real bundle 35 passed (includes the opt-in `fleet-real.spec.ts`: the screen's Alert count equals `/fleet` at the default cut-off and at 20%). The synthetic specs cover: Alert count = Alert rows of the filtered table for every model/status combination, cut-off change updates count and table, replay steps change numbers and match the service at each hour, row link, empty/error/loading, axe on desktop and phone, no sideways scroll and 44 px controls on the phone. pytest 165 passed; lint, types, build pass.
+- **Screenshots** from the real bundle (simulated data): `docs/QA_REPORTS/stage3-screenshots/` (desktop, mobile, cut-off changed, empty, replay start/end, charts as tables, loading, error). `scripts/screenshots.mjs` now takes `--real`, `--fleet`, `--out`.
+**Worth knowing:**
+- The wireframe's "Latest error" table column is not built: the `/fleet` rows do not carry it and no numbers are invented. It needs an added field in the contract (or a later decision to drop it).
+- The cut-off line on the risk chart sits at the middle of the 10-point bar that contains the cut-off, and its label gives the exact value (the chart has category bars, not a continuous axis).
+- Arrow-key stepping through chart points is not built; the text summary and "View as table" carry the same values.
+- The cut-off control sits on Fleet Overview only for now (Planner and Model Performance will reuse the component).
+**Next:** session 3 (Asset Details body).
+**Blockers:** none.
+
+## Core screens, session 3 of 3: Asset Details, About & Data, latest error (branch `core-screens`, 14 Nov 2026)
+**Done:**
+- **Asset Details** at `/asset-details` on `/assets/{id}`, `/telemetry` and `/explanation`. The machine comes from `?machine=` or the picker (a native list of "Machine n · model", which also does type-ahead); the replay time and cut-off carry over. It shows machine model and age, the predicted chance and status at the replay hour and cut-off, the score factors (top 8 plus "all other inputs combined", each with a plain name, a raises/lowers word, a bar and a signed push in log-odds, an ⓘ definition, and the line "These are patterns the model found in the data, not causes. They are not repair advice." always visible), four sensor charts (24 h / 7 days; markers differ by shape: ◆ recorded failure, ■ repair, ▲ error), past estimates beside recorded failures (labelled simulated, cut-off dashed), and lists of errors, repairs and recorded failures. Every list and chart stops before the replay hour, and the page filters again so a record at or after it can never show. Every chart has a text summary and "View as table"; on a phone the sensors become tabs (arrow keys move between them).
+- **States:** no machine chosen, machine not found (1 to 100 message, selector, link to Fleet), loading (grey blocks), one panel failed with Try again (sensor history, machine record, explanation, each alone), no model data, replay start and end (the replay bar), and "Only n hours of history" at the start.
+- **Fleet "Latest error" column:** the wireframe has it, the experience spec's text does not list table columns, but the bundle has the error records, so I added it. `/fleet` rows gain `latest_error` (newest error type and hour, strictly before `at`, from all records, or null; two errors in one hour: the one recorded last). Tested against the saved records on the synthetic bundle and, opt-in, the real one. Largest `/fleet` answer is 15,452 bytes, far under the 256 KB cap. The table shows it ("None yet" when null).
+- **About & Data** rewritten to the current state: two trained models, saved scores for a held-out later period, Fleet Overview and Asset Details work, Planner and Model Performance not built yet, nothing live. Model version, build date, default cut-off and replay window are read from `/metadata`; "—" with a short note if it can't be read.
+- **Replay control** covered on this screen by e2e: "Historical replay" wording, never "live", clean stop at the end (nothing later, never wraps, Play and Step forward unavailable but focusable), Jump to start, and the start state.
+- **Screenshots:** the full set (Fleet Overview, Asset Details, About & Data) re-taken from the real bundle into `docs/QA_REPORTS/stage3-screenshots/`, with a plain-English `README.md`. `node scripts/screenshots.mjs --real --stage3` makes them.
+**Results (real output, this machine):** frontend lint and typecheck clean; Vitest 103 passed; build passes; Playwright synthetic 45 passed (+2 opt-in skipped) and 7 with no bundle; Playwright real bundle 47 passed (includes `asset-real.spec.ts`: the screen's score, status, model and list sizes equal the API at three machine/hour/cut-off cases); pytest 154 passed (backend and ml; the 9 opt-in real-bundle tests were also run for the backend and pass).
+**Worth knowing:**
+- The e2e data service now starts with `--timeout-keep-alive 75`. Without it, parallel runs sometimes hung for minutes: Next's local proxy and uvicorn both used 5 seconds for idle connections. It only affects the local test stack; Vercel has no such proxy.
+- The service sends 7 days of errors and repairs, so those lists say "7 days" (the wireframe says 90 days for maintenance; not available from the contract).
+- "Back to fleet" returns with the replay time and cut-off but not the table filters or scroll position.
+- Arrow-key stepping through chart points is not built (same as Fleet); summaries and tables carry the values.
+**Next:** Stage 4 (Maintenance Planner), Stage 5 (Model Performance, launch).
+**Blockers:** none.
 
 ## Skeleton story (branch `skeleton`)
 **Done:** Next.js shell with five routes, disclosure banner, "Historical replay" badge and honest empty states (no numbers); FastAPI `/api/v1/health` and `/api/v1/metadata` only; `ml/` placeholders that exit 1; hash-checked `scripts/download_data.py` (run against the live source on 13 Nov 2026: all 5 files matched; `data/raw` is gitignored); Makefile; ruff/mypy/pytest, Vitest, Playwright smoke test plus axe accessibility checks (5 routes, desktop and mobile, plus the open menu); CI workflow with actions pinned to commit SHAs; Dependabot; Vercel layout and `ignoreCommand` (`docs/DEPLOY.md`); screenshots.
@@ -85,3 +140,4 @@ Independent review: first pass FAIL (1 High: the test window included hours with
 - 13 Nov 2026, 11:03 PM ET: preview of this branch deployed on Vercel (success); mobile menu now moves focus to the page after a link is used; independent review of the deploy evidence: hosting gate still open (only the non-commercial check is met).
 - 14 Nov 2026, 1:15 AM ET: live checks on the protected preview: routing, cold start, caching, rate limit and non-commercial use met; size checks met for the skeleton and to be measured again with the real model; one free rate-limit rule added; hosting stays on Vercel (independent review: its findings accepted and fixed).
 - 14 Nov 2026: QA fixes: `evaluate --verify` now recomputes the replay start from fresh scores (never the unhashed cache; new test covers a tampered cache); model card feature count corrected to 35. Model, results and bundle hash unchanged.
+- 14 Nov 2026: Stage 3 fix round 2: Fleet guide matches what is built (Planner step returns in Stage 4); replay tests made deterministic; screenshot notes corrected.

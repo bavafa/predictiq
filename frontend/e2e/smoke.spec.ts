@@ -7,7 +7,7 @@ test("shell, banner, and every route render honestly", async ({ page }) => {
   );
   await expect(page.getByText("Historical replay")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Fleet Overview");
-  await expect(page.getByRole("heading", { level: 2 })).toContainText("Not built yet");
+  await expect(page.getByRole("heading", { level: 2, name: "Machines ranked by predicted 24-hour risk" })).toBeVisible();
 
   const nav = page.getByRole("navigation", { name: "Main" });
   for (const name of ["Asset Details", "Maintenance Planner", "Model Performance", "About & Data"]) {

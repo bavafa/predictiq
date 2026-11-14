@@ -34,3 +34,24 @@ test("axe: the open mobile menu dialog has no serious or critical violations", a
   await expect(page.getByRole("dialog", { name: "Main menu" })).toBeVisible();
   expect(await blockingViolations(page)).toEqual([]);
 });
+
+test("focus: Escape closes the mobile menu and returns focus to the Menu button", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const menu = page.getByRole("button", { name: "Menu", exact: true });
+  await menu.click();
+  await expect(page.getByRole("dialog", { name: "Main menu" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Main menu" })).toBeHidden();
+  await expect(menu).toBeFocused();
+});
+
+test("focus: the chart table toggle keeps focus on its button, both ways", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("card-shown")).toBeVisible();
+  const risk = page.getByTestId("risk-chart");
+  await risk.getByRole("button", { name: "View as table" }).click();
+  await expect(risk.getByRole("button", { name: "View as chart" })).toBeFocused();
+  await risk.getByRole("button", { name: "View as chart" }).click();
+  await expect(risk.getByRole("button", { name: "View as table" })).toBeFocused();
+});

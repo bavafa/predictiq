@@ -15,6 +15,9 @@ export const ABOUT_NAV: NavItem = { href: "/about-data", label: "About & Data" }
 
 export const ALL_NAV: NavItem[] = [...MAIN_NAV, ABOUT_NAV];
 
+/** Pages that change with the replay time (full replay controls). The others show the time read-only. */
+export const REPLAY_PAGES: readonly string[] = ["/", "/asset-details", "/maintenance-planner"];
+
 export function titleFor(pathname: string): string {
   return ALL_NAV.find((n) => n.href === pathname)?.label ?? "PredictIQ";
 }

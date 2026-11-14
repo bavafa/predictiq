@@ -24,6 +24,11 @@ class DistributionBin(_Strict):
     count: int
 
 
+class LatestError(_Strict):
+    error: str
+    time: str
+
+
 class FleetRow(_Strict):
     rank: int
     machine_id: int
@@ -31,6 +36,7 @@ class FleetRow(_Strict):
     age: int
     score: float
     status: Status
+    latest_error: LatestError | None
 
 
 class Fleet(_Strict):
