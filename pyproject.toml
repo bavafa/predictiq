@@ -31,7 +31,7 @@ addopts = "-ra --strict-markers"
 [tool.ruff]
 line-length = 110
 target-version = "py312"
-extend-exclude = ["frontend", "docs/wireframes"]
+extend-exclude = ["frontend", "docs"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "S", "C4", "SIM"]
