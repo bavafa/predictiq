@@ -19,6 +19,11 @@ dev = [
     "ruff",
     "uvicorn",
 ]
+ml = [
+    "numpy>=2.5.4",
+    "pandas>=3.1.1",
+    "pandas-stubs>=3.1.0.261029",
+]
 
 [tool.uv]
 package = false
@@ -26,7 +31,8 @@ package = false
 [tool.pytest.ini_options]
 testpaths = ["backend/tests", "ml/tests", "scripts/tests"]
 pythonpath = [".", "backend"]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers -m 'not realdata'"
+markers = ["realdata: needs the downloaded files in data/raw (opt-in: run with -m realdata; skipped when they are missing)"]
 
 [tool.ruff]
 line-length = 110
