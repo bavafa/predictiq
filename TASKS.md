@@ -33,8 +33,10 @@ Current stage: **Architecture.**
 - [ ] Low: the architecture document is about 2,580 words against a target of about two pages.
 
 ## Build stage, story 1: project skeleton (started 13 Nov 2026, 10:05 PM ET)
-- [ ] Scaffold: website, data service as a Vercel Python function, machine-learning package skeleton, Makefile stubs
-- [ ] Lint, type checks, tests (pytest, Vitest, one Playwright smoke test) and continuous integration
-- [ ] App shell: navigation, disclosure banner, "Historical replay" badge, honest "not built yet" states
+- [x] Scaffold: website, data service as a Vercel Python function (layout in `docs/DEPLOY.md`, untested on Vercel), machine-learning package skeleton, Makefile stubs (14 Nov 2026; `make` itself is not installed on the build machine, so the recipes were run by hand)
+- [x] Lint, type checks, tests (pytest, Vitest, one Playwright smoke test) and continuous integration (workflow written; not yet run on GitHub)
+- [x] App shell: navigation, disclosure banner, "Historical replay" badge, honest "not built yet" states
+- [x] Hash-checked download script and no-network test; `ignoreCommand` skipping `main` builds
+- [x] Screenshots in `docs/QA_REPORTS/skeleton-screenshots/`
 - [ ] Trial deploy on Vercel as a protected preview, measuring the six checks
 - [ ] Independent review and one fix round

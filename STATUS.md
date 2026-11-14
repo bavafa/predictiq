@@ -8,6 +8,13 @@ _Updated 2026-11-13, after the architecture fix round._
 ### Previous stage
 Architecture (branch `architecture`). Data check, requirements, stories and user-experience design are **approved by Meysam (Owner)** (design gate: 13 Nov 2026, 9:26 PM ET). The independent review returned FAIL with 1 High, 3 Medium and 1 Low finding (`docs/QA_REPORTS/architecture-codex-review.md`). All five are fixed in the working tree (not committed). The fixes wait for the reviewer to verify them and for owner approval. Nothing is built or deployed.
 
+## Skeleton story (branch `skeleton`), 14 Nov 2026
+**Done:** Next.js shell with five routes, disclosure banner, "Historical replay" badge and honest empty states (no numbers); FastAPI `/api/v1/health` and `/api/v1/metadata` only; `ml/` placeholders that exit 1; hash-checked `scripts/download_data.py` (not run against the network); Makefile; ruff/mypy/pytest, Vitest, one Playwright smoke test; CI workflow; Vercel layout and `ignoreCommand` (`docs/DEPLOY.md`); screenshots.
+**Next:** open a PR for `skeleton`; run CI on GitHub; trial deploy on Vercel as a protected preview (spike, decision 41), which is the first real test of the Root Directory `frontend` + `api/index.py` + rewrite layout; independent review; then the data-and-model stage.
+**Blockers:** none. The owner must create the Vercel project and hold credentials.
+**Known limitations:** Vercel layout untested; CI never run on GitHub; `make` not installed on the build machine, so the Makefile was not executed; `npm audit` shows 7 moderate dev-tool issues (minimatch via typescript-eslint, fix needs a breaking upgrade), none high; no replay controls by design.
+**How to run:** see `README.md` (`make setup`, `make dev`, `make test`).
+
 ## Done
 - Gate 0 data check, requirements, stories: approved.
 - User-experience design gate: approved (decisions 11–31).
