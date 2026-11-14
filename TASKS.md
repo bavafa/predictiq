@@ -67,6 +67,17 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [x] Cut-off control built (`components/cutoff-control.tsx`) and used on Fleet Overview; reuse on Planner and Model Performance in their stages.
 - [x] Update the About & Data status text.
 - [x] Fix round 2 (14 Nov 2026): Fleet Overview guide step 3 now describes the cut-off and says the Planner comes later; replay-bar tests made deterministic; screenshot README matches the charts-as-tables shots.
-- [ ] Stage 4: restore the Fleet Overview guide step "open Maintenance Planner, set a cost per machine model, watch machines move up" once the Planner is built (`components/fleet-screen.tsx`, and the guide test in `tests/fleet.test.tsx`).
+- [x] (14 Nov 2026, Stage 4 session 2) Stage 4: restore the Fleet Overview guide step "open Maintenance Planner, set a cost per machine model, watch machines move up" once the Planner is built (`components/fleet-screen.tsx`, and the guide test in `tests/fleet.test.tsx`).
 - [x] Stage 3 independent review: three rounds, all Medium findings fixed; passed with known issues.
 - [ ] Low (review): accessibility tests don't yet check every contrast pair or mobile target size.
+
+## Stage 4: Maintenance planning (started 14 Nov 2026, branch `planner`)
+- [x] Session 1 (14 Nov 2026): planner service, `POST /plan` (decision 63), arithmetic / spec-table / determinism / bounds / saved-score tests (real bundle opt-in), largest `/plan` request through the adapter, typed `api.plan()` with `mv` retry.
+- [x] Session 2 (14 Nov 2026): Planner screen (assumptions panel, ranked list, summary, "How this is calculated", states), Fleet guide step restored, Vitest, Playwright synthetic + opt-in real, screenshots in `docs/QA_REPORTS/stage4-screenshots/`.
+- [x] Fix round (14 Nov 2026): planned cost per machine model in `/plan` and the screen (decision 55), per-model failure costs prefilled (decision 64 rewritten), `/plan` body limit enforced while streaming; tests and screenshots updated.
+- [ ] Owner: the screen has one planned cost, starting at 2,500 (decision 64; decision 55 lists one per model), and a shared failure cost starting at 10,000; confirm or override.
+- [x] (14 Nov 2026) Stage 4 fix round 2: shared costs apply to all models (decision 65), guide/About/screenshot wording corrected.
+- [x] Stage 4 independent review, rounds 1 to 7 (`docs/QA_REPORTS/stage4-codex-review-round2.md` to `round7.md`; round 1 in the PR log): final PASS WITH KNOWN ISSUES.
+- [x] Live planner size check on a protected box-built preview: 25,466 bytes (`docs/QA_REPORTS/stage4-live-checks.md`).
+- [ ] Owner: Stage 4 gate decision and merge of PR #31.
+- [ ] After Stage 4: test dependency-update PRs #24 to #28 together on a separate branch (decision 62).

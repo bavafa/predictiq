@@ -107,3 +107,78 @@ export type FleetQuery = {
   status?: Status;
   machine?: number;
 };
+
+/** Body of POST /plan. Whole numbers only; every cost is an illustrative assumption. */
+export type PlanRequest = {
+  at: string;
+  /** 0 to 100; omitted = the model's default cut-off. */
+  cutoff_percent?: number;
+  /** One cost for every machine, 0 to 10,000,000. */
+  failure_cost: number;
+  /** Optional costs per machine model (same range); models left out use `failure_cost`. */
+  failure_cost_by_model?: Partial<Record<MachineModel, number>>;
+  /** Shared planned cost per shortlisted machine, 0 to 10,000,000. */
+  planned_cost: number;
+  /** Optional planned costs per machine model (same range, decision 55); models left out use `planned_cost`. */
+  planned_cost_by_model?: Partial<Record<MachineModel, number>>;
+  /** 0 to 100. */
+  crew_slots: number;
+  /** null / omitted = off; otherwise 0 to 90 in steps of 5. */
+  risk_reduction_percent?: number | null;
+  include_below_cutoff?: boolean;
+};
+
+export type PlanListing = "shortlisted" | "over_capacity" | "below_cutoff";
+
+export type PlanRow = {
+  rank: number;
+  machine_id: number;
+  model: MachineModel;
+  age: number;
+  score: number;
+  status: Status;
+  failure_cost: number;
+  planned_cost: number;
+  expected_exposure: number;
+  listing: PlanListing;
+  /** 1..crew slots for shortlisted machines, otherwise null. */
+  slot: number | null;
+  /** Places moved up (+) or down (-) versus the order by chance alone; null unless per-model costs differ. */
+  moved: number | null;
+  /** Estimate; shortlisted rows only, and only when a risk reduction is assumed. */
+  net_benefit: number | null;
+};
+
+export type PlanResponse = {
+  model_version: string;
+  at: string;
+  label: "illustrative";
+  unit: string;
+  assumptions: {
+    cutoff_percent: number;
+    failure_cost: number;
+    failure_cost_by_model: Partial<Record<MachineModel, number>>;
+    planned_cost: number;
+    planned_cost_by_model?: Partial<Record<MachineModel, number>>;
+    crew_slots: number;
+    risk_reduction_percent: number | null;
+    include_below_cutoff: boolean;
+  };
+  /** null unless per-model costs differ. */
+  order_changed: boolean | null;
+  order_note: string | null;
+  summary: {
+    machines_at_or_above_cutoff: number;
+    machines_listed: number;
+    crew_slots: number;
+    slots_used: number;
+    spare_slots: number;
+    shortlist_exposure: number;
+    planned_spend: number;
+    net_benefit: number | null;
+    net_benefit_label: string | null;
+  };
+  rows: PlanRow[];
+  /** Plain-words formulas for "How this is calculated". */
+  formulas: Record<string, string>;
+};

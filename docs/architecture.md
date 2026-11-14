@@ -90,7 +90,7 @@ Vercel's docs say the cache key is the request URL and ignore query strings only
 | `GET /assets/{id}?at&cutoff` | Model, age, score, status, last 7 days of errors and repairs, past estimates and failures |
 | `GET /assets/{id}/telemetry?at&range=24h\|7d` | ≤168 hourly rows |
 | `GET /assets/{id}/explanation?at` | Top 8 contributions plus "all others", with the patterns-not-causes caveat |
-| `POST /plan` | Planner list, shortlist and totals (decisions 16, 21, 23) |
+| `POST /plan?mv` | Planner list, shortlist and totals (decisions 16, 21, 23). Body and rules: decision 63. Stores nothing, `no-store` |
 | `GET /model/metrics` | `evaluation.json` for both models |
 | `GET /model/threshold-analysis` | Both models at every whole-percent cut-off from 0 to 100 |
 

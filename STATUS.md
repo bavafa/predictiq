@@ -1,22 +1,14 @@
 # Status
 
-_Updated 2026-11-14 11:36 AM ET, Stage 3 in review on branch `core-screens`._
+_Updated 2026-11-14 2:30 PM ET, Stage 4 ready for Meysam on branch `planner` (PR #31)._
 
 ## Current stage
-**Stage 3, core screens and data service, on branch `core-screens` (PR #30). Built and independently reviewed: passed with known issues. Waiting for the owner to review and merge.**
-- **QA fix round (14 Nov 2026):** Fleet and Asset screens now show one settled set of answers (same hour, cut-off, model version), the page follows refreshed `/metadata` after a model-version retry, and Escape on the mobile menu returns focus to the Menu button.
-- **Merged by Meysam (Owner):**
-  - The data-and-model stage, on 14 Nov 2026 at 9:53 AM ET. He also approved the example planner costs (still illustrative units).
-  - The decision to make the repository public at launch, and only then. This lets Vercel's builds download the model data. Until launch, live checks use protected previews built on the build machine.
-- **Built:**
-  - Fleet Overview and Asset Details on the real data service.
-  - The historical replay bar.
-  - The "no model data" state and loading and error states.
-  - About & Data, updated.
-  - A Playwright test stack using a synthetic model.
-  - 38 screenshots from the real model data, all simulated.
-- **Independent review:** three rounds. Round 1 found two Medium issues: numbers could briefly mismatch during changes, and a new model version didn't refresh the page facts. Round 2 found one Medium: the guide pointed to the unbuilt planner. All are fixed. What remains is a Low gap in the accessibility tests.
-- **Next:** owner review and merge; then Stage 4, the maintenance planner.
+**Stage 4, maintenance planning, on branch `planner`. Built, checked live, reviewed. Waiting for Meysam's gate decision and merge.**
+- **Built:** planner calculation and `POST /plan`; Maintenance Planner screen with decision 55 costs per machine model (all illustrative), "Apply to all models" controls (decision 65); visitor guide planner step restored; About & Data updated.
+- **Live check (protected preview, not production):** largest allowed planner answer 25,466 bytes, under the 256 KB limit (n=3, identical answers). See `docs/QA_REPORTS/stage4-live-checks.md`.
+- **Independent review:** 7 rounds. Rounds 1 and 2 found 4 Medium issues in code and behaviour, all fixed. Rounds 3 to 6 found wording in the spec and help text that claimed too much; fixed. Round 7: PASS WITH KNOWN ISSUES (one Low about the spec's net-benefit wording, fixed afterwards in docs; not re-reviewed).
+- **Tests (latest local run):** Vitest 142, Playwright synthetic 60 (4 skipped), no-bundle 7, real bundle 64, pytest 238 (254 with real data opt-in).
+- **Next:** Meysam reviews and merges PR #31; then the dependency-update branch; then Stage 5.
 - **Blockers:** none.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
@@ -134,6 +126,17 @@ _Updated 2026-11-14 11:36 AM ET, Stage 3 in review on branch `core-screens`._
 4. Raw data is not in the repo. Fetch it with `python3 scripts/download_data.py` (hash-checked).
 5. Re-render wireframes: `node docs/wireframes/render.mjs`. Recheck contrast: `python3 -I docs/design/check-contrast.py`.
 
+## Stage 4, session 1 of 2: planner calculation and `POST /plan` (branch `planner`, 14 Nov 2026)
+**Done:**
+- **Planner service** (`backend/app/services/planner.py`, pure and deterministic): expected exposure = predicted chance × failure cost (the machine model's own cost where set); ranked by exposure, ties to the higher chance then the lower machine number; shortlist = first N (crew slots) machines at or above the cut-off only; "also list below" adds them marked and never shortlisted; planned spend = shortlisted × planned cost; net benefit only when a risk-reduction assumption is set (shortlisted exposure × reduction − planned spend, labelled an estimate); "moved" versus the order by chance alone when per-model costs differ. Arithmetic is in exact integers. Everything is labelled illustrative; no "savings" wording anywhere.
+- **`POST /api/v1/plan`**: strict body (unknown fields, out-of-range values, non-integers refused with problem+json 422, a message with the allowed range, no echo; bodies over 4,096 bytes get 413), current `mv` required (other 404, missing 400, `no-store`), `Cache-Control: no-store`, stores nothing, at most 100 machines. Shape recorded as decision 63. Largest response: 22,958 bytes on the real bundle (23,205 synthetic), well under 256 KB, measured through the Vercel adapter.
+- **Tests:** hand-made arithmetic cases; each row of the spec table (shared cost scales exposure but not order; per-model costs change order and shortlist; crew slots change the shortlist, not the order; the cut-off changes which machines are listed; planned cost changes spend and net benefit, not order; no reduction means no benefit figure); determinism (byte-identical responses); bounds and every refusal; answers against saved scores (synthetic in CI, same tests on the real bundle with `pytest -m realbundle`), including agreement with the Fleet scores and Alert count.
+- **Web client:** typed `api.plan()` in `frontend/lib/api.ts` with the `mv` retry; `ApiError.detail` carries the service's allowed-range message. No Planner screen yet.
+**Results:** ruff, ruff format, mypy clean; pytest 238 passed (16 opt-in deselected); `pytest -m realbundle` 12 passed; frontend lint, typecheck clean, Vitest 114 passed, build passes.
+**Worth knowing:** two older tests that said `/plan` is absent were changed to the new contract. The Planner's starting values come from `/metadata` `planner_defaults` (per-model failure costs); the single planned cost field needs one number, which the screen must choose (the defaults hold one per model).
+**Next:** session 2: the Planner screen, the Fleet guide step, e2e and screenshots.
+**Blockers:** none.
+
 ## Architecture review result (13 Nov 2026)
 Independent review: first pass FAIL (1 High: the test window included hours with incomplete labels). After one fix round the re-check is PASS WITH KNOWN ISSUES. The High finding and 2 of 3 Mediums are resolved. The hosting finding is partly resolved; it stays conditional on the deploy spike. Two new small documentation issues and the document's length are tracked in the task list.
 - 13 Nov 2026: Vercel Python function now bundles the backend (prebuild copy to frontend/_backend, includeFiles, Next.js app/ excluded); verify-fn.sh prints VERIFY_FN_OK.
@@ -141,3 +144,18 @@ Independent review: first pass FAIL (1 High: the test window included hours with
 - 14 Nov 2026, 1:15 AM ET: live checks on the protected preview: routing, cold start, caching, rate limit and non-commercial use met; size checks met for the skeleton and to be measured again with the real model; one free rate-limit rule added; hosting stays on Vercel (independent review: its findings accepted and fixed).
 - 14 Nov 2026: QA fixes: `evaluate --verify` now recomputes the replay start from fresh scores (never the unhashed cache; new test covers a tampered cache); model card feature count corrected to 35. Model, results and bundle hash unchanged.
 - 14 Nov 2026: Stage 3 fix round 2: Fleet guide matches what is built (Planner step returns in Stage 4); replay tests made deterministic; screenshot notes corrected.
+
+## Stage 4, session 2 of 2: Maintenance Planner screen (branch `planner`, 14 Nov 2026)
+**Done:**
+- **`/maintenance-planner`** (`components/planner-screen.tsx`, `lib/planner.ts`): assumptions panel (per-model failure and planned costs, four fields each, with "Apply to all models"; see Defaults; crew slots −/+/typed; alert cut-off shared; also list below the cut-off; risk-reduction assumption, off by default, native slider 0–90% in 5-point steps; Reset to defaults), all with units and "Illustrative" labels. Ranked list with predicted chance and tag, cost, expected exposure, planned cost, "Moved" marks (only when per-model costs differ), net benefit column and total only when the assumption is on (labelled estimate, kept apart from exposure), shortlist marks, links to Asset Details at the same time and cut-off. Summary with slots used, spare slots, expected exposure of the shortlist and planned spend. "How this is calculated" shows the service's plain-words formulas. No savings claim (the only "saving" is the denial "It is not a saving.").
+- **Rules:** all numbers on screen come from one settled `/plan` answer (same hour, cut-off, model version and inputs; the last good answer is dimmed while the next loads, and nothing stale shows after an error). An out-of-range input is refused on the page with the allowed range, the field is marked and the list keeps the last valid result with a note. Planner inputs are not in the address (spec); replay hour and cut-off are.
+- **States:** loading, error with Try again (assumptions kept, list and summary hidden), no machines at or above the cut-off (offers to list those below), invalid input, no model data. Mobile: list instead of table, 44px controls.
+- **Defaults** (decisions 55, 64, 65): per-model failure and planned costs visible and prefilled with decision 55 values; "Set every machine model to" + "Apply to all models" for each; 5 crew slots, reduction off (20% when switched on). (The first build had one planned cost and blank per-model fields; replaced after review rounds 1 and 2.)
+- **Fleet guide** step 3 is the spec's Planner step again; its test updated. About & Data text no longer says the Planner is unbuilt.
+- **Tests:** Vitest 136 passed (22 new: validation, per-model reorder and Moved, crew slots, cut-off, reduction, invalid keeps last result, states, formula text, no "saving(s)" wording); Playwright synthetic 59 passed (3 real-only skipped), no-bundle 7 passed, real bundle 62 passed including "screen shortlist equals POST /plan shortlist for the defaults"; axe on desktop and mobile with the disclosure open and an invalid field.
+- **Screenshots:** `docs/QA_REPORTS/stage4-screenshots/` (`node scripts/screenshots.mjs --real --stage4`), including the retaken Fleet guide. The screenshot script now forwards POST bodies.
+**Next:** independent review of Stage 4; then Stage 5 (Model Performance, launch).
+**Blockers:** none.
+**Known limitations:** inputs reset on reload (not in the address); the wireframe's "USD" is "illustrative currency units" (the service's unit); the list shows at most 100 machines in one table (no paging; the service caps it); arrow-key chart stepping not applicable here.
+- **Stage 4 fix round (14 Nov 2026):** `/plan` now takes planned cost per machine model (decision 55; `planned_cost_by_model`, shared `planned_cost` as fallback) and the screen starts with decision 55's failure and planned costs per model (decision 64 rewritten); the 4,096-byte body limit is enforced while reading (declared length refused early, stream cut at the limit). Python 238 passed (+12 real-bundle), Vitest 138, Playwright 59 synthetic / 7 no-bundle / 62 real; stage 4 screenshots retaken.
+- **Stage 4 fix round 2 (14 Nov 2026):** shared costs are now "Set every machine model to" + "Apply to all models" controls over always-visible per-model fields (decision 65); Fleet guide, About & Data and screenshot README reworded to match the ux-spec table; Vitest 142, Playwright 60 synthetic / 7 no-bundle / 64 real, Python 147 (+12 real-bundle deselected); screenshots retaken.
