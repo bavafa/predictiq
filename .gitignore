@@ -1,2 +1,16 @@
 .agent/
 __pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/
+.next/
+data/raw/
+artifacts/*
+!artifacts/README.md
+.env*
+!.env.example
+.vercel/
+frontend/_backend/

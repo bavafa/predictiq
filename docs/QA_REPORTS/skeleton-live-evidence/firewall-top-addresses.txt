@@ -1,0 +1,6 @@
+Firewall traffic view, top client addresses for this project over the last day (captured 2026-11-14 01:15 EST; middle octets masked; all are the build machine's rotating egress addresses):
+  104.x.x.125 (distinct)   354
+  104.x.x.125 (distinct)   175
+  104.x.x.119 (distinct)   117
+  104.x.x.121 (distinct)    83
+  104.x.x.119 (distinct)    77

@@ -1,0 +1,48 @@
+[project]
+name = "predictiq"
+version = "0.1.0"
+description = "PredictIQ: portfolio demo from machine failure predictions to maintenance decisions (historical sample data)."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+# Runtime dependencies of the data service only. No model libraries (decision 32).
+dependencies = [
+    "fastapi==0.136.1",
+    "pydantic==2.13.4",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.0",
+    "mypy",
+    "pip-audit",
+    "pytest",
+    "ruff",
+    "uvicorn",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests", "ml/tests", "scripts/tests"]
+pythonpath = [".", "backend"]
+addopts = "-ra --strict-markers"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+extend-exclude = ["frontend", "docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "C4", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["backend", "ml", "scripts"]
+explicit_package_bases = true
+mypy_path = "backend:."
+exclude = ["frontend/"]

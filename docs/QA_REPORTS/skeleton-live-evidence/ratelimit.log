@@ -1,0 +1,27 @@
+start 23:55:04
+end 23:55:16
+    330 302
+HTTP/2 302 
+x-vercel-id: iad1::qkqdj-1794632117177-d8695bf628fa
+23:55:19 / status=200 cache=PRERENDER age=0 cc="public, max-age=0, must-revalidate" TIME_TOTAL=0.430087 TTFB=0.429895 SIZE=10879 id=iad1::vvmhx-1794632119160-b8378118888b
+authenticated run start 23:55:29
+end 23:55:42
+    330 200
+HTTP/2 200 
+cache-control: no-store
+x-vercel-id: iad1::iad1::jljsg-1794632143021-078c4b3c76bf
+after window 23:56:48: 200 ; page / 200
+== temporary test limit 20/60s set 23:57:43
+burst start 23:57:57
+burst end 23:58:05
+    120 200
+page / during limit: 200
+== restored 300/60s 23:58:11
+== temporary test limit 20/60s published 23:58:35
+burst start 23:58:51
+burst end 23:58:58
+     68 200
+     52 429
+page / during limit: 200
+== restored 300/60s 23:59:06
+{"name":"API rate limit","active":true,"rl":{"action":"rate_limit","algo":"fixed_window","keys":["ip"],"limit":300,"window":60}}
