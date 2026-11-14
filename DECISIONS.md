@@ -118,5 +118,7 @@ Full detail in `docs/architecture.md`.
 
 **51. Only the latest model version is served.** Requests for any other version get "not found" without caching. Old versions' evaluation results stay in the repository history and release assets. This resolves the caching contradiction raised in the architecture re-check. *Status: Approved by Meysam (Owner), 2026-11-13 10:03 PM ET.*
 
+**52. Hosting decision 41 stays open.** The trial deploy builds and deploys on Vercel, but the live checks could not be measured because the protected preview cannot yet be reached by a sanctioned route. Under "no evidence means not met" it neither passes nor falls back to Render. Only the non-commercial check is met (decision 47). *Status: Lead record, 2026-11-13 11:10 PM ET; needs Meysam to grant access, then re-measure.*
+
 ## Pending owner decisions
 - Illustrative cost defaults (can wait until the planner is built).

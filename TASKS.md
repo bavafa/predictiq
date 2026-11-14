@@ -38,7 +38,8 @@ Current stage: **Build, story 1: project skeleton.**
 - [x] App shell: navigation, disclosure banner, "Historical replay" badge, honest "not built yet" states
 - [x] Hash-checked download script and no-network test; `ignoreCommand` skipping `main` builds
 - [x] Screenshots in `docs/QA_REPORTS/skeleton-screenshots/`
-- [ ] Trial deploy on Vercel as a protected preview, measuring the six checks. BLOCKED: Vercel project creation refused (403); Vercel CLI not logged in. Needs Meysam.
+- [ ] Trial deploy on Vercel as a protected preview, measuring the six checks. Preview deploys (success, 13 Nov 2026). Data service bundling fixed and checked by a local build. Live checks BLOCKED: no sanctioned access to the protected preview (connector not authorised for this project; command-line tool not signed in). Needs Meysam.
+  - [ ] Low (review): adapter test can pass without a real bundle; menu test does not cover a real route change; adapter description out of date.
 - [x] Independent review (`docs/QA_REPORTS/skeleton-codex-review.md`): PASS WITH KNOWN ISSUES
 - [x] Fix round (13 Nov 2026): gitleaks 403 (`pull-requests: read`); axe accessibility checks in e2e (5 routes × desktop/mobile + open menu); actions pinned to commit SHAs; mobile menu is a modal dialog with inert background; stale notes updated; `.github/dependabot.yml` added
 - [x] CI green on GitHub after the fix round (commit 554e106, all 4 jobs on push and pull request)
