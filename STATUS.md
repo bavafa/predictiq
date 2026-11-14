@@ -1,6 +1,6 @@
 # Status
 
-_Updated 2026-11-14 6:05 PM ET, Stage 5 on branch `model-perf` (PR #33, targets main)._
+_Updated 2026-11-14 5:55 PM ET, Stage 5 on branch `model-perf` (PR #33, targets main)._
 
 ## Current stage
 **Stage 5, launch preparation, on branch `model-perf` (PR #33, base main).** PR #32 (dependency updates) was merged by Meysam at 3:49 PM ET. Dependabot #25 to #28 are closed and #24 stays open (decision 69). The repo stays private, protection stays on, and there is no production deployment or domain change until Meysam's go-ahead at the launch gate.

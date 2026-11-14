@@ -1,0 +1,14 @@
+200 78 | /api/v1/health | cache-control=no-store
+200 7204 | /api/v1/metadata | cache-control=public, max-age=0
+200 8065 | /api/v1/model/metrics?mv=piq-20261114-efc9c243 | cache-control=public, max-age=3600
+200 144715 | /api/v1/model/threshold-analysis?mv=piq-20261114-efc9c243 | cache-control=public, max-age=3600
+404 100 | /api/v1/model/metrics?mv=piq-00000000-deadbeef | cache-control=no-store
+200 13828 | /api/v1/fleet?at=2015-11-01T00:00:00&mv=piq-20261114-efc9c243 | cache-control=public, max-age=3600
+404 55 | /api/v1/nope | cache-control=no-store
+page / 200
+page /asset-details 200
+page /maintenance-planner 200
+page /model-performance 200
+page /about-data 200
+no-bypass page 302  api 302
+production domain predictiq-eight.vercel.app (logged out): 404

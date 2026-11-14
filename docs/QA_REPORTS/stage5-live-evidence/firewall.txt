@@ -1,0 +1,1 @@
+[{"id":"rule_api_rate_limit_sI0pWs","name":"API rate limit","active":true,"limit":{"action":"rate_limit","algo":"fixed_window","keys":["ip"],"limit":300,"window":60}}]
