@@ -112,7 +112,9 @@ class Bundle:
 
     @property
     def first_index(self) -> int:
-        return self.hour_index(self.replay_start)
+        """The replay window starts at the first held-out test hour; `replay_start` (where playback begins,
+        decision 30) can be later, but earlier hours stay reachable with Start / the timeline."""
+        return self.hour_index(self.test_start)
 
     @property
     def last_index(self) -> int:

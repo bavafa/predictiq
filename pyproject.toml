@@ -35,8 +35,11 @@ package = false
 [tool.pytest.ini_options]
 testpaths = ["backend/tests", "ml/tests", "scripts/tests"]
 pythonpath = [".", "backend"]
-addopts = "-ra --strict-markers -m 'not realdata'"
-markers = ["realdata: needs the downloaded files in data/raw (opt-in: run with -m realdata; skipped when they are missing)"]
+addopts = "-ra --strict-markers -m 'not realdata and not realbundle'"
+markers = [
+    "realdata: needs the downloaded files in data/raw (opt-in: run with -m realdata; skipped when they are missing)",
+    "realbundle: needs the real serving bundle in artifacts/<version>/bundle (opt-in: run with -m realbundle; skipped when it is missing)",
+]
 
 [tool.ruff]
 line-length = 110

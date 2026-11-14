@@ -57,6 +57,9 @@ class Metadata(_Strict):
     model_created: str | None = None
     default_cutoff_percent: int | None = None
     splits: dict[str, list[str]] | None = None
+    replay_start: str | None = (
+        None  # where playback begins (decision 30); the window itself starts earlier or here
+    )
     replay_start_branch: str | None = None
     data_credit: str | None = None
     machines: list[MachineInfo] = []
