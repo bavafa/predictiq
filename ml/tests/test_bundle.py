@@ -13,7 +13,7 @@ from app import bundle as reader
 from ml import bundle as mb
 from ml import evaluate, replay, train
 from ml.artifacts import latest_version, write_manifest
-from ml.data import load_tables
+from ml.data import RAW_DIR, load_tables
 from ml.models import MODEL_NAMES, Calibrator
 from ml.scoring import compute_test_scores
 from ml.tests.synthetic import make_year_tables
@@ -21,6 +21,7 @@ from ml.tests.synthetic import make_year_tables
 SMALL = copy.deepcopy(train.CONFIG)
 SMALL["main"]["grid"] = {"max_depth": [2], "n_estimators": [15]}
 UNSEEN = [9, 10]
+RAW_FILES = ["PdM_telemetry.csv", "PdM_errors.csv", "PdM_maint.csv", "PdM_failures.csv", "PdM_machines.csv"]
 
 
 @pytest.fixture(scope="module")
@@ -137,6 +138,9 @@ def test_real_bundle_scores_equal_the_saved_model() -> None:
     out = vdir / "bundle"
     if not (out / "meta.json").exists():
         pytest.skip("no real bundle built (run scripts/build_bundle.py)")
+    missing = [f for f in RAW_FILES if not (RAW_DIR / f).exists()]
+    if missing:
+        pytest.skip(f"data/raw is missing {', '.join(missing)}; run `make data`")
     fresh = compute_test_scores(vdir, load_tables())
     b = reader.load_bundle(out)
     assert b.model_version == vdir.name and not b.synthetic

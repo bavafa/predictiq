@@ -104,4 +104,3 @@ export async function tooSmall(page: Page): Promise<Small[]> {
 }
 
 export const fmt = (list: Small[]) => list.map((s) => `${s.what} ${s.width}x${s.height}`).join(" | ");
-

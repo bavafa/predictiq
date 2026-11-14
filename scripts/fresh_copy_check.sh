@@ -24,6 +24,7 @@ WORK="$(mktemp -d "${TMPDIR:-/tmp}/predictiq-fresh.XXXXXX")"
 COPY="$WORK/predictiq"
 STARTED=$SECONDS
 REAL_SKIP_REASON=""
+DATA_SKIP_REASON=""
 
 cleanup() {
   if [[ "${KEEP:-0}" == "1" ]]; then
@@ -74,6 +75,13 @@ step "real bundle: fetch and verify (python -m scripts.fetch_bundle)"
 if uv run --group ml python -m scripts.fetch_bundle; then
   step "real bundle: Playwright (npm run e2e:real)"
   (cd "$COPY/frontend" && npm run e2e:real)
+  if [[ "${REQUIRE_REAL:-0}" == "1" ]]; then
+    step "real data: download and verify SHA-256 (scripts/download_data.py, as in make data)"
+    uv run python scripts/download_data.py
+  else
+    DATA_SKIP_REASON="raw data not downloaded (set REQUIRE_REAL=1 to download it), so realdata tests skip"
+    echo "NOTE: $DATA_SKIP_REASON."
+  fi
   step 'real bundle: pytest -m ""'
   uv run --group ml pytest -m ""
 else
@@ -88,9 +96,12 @@ fi
 
 echo
 echo "=================================================================================="
-if [[ -n "$REAL_SKIP_REASON" ]]; then
-  echo "FRESH COPY CHECK PASSED (real-bundle checks skipped: $REAL_SKIP_REASON). Time: $((SECONDS - STARTED)) s."
+SKIPS=""
+if [[ -n "$REAL_SKIP_REASON" ]]; then SKIPS="real-bundle checks skipped: $REAL_SKIP_REASON"; fi
+if [[ -n "$DATA_SKIP_REASON" ]]; then SKIPS="${SKIPS:+$SKIPS; }real-data tests skipped: $DATA_SKIP_REASON"; fi
+if [[ -n "$SKIPS" ]]; then
+  echo "FRESH COPY CHECK PASSED ($SKIPS). Time: $((SECONDS - STARTED)) s."
 else
-  echo "FRESH COPY CHECK PASSED (every step above succeeded, including the real-bundle checks). Time: $((SECONDS - STARTED)) s."
+  echo "FRESH COPY CHECK PASSED (every step above succeeded, including the real-bundle and real-data checks). Time: $((SECONDS - STARTED)) s."
 fi
 echo "=================================================================================="

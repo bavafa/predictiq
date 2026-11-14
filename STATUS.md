@@ -14,6 +14,7 @@ _Updated 2026-11-14 5:55 PM ET, Stage 5 on branch `model-perf` (PR #33, targets 
 ## Stage 5, sessions 1-2 and fix 2b: testing summary (14 Nov 2026)
 **Done:** full testing added (contrast pairs, 44 px target sizes, keyboard, axe on every page, the notice on every page, release hygiene, fresh-copy script). Round 1 review fixes: the page says "Model built" (the evaluation date is not saved), synthetic test counts scale with bundle size, and the top notice now says "simulated historical sample data" (decisions 68, 70). Report: `docs/QA_REPORTS/stage5-testing.md`.
 **Fix 2c (14 Nov 2026):** rendered contrast checks on all five pages (text, control boundaries, exact 2px focus rule, chart marks), wider colour scan, and three real fixes (chart legend text, skip-link border, badge ring); the fresh-copy script now says "PASSED (real-bundle checks skipped: ...)" when it skips.
+**Fresh-copy fix (14 Nov 2026):** the real-bundle parity test now skips with a reason when data/raw is missing; with `REQUIRE_REAL=1` the fresh-copy script downloads the raw data (SHA-256 verified) first, and its last line names every skipped part; stray blank lines at EOF removed.
 **Not covered:** human screen-reader testing, real devices, manual WCAG checks that automation cannot make.
 **Needs the owner:** commit 874a686 has a personal author email (committer is the no-reply address); no history rewrite was done. Decision 70 wording can be amended at the launch gate.
 **Next:** session 3, launch preparation (done; see the block below).

@@ -61,4 +61,3 @@ export async function expectTableMatches(page: Page, saved: Saved, cutoff: numbe
     await expect(cell(page, "calibration", m)).toHaveText(all.brier.toFixed(4));
   }
 }
-
