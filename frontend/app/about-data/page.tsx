@@ -23,9 +23,10 @@ export default function AboutDataPage() {
         <p className="mt-3 mb-0">
           <strong>Where it stands.</strong> Two models were trained on the sample data: a simple baseline (logistic
           regression) and a main model (gradient-boosted trees). Their scores for every machine and every hour of a held-out
-          later period are saved, and the data service reads only those saved scores. <strong>Fleet Overview</strong> and{" "}
-          <strong>Asset Details</strong> work on them. The <strong>Maintenance Planner</strong> and{" "}
-          <strong>Model Performance</strong> pages are not built yet, and say so. Nothing is calculated live.
+          later period are saved, and the data service reads only those saved scores. <strong>Fleet Overview</strong>,{" "}
+          <strong>Asset Details</strong> and <strong>Maintenance Planner</strong> work on them (the Planner turns them into a ranked list
+          using cost assumptions you set; those costs are illustrative). The <strong>Model Performance</strong> page is not built yet,
+          and says so. Nothing is calculated live.
         </p>
         <ModelFacts />
       </section>

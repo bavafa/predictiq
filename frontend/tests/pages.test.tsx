@@ -3,7 +3,6 @@ import { vi } from "vitest";
 import { describe, expect, it } from "vitest";
 
 import AboutDataPage from "@/app/about-data/page";
-import MaintenancePlannerPage from "@/app/maintenance-planner/page";
 import ModelPerformancePage from "@/app/model-performance/page";
 import { PROVENANCE_URL } from "@/lib/nav";
 import { fakeFetch, problem, readyMetadata, renderWithData } from "./helpers";
@@ -11,7 +10,6 @@ import { fakeFetch, problem, readyMetadata, renderWithData } from "./helpers";
 vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
 
 const emptyPages = [
-  ["Maintenance Planner", MaintenancePlannerPage],
   ["Model Performance", ModelPerformancePage],
 ] as const;
 
@@ -39,7 +37,7 @@ describe("About & Data", () => {
     expect(container.textContent).not.toMatch(/skeleton only|No model has been trained|no model yet/i);
     expect(container.textContent).toMatch(/Two models were trained/);
     expect(container.textContent).toMatch(/Nothing on this site is live/);
-    expect(container.textContent).toMatch(/Maintenance Planner.*Model Performance.*not built yet/);
+    expect(container.textContent).toMatch(/Maintenance Planner.*illustrative.*Model Performance page is not built yet/);
   });
 
   it("reads the model version, date, cut-off and replay window from /metadata", async () => {

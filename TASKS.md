@@ -67,11 +67,12 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [x] Cut-off control built (`components/cutoff-control.tsx`) and used on Fleet Overview; reuse on Planner and Model Performance in their stages.
 - [x] Update the About & Data status text.
 - [x] Fix round 2 (14 Nov 2026): Fleet Overview guide step 3 now describes the cut-off and says the Planner comes later; replay-bar tests made deterministic; screenshot README matches the charts-as-tables shots.
-- [ ] Stage 4: restore the Fleet Overview guide step "open Maintenance Planner, set a cost per machine model, watch machines move up" once the Planner is built (`components/fleet-screen.tsx`, and the guide test in `tests/fleet.test.tsx`).
+- [x] (14 Nov 2026, Stage 4 session 2) Stage 4: restore the Fleet Overview guide step "open Maintenance Planner, set a cost per machine model, watch machines move up" once the Planner is built (`components/fleet-screen.tsx`, and the guide test in `tests/fleet.test.tsx`).
 - [x] Stage 3 independent review: three rounds, all Medium findings fixed; passed with known issues.
 - [ ] Low (review): accessibility tests don't yet check every contrast pair or mobile target size.
 
 ## Stage 4: Maintenance planning (started 14 Nov 2026, branch `planner`)
 - [x] Session 1 (14 Nov 2026): planner service, `POST /plan` (decision 63), arithmetic / spec-table / determinism / bounds / saved-score tests (real bundle opt-in), largest `/plan` request through the adapter, typed `api.plan()` with `mv` retry.
-- [ ] Session 2: Planner screen (assumptions panel, ranked list, summary, "How this is calculated", states), restore the Fleet guide step 4, e2e, screenshots.
-- [ ] Owner: the planned maintenance cost is one number in the request while `planner_defaults` holds one per model; confirm the screen's starting value.
+- [x] Session 2 (14 Nov 2026): Planner screen (assumptions panel, ranked list, summary, "How this is calculated", states), Fleet guide step restored, Vitest, Playwright synthetic + opt-in real, screenshots in `docs/QA_REPORTS/stage4-screenshots/`.
+- [ ] Owner: the screen has one planned cost, starting at 2,500 (decision 64; decision 55 lists one per model), and a shared failure cost starting at 10,000; confirm or override.
+- [ ] Stage 4 independent review.

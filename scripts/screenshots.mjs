@@ -13,6 +13,9 @@
 //   node scripts/screenshots.mjs --real --stage3     the complete Stage 3 set into docs/QA_REPORTS/stage3-screenshots/:
 //                                                     Fleet Overview (as --fleet), Asset Details (desktop, mobile and
 //                                                     key states) and About & Data (desktop, mobile, metadata failed)
+//   node scripts/screenshots.mjs --real --stage4     the Stage 4 set into docs/QA_REPORTS/stage4-screenshots/: Maintenance
+//                                                     Planner (desktop, mobile and key states) and the Fleet Overview
+//                                                     guide
 //   --out <dir>   write somewhere else
 //
 // Env: PLAYWRIGHT_CORE (default /home/box/.local/lib/node_modules/playwright-core)
@@ -27,9 +30,10 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 const real = args.includes("--real");
 const stage3 = args.includes("--stage3");
+const stage4 = args.includes("--stage4");
 const fleetOnly = args.includes("--fleet") || stage3;
 const outArg = args.indexOf("--out");
-const outDir = outArg >= 0 ? resolve(args[outArg + 1]) : join(root, "docs", "QA_REPORTS", fleetOnly ? "stage3-screenshots" : "skeleton-screenshots");
+const outDir = outArg >= 0 ? resolve(args[outArg + 1]) : join(root, "docs", "QA_REPORTS", stage4 ? "stage4-screenshots" : fleetOnly ? "stage3-screenshots" : "skeleton-screenshots");
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_CORE ?? "/home/box/.local/lib/node_modules/playwright-core");
 
@@ -120,7 +124,13 @@ async function newPage(viewport) {
   // made without API_PROXY_URL has no proxy; on Vercel a rewrite does this).
   await page.route("**/api/v1/**", async (route) => {
     const url = new URL(route.request().url());
-    const res = await fetch(API + url.pathname + url.search);
+    const req = route.request();
+    const body = req.postDataBuffer();
+    const res = await fetch(API + url.pathname + url.search, {
+      method: req.method(),
+      headers: body ? { "content-type": req.headers()["content-type"] ?? "application/json" } : undefined,
+      body: body ?? undefined,
+    });
     await route.fulfill({ status: res.status, headers: Object.fromEntries(res.headers), body: Buffer.from(await res.arrayBuffer()) });
   });
   return [ctx, page];
@@ -366,6 +376,98 @@ async function captureAsset() {
   }
 }
 
+const PLAN_READY = '[data-testid="planner-ready"]';
+
+async function captureStage4() {
+  // A cut-off low enough that the list is long, and an hour where the machine models are mixed in it.
+  const base = "/maintenance-planner?cutoff=20";
+  const ready = async (page) => {
+    await page.locator(PLAN_READY).waitFor();
+    await page.waitForFunction((sel) => document.querySelector(sel)?.getAttribute("aria-busy") !== "true", PLAN_READY);
+    await page.waitForTimeout(350);
+  };
+
+  for (const [label, viewport] of sizes) {
+    const [ctx, page] = await newPage(viewport);
+    await page.goto(WEB + "/", { waitUntil: "networkidle" });
+    await page.getByTestId("guide").waitFor();
+    await page.getByTestId("card-shown").waitFor();
+    await page.waitForTimeout(300);
+    await save(page, `fleet-overview-guide-${label}`, { fullPage: false });
+
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await ready(page);
+    await save(page, `maintenance-planner-${label}`);
+
+    // per-model cost: raise the model of the last listed machine so machines move up
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await ready(page);
+    const lastModel = await page.evaluate(() => {
+      const rows = [...document.querySelectorAll('[data-testid="plan-row"]')];
+      const cards = [...document.querySelectorAll('[data-testid="plan-card"]')];
+      const row = rows.at(-1);
+      if (row) return row.querySelector("td:nth-child(3)").textContent;
+      return /model [a-z0-9]+/.exec(cards.at(-1).textContent)[0].split(" ")[1];
+    });
+    await page.getByText("Set cost per machine model (optional)").click();
+    await page.getByTestId(`cost-${lastModel}`).fill("40000");
+    await page.getByTestId("order-note").waitFor();
+    await ready(page);
+    await save(page, `maintenance-planner-state-per-model-cost-${label}`);
+
+    // effectiveness on
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await ready(page);
+    await page.getByTestId("reduction-toggle").check();
+    await page.getByTestId("net-benefit-summary").waitFor();
+    await ready(page);
+    await save(page, `maintenance-planner-state-effectiveness-on-${label}`);
+
+    // invalid input
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await ready(page);
+    await page.getByTestId("failure-cost").fill("-500");
+    await page.getByTestId("invalid-note").waitFor();
+    await save(page, `maintenance-planner-state-invalid-input-${label}`);
+
+    // no machines at or above the cut-off
+    await page.goto(WEB + "/maintenance-planner?cutoff=100", { waitUntil: "networkidle" });
+    await page.getByTestId("planner-empty").waitFor();
+    await page.waitForTimeout(300);
+    await save(page, `maintenance-planner-state-empty-${label}`);
+    await ctx.close();
+  }
+
+  {
+    const [ctx, page] = await newPage(sizes[0][1]);
+    await page.route("**/api/v1/plan**", async (route) => {
+      await new Promise((r) => setTimeout(r, 4000));
+      await route.fallback().catch(() => {});
+    });
+    await page.goto(WEB + base, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("planner-loading").waitFor();
+    await page.waitForTimeout(400);
+    await save(page, "maintenance-planner-state-loading-desktop");
+    await ctx.close();
+  }
+  {
+    const [ctx, page] = await newPage(sizes[0][1]);
+    await page.route("**/api/v1/plan**", (route) => route.fulfill(problem500));
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await page.getByTestId("planner-error").waitFor();
+    await save(page, "maintenance-planner-state-error-desktop");
+    await ctx.close();
+  }
+  {
+    const [ctx, page] = await newPage(sizes[1][1]);
+    await page.route("**/api/v1/plan**", (route) => route.fulfill(problem500));
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await page.getByTestId("planner-error").waitFor();
+    await save(page, "maintenance-planner-state-error-mobile");
+    await ctx.close();
+  }
+}
+
 async function captureAbout() {
   for (const [label, viewport] of sizes) {
     const [ctx, page] = await newPage(viewport);
@@ -387,7 +489,10 @@ try {
   await waitFor(`${API}/api/v1/health`);
   await waitFor(WEB);
   browser = await chromium.launch({ executablePath: process.env.CHROME_PATH ?? "/usr/bin/google-chrome" });
-  if (fleetOnly) {
+  if (stage4) {
+    if (!real) throw new Error("--stage4 needs --real");
+    await captureStage4();
+  } else if (fleetOnly) {
     if (!real) throw new Error("--fleet needs --real (the Fleet Overview has nothing to show without model data)");
     await captureFleet();
     if (stage3) {
