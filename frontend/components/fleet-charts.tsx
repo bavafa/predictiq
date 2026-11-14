@@ -3,7 +3,7 @@
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 import { Skeleton } from "@/components/states";
-import { ChartCard, td, th } from "@/components/chart-card";
+import { ChartCard, ScrollRegion, td, th } from "@/components/chart-card";
 import { Button } from "@/components/ui/button";
 import { binLabel, binOfCutoff } from "@/lib/fleet";
 import { shortHour, parseHour } from "@/lib/time";
@@ -12,7 +12,7 @@ import type { Fleet, FleetTrend, Range } from "@/lib/types";
 const INK = "#111827";
 const INK2 = "#4b5563";
 const BAR = "#475569";
-const LINE_EDGE = "#d9dee5";
+const LINE_EDGE = "#e5e7eb";
 
 export function DistributionChart({ fleet, shownOf }: { fleet: Fleet; shownOf: number }) {
   const bins = fleet.distribution;
@@ -132,7 +132,7 @@ export function TrendChart({
         </div>
       }
       table={
-        <div className="max-h-72 overflow-auto">
+        <ScrollRegion label="Machines in Alert by hour table">
           <table className="w-full border-collapse">
             <caption className="sr-only">Machines in Alert at each hour up to the replay time</caption>
             <thead>
@@ -150,7 +150,7 @@ export function TrendChart({
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollRegion>
       }
     />
   );

@@ -254,7 +254,7 @@ function ComparisonTable({ rows, results, cutoff }: { rows: MeasureRow[]; result
                     </span>
                   )}
                   {r.key === "calibration" && (
-                    <a href="#calibration-chart" className="block text-xs text-link underline">
+                    <a href="#calibration-chart" className="flex min-h-11 items-center text-xs text-link underline">
                       See the calibration chart below
                     </a>
                   )}

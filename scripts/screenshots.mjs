@@ -21,7 +21,7 @@
 //                                                     results not available)
 //   --out <dir>   write somewhere else
 //
-// Env: PLAYWRIGHT_CORE (default /home/box/.local/lib/node_modules/playwright-core)
+// Env: PLAYWRIGHT_CORE (default frontend/node_modules/playwright-core, installed by `npm ci` in frontend/)
 //      CHROME_PATH     (default /usr/bin/google-chrome)
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
@@ -39,7 +39,7 @@ const fleetOnly = args.includes("--fleet") || stage3;
 const outArg = args.indexOf("--out");
 const outDir = outArg >= 0 ? resolve(args[outArg + 1]) : join(root, "docs", "QA_REPORTS", stage5 ? "stage5-screenshots" : stage4 ? "stage4-screenshots" : fleetOnly ? "stage3-screenshots" : "skeleton-screenshots");
 const require = createRequire(import.meta.url);
-const { chromium } = require(process.env.PLAYWRIGHT_CORE ?? "/home/box/.local/lib/node_modules/playwright-core");
+const { chromium } = require(process.env.PLAYWRIGHT_CORE ?? join(root, "frontend", "node_modules", "playwright-core"));
 
 const WEB = "http://127.0.0.1:3200";
 const API = "http://127.0.0.1:8000";

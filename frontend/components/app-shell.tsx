@@ -103,7 +103,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <a
         href="#main"
         inert={open}
-        className="absolute left-2 top-2 z-50 -translate-y-20 rounded-md bg-card px-3 py-2 text-sm font-semibold text-link focus:translate-y-0"
+        className="absolute left-2 top-2 z-50 inline-flex min-h-11 min-w-11 -translate-y-20 items-center rounded-md bg-card px-3 text-sm font-semibold text-link focus:translate-y-0"
       >
         Skip to content
       </a>

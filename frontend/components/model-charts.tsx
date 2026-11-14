@@ -14,7 +14,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { ChartCard, td, th } from "@/components/chart-card";
+import { ChartCard, ScrollRegion, td, th } from "@/components/chart-card";
 import {
   MODEL_NAME,
   cutoffPoints,
@@ -31,14 +31,14 @@ const BASELINE = "#7c3aed";
 const CUTOFF = "#b45309";
 const SLATE = "#475569";
 const INK2 = "#4b5563";
-const GRID = "#d9dee5";
+const GRID = "#e5e7eb";
 
 const axisLabel = (value: string, extra: Record<string, unknown> = {}) => ({ value, fontSize: 12, fill: INK2, ...extra });
 const one = (n: number) => (Math.round(n * 10) / 10).toFixed(1);
 
 function Table({ caption, head, children }: { caption: string; head: string[]; children: ReactNode }) {
   return (
-    <div className="max-h-72 overflow-auto">
+    <ScrollRegion label={`${caption} (table)`}>
       <table className="w-full border-collapse">
         <caption className="sr-only">{caption}</caption>
         <thead>
@@ -52,7 +52,7 @@ function Table({ caption, head, children }: { caption: string; head: string[]; c
         </thead>
         <tbody>{children}</tbody>
       </table>
-    </div>
+    </ScrollRegion>
   );
 }
 

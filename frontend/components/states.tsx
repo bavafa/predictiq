@@ -75,7 +75,7 @@ export function NoModelData() {
       </p>
       <p className="mt-2 mb-0">
         You can still read what the sample data is and what this demo does not do on{" "}
-        <Link href="/about-data" className="text-link underline">
+        <Link href="/about-data" className="inline-flex min-h-11 items-center text-link underline">
           About &amp; Data
         </Link>
         .
@@ -109,7 +109,7 @@ export function WakingUp() {
     <Notice tone="info" icon={<Loader size={20} />} title="Waking up the data service…" testId="waking-up" role="status">
       <p className="m-0">This can take up to a minute. The page fills in by itself.</p>
       <p className="mt-2 mb-0">
-        <Link href="/about-data" className="text-link underline">
+        <Link href="/about-data" className="inline-flex min-h-11 items-center text-link underline">
           Read about the data while you wait
         </Link>
       </p>

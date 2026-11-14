@@ -7,7 +7,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
 const require = createRequire(import.meta.url);
-const { chromium } = require('/home/box/.local/lib/node_modules/playwright-core');
+// playwright-core comes with the frontend's dev dependencies (run `npm ci` in frontend/), or set PLAYWRIGHT_CORE.
+const { chromium } = require(
+  process.env.PLAYWRIGHT_CORE ?? fileURLToPath(new URL('../../frontend/node_modules/playwright-core', import.meta.url)),
+);
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const VIEWPORTS = {

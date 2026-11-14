@@ -267,7 +267,7 @@ def synthetic_bundle(
     n_machine_hours = n_machines * n_hours
 
     def cutoff_table(quality: float) -> list[dict[str, Any]]:
-        """Fake cut-off rows with every field of the real table (counts add up; precision is null with no alerts)."""
+        """Fake cut-off rows with every field of the real table (counts add up; no alerts: null precision)."""
         rows: list[dict[str, Any]] = []
         for c in range(101):
             fn = positives if c == 100 else min(positives - 1, round(positives * (c / 100) ** 2 * quality))
@@ -283,7 +283,9 @@ def synthetic_bundle(
                     "events_caught": caught,
                     "events_full_lookback": 107,
                     "false_alerts": false_alerts,
-                    "false_alerts_per_100_machine_days": round(false_alerts / (n_machines * n_hours / 24 / 100), 6),
+                    "false_alerts_per_100_machine_days": round(
+                        false_alerts / (n_machines * n_hours / 24 / 100), 6
+                    ),
                     "fn": fn,
                     "fp": fp,
                     "precision": None if tp + fp == 0 else round(tp / (tp + fp), 6),
@@ -323,7 +325,11 @@ def synthetic_bundle(
         "model_version": "piq-synthetic-00000000",
         "alert_rule": "synthetic",
         "simulated": True,
-        "test_window": {"start": "2015-11-01 00:00", "end": hours[-1].strftime("%Y-%m-%d %H:%M"), "hours": n_hours},
+        "test_window": {
+            "start": "2015-11-01 00:00",
+            "end": hours[-1].strftime("%Y-%m-%d %H:%M"),
+            "hours": n_hours,
+        },
         "models": {
             n: {
                 "default_cutoff_percent": 51,
@@ -339,7 +345,9 @@ def synthetic_bundle(
     evaluation_for_split = json.loads(json.dumps(evaluation))
     for n in MODEL_NAMES:
         for g in ("all", "seen", "unseen"):
-            evaluation_for_split["models"][n]["groups"][g]["threshold_analysis"] = cutoff_table(qualities[n][0])
+            evaluation_for_split["models"][n]["groups"][g]["threshold_analysis"] = cutoff_table(
+                qualities[n][0]
+            )
     metrics, threshold = split_evaluation(evaluation_for_split)
     unseen = sorted(
         int(m) for m in rng.choice(np.arange(1, n_machines + 1), size=n_machines // 5, replace=False)

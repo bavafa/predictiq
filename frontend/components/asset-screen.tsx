@@ -178,7 +178,7 @@ function AssetBody({ id, total, modelVersion }: { id: number; total: number; mod
         </div>
         <span className="text-sm text-ink-2" data-testid="cutoff-readout">
           Alert cut-off: {cutoff}% (shared; change it on{" "}
-          <Link href={fleetHref} className="text-link underline">
+          <Link href={fleetHref} className="inline-flex min-h-11 items-center text-link underline">
             Fleet Overview
           </Link>
           )
