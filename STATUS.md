@@ -49,6 +49,22 @@ _Updated 2026-11-14, Stage 3 (core screens) session 1 of 3 done on branch `core-
 **Next:** session 2 (Fleet Overview body), session 3 (Machine Details body).
 **Blockers:** none.
 
+## Core screens, session 2 of 3: Fleet Overview (branch `core-screens`, 14 Nov 2026)
+**Done:** Fleet Overview at `/` on the real endpoints (`/fleet`, `/fleet/trend`), built to the spec and wireframes:
+- Four cards (machines shown, machines in Alert, highest predicted chance, scored hour), the 10-bar predicted-risk chart with the cut-off marked, the "machines in Alert over time" chart (24 h / 7 days; "Only n hours of history before this point" at the start), and the ranked table (riskiest first, 25 rows a page, sortable headers; a list with a Sort menu below 768 px). Filters for machine model, status and machine number sit in the web address; Clear filters; every machine links to Asset Details with the same replay time and cut-off.
+- The shared **cut-off control** (native slider, 0–100%, "(default)/(custom)", Reset, keys apply at once, drag on release; Page Up/Down ten points) lives in the address and drives the Alert count, the tags, the chart line and the table. A note and one screen-reader announcement say "Cut-off n percent. m machines are in Alert."
+- Value labels (Historical, Predicted) on every number group; "Hide guide"; every chart has a one-line summary and "View as table" (Recharts, no animation, drawing hidden from screen readers).
+- States: loading (grey blocks, last answer dimmed while the next loads), error with Try again (one failed panel does not blank the rest; trend failing leaves the cards and table), empty filter result (all zeros, filters kept), no model data, replay start and end (replay bar), cut-off changed.
+- **Tests:** Vitest 83 passed (14 new); Playwright synthetic 34 passed + 7 no-bundle; real bundle 35 passed (includes the opt-in `fleet-real.spec.ts`: the screen's Alert count equals `/fleet` at the default cut-off and at 20%). The synthetic specs cover: Alert count = Alert rows of the filtered table for every model/status combination, cut-off change updates count and table, replay steps change numbers and match the service at each hour, row link, empty/error/loading, axe on desktop and phone, no sideways scroll and 44 px controls on the phone. pytest 165 passed; lint, types, build pass.
+- **Screenshots** from the real bundle (simulated data): `docs/QA_REPORTS/stage3-screenshots/` (desktop, mobile, cut-off changed, empty, replay start/end, charts as tables, loading, error). `scripts/screenshots.mjs` now takes `--real`, `--fleet`, `--out`.
+**Worth knowing:**
+- The wireframe's "Latest error" table column is not built: the `/fleet` rows do not carry it and no numbers are invented. It needs an added field in the contract (or a later decision to drop it).
+- The cut-off line on the risk chart sits at the middle of the 10-point bar that contains the cut-off, and its label gives the exact value (the chart has category bars, not a continuous axis).
+- Arrow-key stepping through chart points is not built; the text summary and "View as table" carry the same values.
+- The cut-off control sits on Fleet Overview only for now (Planner and Model Performance will reuse the component).
+**Next:** session 3 (Asset Details body).
+**Blockers:** none.
+
 ## Skeleton story (branch `skeleton`)
 **Done:** Next.js shell with five routes, disclosure banner, "Historical replay" badge and honest empty states (no numbers); FastAPI `/api/v1/health` and `/api/v1/metadata` only; `ml/` placeholders that exit 1; hash-checked `scripts/download_data.py` (run against the live source on 13 Nov 2026: all 5 files matched; `data/raw` is gitignored); Makefile; ruff/mypy/pytest, Vitest, Playwright smoke test plus axe accessibility checks (5 routes, desktop and mobile, plus the open menu); CI workflow with actions pinned to commit SHAs; Dependabot; Vercel layout and `ignoreCommand` (`docs/DEPLOY.md`); screenshots.
 **Review fix round (done):** gitleaks permission, axe in e2e, pinned actions, modal mobile menu (dialog semantics, inert background), stale notes, Dependabot.

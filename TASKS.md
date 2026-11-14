@@ -56,7 +56,8 @@ Current stage: **Stage 3, core screens and data service (session 1 of 3 done).**
 
 ## Stage 3: Core screens and data service (started 14 Nov 2026, branch `core-screens`)
 - [x] Session 1 (foundations): data service contract rules verified and tested, answers-against-saved-scores tests (synthetic in CI, real bundle opt-in), typed web client with `mv` retry, no-model-data / error / loading / waking states, shared address state, historical replay control, end-to-end tests on a real stack (synthetic bundle; opt-in real bundle).
-- [ ] Session 2: Fleet Overview body (cards, charts, table, filters, cut-off control).
+- [x] Session 2 (14 Nov 2026): Fleet Overview body (cards, charts, table, filters, cut-off control), Vitest, Playwright synthetic and opt-in real-bundle checks, screenshots in `docs/QA_REPORTS/stage3-screenshots/`.
+- [ ] Decide the wireframe's "Latest error" column for the fleet table (needs a `/fleet` field, or drop it).
 - [ ] Session 3: Asset Details body (sensor charts, explanation, events, machine selector and its states).
-- [ ] Add the cut-off control to the shared frame once Fleet Overview needs it (session 2).
+- [x] Cut-off control built (`components/cutoff-control.tsx`) and used on Fleet Overview; reuse on Planner and Model Performance in their stages.
 - [ ] Update the About & Data status text (still says "skeleton only").
