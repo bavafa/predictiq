@@ -1,25 +1,14 @@
 # Status
 
-_Updated 2026-11-14 2:08 PM ET, Stage 4 in review on branch `planner`._
+_Updated 2026-11-14 2:30 PM ET, Stage 4 ready for Meysam on branch `planner` (PR #31)._
 
 ## Current stage
-**Stage 4, maintenance planning, on branch `planner`. Built; independent review in progress.**
-- **Merged by Meysam (Owner) on 14 Nov 2026 at 12:24 PM ET:**
-  - Stage 3.
-  - The 7-day repair history.
-  - Holding the dependency-update pull requests until after Stage 4.
-- **Built:**
-  - The planner calculation and its data question.
-  - The Maintenance Planner screen. Costs come from decision 55: each machine model has its own failure cost and planned repair cost, all illustrative.
-  - The visitor guide's planner step, restored.
-  - Screenshots from the real model data.
-- **First review (calculation part):** two Medium findings, both fixed:
-  - planned costs per machine model, as approved;
-  - the request size limit is now enforced while reading.
-- **Next:**
-  - open the pull request;
-  - measure the planner's answer size on a protected preview;
-  - full review, fixes, re-check.
+**Stage 4, maintenance planning, on branch `planner`. Built, checked live, reviewed. Waiting for Meysam's gate decision and merge.**
+- **Built:** planner calculation and `POST /plan`; Maintenance Planner screen with decision 55 costs per machine model (all illustrative), "Apply to all models" controls (decision 65); visitor guide planner step restored; About & Data updated.
+- **Live check (protected preview, not production):** largest allowed planner answer 25,466 bytes, under the 256 KB limit (n=3, identical answers). See `docs/QA_REPORTS/stage4-live-checks.md`.
+- **Independent review:** 7 rounds. Rounds 1 and 2 found 4 Medium issues in code and behaviour, all fixed. Rounds 3 to 6 found wording in the spec and help text that claimed too much; fixed. Round 7: PASS WITH KNOWN ISSUES (one Low about the spec's net-benefit wording, fixed afterwards in docs; not re-reviewed).
+- **Tests (latest local run):** Vitest 142, Playwright synthetic 60 (4 skipped), no-bundle 7, real bundle 64, pytest 238 (254 with real data opt-in).
+- **Next:** Meysam reviews and merges PR #31; then the dependency-update branch; then Stage 5.
 - **Blockers:** none.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)

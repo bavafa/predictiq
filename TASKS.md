@@ -77,4 +77,7 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [x] Fix round (14 Nov 2026): planned cost per machine model in `/plan` and the screen (decision 55), per-model failure costs prefilled (decision 64 rewritten), `/plan` body limit enforced while streaming; tests and screenshots updated.
 - [ ] Owner: the screen has one planned cost, starting at 2,500 (decision 64; decision 55 lists one per model), and a shared failure cost starting at 10,000; confirm or override.
 - [x] (14 Nov 2026) Stage 4 fix round 2: shared costs apply to all models (decision 65), guide/About/screenshot wording corrected.
-- [ ] Stage 4 independent review (re-check after fix round 2).
+- [x] Stage 4 independent review, rounds 1 to 7 (`docs/QA_REPORTS/stage4-codex-review-round2.md` to `round7.md`; round 1 in the PR log): final PASS WITH KNOWN ISSUES.
+- [x] Live planner size check on a protected box-built preview: 25,466 bytes (`docs/QA_REPORTS/stage4-live-checks.md`).
+- [ ] Owner: Stage 4 gate decision and merge of PR #31.
+- [ ] After Stage 4: test dependency-update PRs #24 to #28 together on a separate branch (decision 62).
