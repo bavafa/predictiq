@@ -45,3 +45,5 @@ Independent design review: first review FAIL (3 High, 3 Medium). After one fix r
 3. Read this file first, then `TASKS.md`, `DECISIONS.md`, `docs/PROJECT_BRIEF.md`, `docs/PRD.md`.
 4. Raw data is not in the repo. A download step with hash checks comes later; it is not built yet.
 5. Re-render wireframes: `node docs/wireframes/render.mjs` (needs local playwright-core and Chrome). Recheck contrast: `python3 -I docs/design/check-contrast.py` (exits 0 when every pair passes or is marked forbidden in `tokens.json`).
+
+- 2026-11-13: Decisions 28-31 applied to requirements, stories, experience spec and wireframes (planner wording, baseline only on Model Performance, replay-start rule with on-screen disclosure); three tracked Medium design issues fixed; wireframes re-rendered, contrast check clean.
