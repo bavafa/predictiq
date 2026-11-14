@@ -121,3 +121,20 @@ export function sensorSummary(t: Telemetry, key: SensorKey, label: string): stri
   const last = values[values.length - 1]!;
   return `${label}: latest reading ${last.toFixed(1)}; lowest ${Math.min(...values).toFixed(1)}, highest ${Math.max(...values).toFixed(1)} over ${values.length} hourly readings. Units not stated by the source.`;
 }
+
+/**
+ * True when an answer belongs to the view now on screen: the same replay hour, cut-off (when the answer has
+ * one) and model version. Answers that fail this are from an earlier view and are not shown beside new ones.
+ */
+export function sameAnswer(
+  answer: { at: string; model_version: string; cutoff_percent?: number },
+  want: { at: string; cutoff?: number; modelVersion: string },
+): boolean {
+  const a = parseHour(answer.at.slice(0, 16));
+  return (
+    a !== null &&
+    a === parseHour(want.at.slice(0, 16)) &&
+    answer.model_version === want.modelVersion &&
+    (answer.cutoff_percent === undefined || want.cutoff === undefined || answer.cutoff_percent === want.cutoff)
+  );
+}

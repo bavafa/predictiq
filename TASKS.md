@@ -62,6 +62,7 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [ ] Low: "Back to fleet" on Asset Details keeps the replay time and cut-off but not the Fleet table filters or scroll position (components list asks for both).
 - [ ] Low: recent maintenance shows 7 days (what `/assets/{id}` sends); the wireframe says 90 days. Widen the contract or change the wireframe.
 - [ ] Low: arrow-key stepping through chart points (components list) is not built on either screen; summaries and "View as table" carry the values.
-- [ ] Low: independent review of Stage 3 (not yet run).
+- [x] Independent review of Stage 3 run; fix round done (14 Nov 2026): replay/cut-off transitions show one settled set (cards, trend, table; Asset score, factors, charts, records) labelled from the response; refreshed `/metadata` after a stale model version now updates the shared page state (version, default cut-off, replay bounds); e2e for focus after the mobile menu (this found and fixed a real bug: Escape did not return focus) and the chart table toggle.
+- [ ] Re-review of the fix round.
 - [x] Cut-off control built (`components/cutoff-control.tsx`) and used on Fleet Overview; reuse on Planner and Model Performance in their stages.
 - [x] Update the About & Data status text.

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 import { PastEstimatesChart, SensorCharts } from "@/components/asset-charts";
 import { useData } from "@/components/data-provider";
@@ -9,12 +9,13 @@ import { StatusTag } from "@/components/fleet-table";
 import { NoModelData, PanelError, Skeleton } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { ValueLabel } from "@/components/value-label";
-import { CAVEAT_LINE, directionWord, inputName, recentFirst, rowHour, signed } from "@/lib/asset";
+import { CAVEAT_LINE, directionWord, inputName, recentFirst, rowHour, sameAnswer, signed } from "@/lib/asset";
 import { percent } from "@/lib/fleet";
 import { parseHour, readableHour } from "@/lib/time";
-import type { Asset, Explanation, MachineModel, Range } from "@/lib/types";
+import type { ApiError } from "@/lib/api";
+import type { Asset, Explanation, MachineModel, Range, Telemetry } from "@/lib/types";
 import { carriedSearch, machineCount } from "@/lib/url-state";
-import { useApiQuery } from "@/lib/use-api-query";
+import { useApiQuery, useSettledSet } from "@/lib/use-api-query";
 
 const card = "rounded-lg border border-line bg-card p-4 sm:p-5";
 const h2 = "m-0 text-lg leading-7 font-semibold";
@@ -30,7 +31,7 @@ export function AssetScreen() {
   const total = machineCount(meta.meta);
   if (view.machine.kind === "none") return <NoMachine total={total} />;
   if (view.machine.kind === "out-of-range") return <NotFound text={view.machine.text} total={total} />;
-  return <AssetBody id={view.machine.id} total={total} />;
+  return <AssetBody key={view.machine.id} id={view.machine.id} total={total} modelVersion={meta.meta.model_version} />;
 }
 
 // --- machine picker and the two "no machine" states -----------------------------------------------------------
@@ -112,24 +113,50 @@ function NotFound({ text, total }: { text: string; total: number }) {
 
 // --- the machine screen ---------------------------------------------------------------------------------------
 
-function AssetBody({ id, total }: { id: number; total: number }) {
+type Panel<T> = { data: T | null; error: ApiError | null };
+type Shown = { asset: Panel<Asset>; telemetry: Panel<Telemetry>; explanation: Panel<Explanation> };
+
+function AssetBody({ id, total, modelVersion }: { id: number; total: number; modelVersion: string }) {
   const { client, view } = useData();
   const v = view!;
   const { at, cutoff } = v;
   const [range, setRange] = useState<Range>("24h");
   const fleetHref = useFleetHref();
 
-  const asset = useApiQuery<Asset>((signal) => client.asset(id, { at, cutoff }, { signal }), [client, id, at, cutoff]);
-  const telemetry = useApiQuery((signal) => client.telemetry(id, { at, range }, { signal }), [client, id, at, range]);
-  const explanation = useApiQuery<Explanation>((signal) => client.explanation(id, { at }, { signal }), [client, id, at]);
+  const asset = useApiQuery<Asset>((signal) => client.asset(id, { at, cutoff }, { signal }), [client, modelVersion, id, at, cutoff]);
+  const telemetry = useApiQuery((signal) => client.telemetry(id, { at, range }, { signal }), [client, modelVersion, id, at, range]);
+  const explanation = useApiQuery<Explanation>((signal) => client.explanation(id, { at }, { signal }), [client, modelVersion, id, at]);
 
+  // Score, factors, charts and records are shown from one settled set: the same hour, cut-off, range and
+  // model version. While the next set loads, the last one stays, dimmed, with its own hour label.
+  const assetD = asset.status === "ready" ? asset.data : null;
+  const telD = telemetry.status === "ready" ? telemetry.data : null;
+  const expD = explanation.status === "ready" ? explanation.data : null;
+  const assetE = asset.status === "error" ? asset.error : null;
+  const telE = telemetry.status === "error" ? telemetry.error : null;
+  const expE = explanation.status === "error" ? explanation.error : null;
+  const candidate = useMemo<Shown | null>(() => {
+    const a: Panel<Asset> | null = assetD
+      ? sameAnswer(assetD, { at, cutoff, modelVersion }) && assetD.machine_id === id ? { data: assetD, error: null } : null
+      : assetE ? { data: null, error: assetE } : null;
+    const t: Panel<Telemetry> | null = telD
+      ? sameAnswer(telD, { at, modelVersion }) && telD.range === range && telD.machine_id === id ? { data: telD, error: null } : null
+      : telE ? { data: null, error: telE } : null;
+    const e: Panel<Explanation> | null = expD
+      ? sameAnswer(expD, { at, modelVersion }) && expD.machine_id === id ? { data: expD, error: null } : null
+      : expE ? { data: null, error: expE } : null;
+    return a && t && e ? { asset: a, telemetry: t, explanation: e } : null;
+  }, [assetD, telD, expD, assetE, telE, expE, at, cutoff, range, modelVersion, id]);
+  const { shown, current } = useSettledSet(candidate);
+  const assetData = shown?.asset.data ?? null;
+  const busy = !current;
   // Whole-page outcomes: model data missing, or the machine isn't there.
   const first = [asset, telemetry, explanation].find((q) => q.status === "error");
   if (first && first.status === "error" && first.error.kind === "no-model-data") return <NoModelData />;
   if (asset.status === "error" && asset.error.kind === "not-found") return <NotFound text={String(id)} total={total} />;
 
-  const assetData = asset.status === "ready" ? asset.data : asset.status === "loading" ? asset.previous : null;
-  const hourLabel = hourText(at);
+  const assetQ = { error: shown?.asset.error ?? null, retry: asset.retry };
+  const hourLabel = hourText(assetData?.at ?? at);
 
   return (
     <div className="flex flex-col gap-4">
@@ -158,11 +185,11 @@ function AssetBody({ id, total }: { id: number; total: number }) {
       </section>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <FactsPanel query={asset} data={assetData} id={id} />
-        <ScorePanel query={asset} data={assetData} hourLabel={hourLabel} />
+        <FactsPanel query={assetQ} data={assetData} id={id} />
+        <ScorePanel query={assetQ} data={assetData} hourLabel={hourLabel} busy={busy} />
       </div>
 
-      <ExplanationPanel query={explanation} />
+      <ExplanationPanel error={shown?.explanation.error ?? null} retry={explanation.retry} data={shown?.explanation.data ?? null} dim={busy} />
 
       <section aria-labelledby="sensors-title" className={card}>
         <div className="flex flex-wrap items-center gap-2">
@@ -172,39 +199,39 @@ function AssetBody({ id, total }: { id: number; total: number }) {
           <ValueLabel kind="Historical" />
         </div>
         <p className="mt-1 mb-3 text-sm text-ink-2">Units not stated by the source. One sensor per chart. Readings are from before the replay time.</p>
-        {telemetry.status === "error" ? (
+        {shown?.telemetry.error ? (
           <PanelError testId="sensor-error" message="Couldn't load the sensor history for this machine." onRetry={telemetry.retry} />
-        ) : telemetry.status === "loading" && !telemetry.previous ? (
+        ) : !shown?.telemetry.data ? (
           <Skeleton className="h-72 w-full" label="Loading the sensor history" />
         ) : (
-          <div className={telemetry.status === "loading" ? "opacity-60" : undefined} aria-busy={telemetry.status === "loading"}>
-            <SensorCharts telemetry={telemetry.status === "ready" ? telemetry.data : telemetry.previous!} asset={assetData} range={range} />
+          <div className={busy ? "opacity-60" : undefined} aria-busy={busy}>
+            <SensorCharts telemetry={shown.telemetry.data} asset={assetData} range={shown.telemetry.data.range} />
           </div>
         )}
       </section>
 
       <section aria-label="Past estimates" className="flex flex-col gap-4">
-        {asset.status === "error" ? (
+        {shown?.asset.error ? (
           <PanelError testId="asset-error-chart" message="Couldn't load the past estimates for this machine." onRetry={asset.retry} />
         ) : assetData === null ? (
           <Skeleton className="h-72 w-full" label="Loading the past estimates" />
         ) : (
-          <div className={asset.status === "loading" ? "opacity-60" : undefined}>
-            <PastEstimatesChart asset={assetData} range={range} />
+          <div className={busy ? "opacity-60" : undefined}>
+            <PastEstimatesChart asset={assetData} range={shown?.telemetry.data?.range ?? range} />
           </div>
         )}
       </section>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <EventList kind="errors" query={asset} data={assetData} at={at} />
-        <EventList kind="repairs" query={asset} data={assetData} at={at} />
+      <div className={busy ? "grid gap-4 opacity-60 md:grid-cols-2" : "grid gap-4 md:grid-cols-2"} aria-busy={busy}>
+        <EventList kind="errors" query={assetQ} data={assetData} at={assetData?.at ?? at} />
+        <EventList kind="repairs" query={assetQ} data={assetData} at={assetData?.at ?? at} />
       </div>
       {assetData && <FailureList asset={assetData} />}
     </div>
   );
 }
 
-type Q = ReturnType<typeof useApiQuery<Asset>>;
+type Q = { error: ApiError | null; retry: () => void };
 
 function FactsPanel({ query, data, id }: { query: Q; data: Asset | null; id: number }) {
   return (
@@ -212,7 +239,7 @@ function FactsPanel({ query, data, id }: { query: Q; data: Asset | null; id: num
       <h2 id="facts-title" className={h2}>
         Machine {id}
       </h2>
-      {query.status === "error" ? (
+      {query.error ? (
         <PanelError testId="asset-error-facts" message="Couldn't load this machine's details." onRetry={query.retry} />
       ) : data === null ? (
         <Skeleton className="mt-2 h-16 w-full" label="Loading the machine details" />
@@ -230,13 +257,13 @@ function FactsPanel({ query, data, id }: { query: Q; data: Asset | null; id: num
   );
 }
 
-function ScorePanel({ query, data, hourLabel }: { query: Q; data: Asset | null; hourLabel: string }) {
+function ScorePanel({ query, data, hourLabel, busy }: { query: Q; data: Asset | null; hourLabel: string; busy: boolean }) {
   return (
-    <section className={card} aria-labelledby="score-title" data-testid="score-panel">
+    <section className={`${card}${busy ? " opacity-60" : ""}`} aria-labelledby="score-title" data-testid="score-panel" aria-busy={busy}>
       <h2 id="score-title" className={h2}>
         Predicted chance of a recorded failure in the next 24 hours
       </h2>
-      {query.status === "error" ? (
+      {query.error ? (
         <PanelError testId="asset-error-score" message="Couldn't load this machine's predicted chance." onRetry={query.retry} />
       ) : data === null ? (
         <Skeleton className="mt-2 h-16 w-full" label="Loading the predicted chance" />
@@ -291,8 +318,7 @@ function Definition({ text, name }: { text: string; name: string }) {
   );
 }
 
-function ExplanationPanel({ query }: { query: ReturnType<typeof useApiQuery<Explanation>> }) {
-  const data = query.status === "ready" ? query.data : query.status === "loading" ? query.previous : null;
+function ExplanationPanel({ error, retry, data, dim }: { error: ApiError | null; retry: () => void; data: Explanation | null; dim: boolean }) {
   return (
     <section className={card} aria-labelledby="why-title" data-testid="explanation">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -308,12 +334,12 @@ function ExplanationPanel({ query }: { query: ReturnType<typeof useApiQuery<Expl
       <p className="mt-1 mb-3 text-sm" data-testid="caveat">
         {CAVEAT_LINE}
       </p>
-      {query.status === "error" ? (
-        <PanelError testId="explanation-error" message="Couldn't load what pushed this estimate." onRetry={query.retry} />
+      {error ? (
+        <PanelError testId="explanation-error" message="Couldn't load what pushed this estimate." onRetry={retry} />
       ) : data === null ? (
         <Skeleton className="h-64 w-full" label="Loading what pushed this estimate" />
       ) : (
-        <ExplanationTable e={data} dim={query.status === "loading"} />
+        <ExplanationTable e={data} dim={dim} />
       )}
     </section>
   );
@@ -385,7 +411,7 @@ function EventList({ kind, query, data, at }: { kind: "errors" | "repairs"; quer
         </h2>
         <ValueLabel kind="Historical" />
       </div>
-      {query.status === "error" ? (
+      {query.error ? (
         <PanelError testId={`${kind}-error`} message={`Couldn't load the recent ${kind} for this machine.`} onRetry={query.retry} />
       ) : data === null ? (
         <Skeleton className="mt-2 h-24 w-full" label={`Loading the recent ${kind}`} />

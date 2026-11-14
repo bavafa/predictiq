@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
 import { CutoffControl } from "@/components/cutoff-control";
 import { useData } from "@/components/data-provider";
@@ -10,11 +10,12 @@ import { NoModelData, ServiceError, Skeleton } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { ValueLabel } from "@/components/value-label";
 import { ApiError } from "@/lib/api";
+import { sameAnswer } from "@/lib/asset";
 import { DEFAULT_SORT, describeFilters, percent, type Sort } from "@/lib/fleet";
 import { readableHour, parseHour } from "@/lib/time";
-import type { Fleet, MachineModel, Range, Status } from "@/lib/types";
+import type { Fleet, FleetTrend, MachineModel, Range, Status } from "@/lib/types";
 import { MACHINE_MODELS, STATUSES, machineCount } from "@/lib/url-state";
-import { useApiQuery } from "@/lib/use-api-query";
+import { useApiQuery, useSettledSet } from "@/lib/use-api-query";
 
 const GUIDE_KEY = "predictiq-hide-guide";
 
@@ -82,10 +83,12 @@ type Filters = { machine_model: MachineModel | null; status: Status | null; mach
 export function FleetScreen() {
   const { client, meta, view } = useData();
   if (meta.status !== "ready" || !view) return null;
-  return <FleetBody client={client} total={machineCount(meta.meta)} />;
+  return <FleetBody client={client} total={machineCount(meta.meta)} modelVersion={meta.meta.model_version} />;
 }
 
-function FleetBody({ client, total }: { client: ReturnType<typeof useData>["client"]; total: number }) {
+type Shown = { fleet: Fleet; trend: FleetTrend | null; trendError: ApiError | null };
+
+function FleetBody({ client, total, modelVersion }: { client: ReturnType<typeof useData>["client"]; total: number; modelVersion: string }) {
   const { view, update } = useData();
   const v = view!;
   const { at, cutoff, filters } = v;
@@ -108,7 +111,7 @@ function FleetBody({ client, total }: { client: ReturnType<typeof useData>["clie
     status: filters.status ?? undefined,
     machine: filters.machine_number ?? undefined,
   };
-  const deps = [client, at, cutoff, filters.machine_model, filters.status, filters.machine_number] as const;
+  const deps = [client, modelVersion, at, cutoff, filters.machine_model, filters.status, filters.machine_number] as const;
   const fleet = useApiQuery<Fleet>((signal) => client.fleet(query, { signal }), deps);
   const trend = useApiQuery((signal) => client.fleetTrend({ ...query, range }, { signal }), [...deps, range]);
 
@@ -128,12 +131,28 @@ function FleetBody({ client, total }: { client: ReturnType<typeof useData>["clie
     pending.current = null;
   }, [fleet, cutoff]);
 
-  const data = fleet.status === "ready" ? fleet.data : fleet.status === "loading" ? fleet.previous : null;
-  const busy = fleet.status === "loading";
+  // Everything on screen comes from one settled set: the cards, charts and table of one fleet answer and the
+  // trend for the same hour, cut-off and model version. While the next set loads, the last one stays,
+  // dimmed, with its own labels.
+  const fleetData = fleet.status === "ready" ? fleet.data : null;
+  const trendData = trend.status === "ready" ? trend.data : null;
+  const trendError = trend.status === "error" ? trend.error : null;
+  const candidate = useMemo<Shown | null>(() => {
+    if (!fleetData || !sameAnswer(fleetData, { at, cutoff, modelVersion })) return null;
+    if (trendData && sameAnswer(trendData, { at, cutoff, modelVersion }) && trendData.range === range) {
+      return { fleet: fleetData, trend: trendData, trendError: null };
+    }
+    if (trendError) return { fleet: fleetData, trend: null, trendError };
+    return null;
+  }, [fleetData, trendData, trendError, at, cutoff, modelVersion, range]);
+  const { shown, current } = useSettledSet(candidate);
+  const data = shown?.fleet ?? null;
+  const busy = !current;
   const filterWords = describeFilters(filters);
   const hourLabel = (() => {
-    const h = parseHour(at);
-    return h === null ? at : readableHour(h);
+    const text = data?.at ?? at;
+    const h = parseHour(text.slice(0, 16));
+    return h === null ? text : readableHour(h);
   })();
 
   return (
@@ -159,8 +178,9 @@ function FleetBody({ client, total }: { client: ReturnType<typeof useData>["clie
 
       {cutoffNote !== null && (
         <p role="note" data-testid="cutoff-note" className="m-0 rounded-lg border border-l-4 border-input-edge bg-card px-4 py-3 text-sm">
-          Cut-off changed to {cutoff}%. Cards, tags, chart line and table updated together.
-          {fleet.status === "ready" && ` ${fleet.data.cards.machines_in_alert} machines in Alert.`}
+          {current && data
+            ? `Cut-off changed to ${data.cutoff_percent}%. Cards, tags, chart line and table updated together. ${data.cards.machines_in_alert} machines in Alert.`
+            : `Cut-off changed to ${cutoff}%. Updating the cards, tags, chart line and table.`}
         </p>
       )}
       <p className="sr-only" role="status" aria-live="polite" data-testid="fleet-announcer">
@@ -180,10 +200,10 @@ function FleetBody({ client, total }: { client: ReturnType<typeof useData>["clie
           <Cards fleet={data} total={total} hourLabel={hourLabel} />
           <div className="grid gap-4 lg:grid-cols-2">
             <DistributionChart fleet={data} shownOf={total} />
-            {trend.status === "error" ? (
-              <ServiceError what="the Alert trend" error={trend.error} onRetry={trend.retry} />
-            ) : trend.status === "ready" || (trend.status === "loading" && trend.previous) ? (
-              <TrendChart trend={trend.status === "ready" ? trend.data : trend.previous!} range={range} onRange={setRange} shownOf={total} />
+            {shown?.trendError ? (
+              <ServiceError what="the Alert trend" error={shown.trendError} onRetry={trend.retry} />
+            ) : shown?.trend ? (
+              <TrendChart trend={shown.trend} range={shown.trend.range} onRange={setRange} shownOf={total} />
             ) : (
               <ChartSkeleton label="Loading the Alert trend" />
             )}

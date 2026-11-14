@@ -39,16 +39,21 @@ export function AppShell({ children }: { children: ReactNode }) {
   const panel = useRef<HTMLDivElement>(null);
   const main = useRef<HTMLElement>(null);
   const focusMainOnClose = useRef(false);
+  const focusMenuOnClose = useRef(false);
 
   const close = useCallback((restoreFocus: boolean) => {
+    // The page is inert while the panel is open, so focus goes back only after the close has rendered.
+    if (restoreFocus) focusMenuOnClose.current = true;
     setOpen(false);
-    if (restoreFocus) menuButton.current?.focus();
   }, []);
 
   // Move focus into the panel when it opens.
   useEffect(() => {
     if (open) closeButton.current?.focus();
-    else if (focusMainOnClose.current) {
+    else if (focusMenuOnClose.current) {
+      focusMenuOnClose.current = false;
+      menuButton.current?.focus();
+    } else if (focusMainOnClose.current) {
       // After a menu link is used the page content is no longer inert: move focus to it.
       focusMainOnClose.current = false;
       main.current?.focus();

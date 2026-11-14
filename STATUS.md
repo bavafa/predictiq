@@ -4,6 +4,7 @@ _Updated 2026-11-14 11:36 AM ET, Stage 3 in review on branch `core-screens`._
 
 ## Current stage
 **Stage 3, core screens and data service, on branch `core-screens`. All three build sessions are done; independent review and fixes are in progress.**
+- **QA fix round (14 Nov 2026):** Fleet and Asset screens now show one settled set of answers (same hour, cut-off, model version), the page follows refreshed `/metadata` after a model-version retry, and Escape on the mobile menu returns focus to the Menu button.
 - **Merged by Meysam (Owner):**
   - The data-and-model stage, on 14 Nov 2026 at 9:53 AM ET. He also approved the example planner costs (still illustrative units).
   - The decision to make the repository public at launch, and only then. This lets Vercel's builds download the model data. Until launch, live checks use protected previews built on the build machine.

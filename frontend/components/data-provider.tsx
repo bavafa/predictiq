@@ -124,6 +124,15 @@ export function DataProvider({ children, client = api }: { children: ReactNode; 
       clearTimeout(timer);
     };
   }, [client, attempt]);
+  // A stale model version made the client re-read /metadata: the page must follow it (version, default
+  // cut-off, replay window), and the address state is re-validated against it by `view` below.
+  useEffect(
+    () =>
+      client.onMetadataRefreshed((m) => {
+        setMeta(isReady(m) ? { status: "ready", meta: m } : { status: "no-model", meta: m });
+      }),
+    [client],
+  );
   const retryMeta = useCallback(() => {
     setMeta({ status: "loading", slow: false });
     setAttempt((n) => n + 1);

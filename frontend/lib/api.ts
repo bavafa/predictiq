@@ -118,6 +118,13 @@ export function createApiClient(fetchImpl: FetchLike = (input, init) => fetch(in
    * GET /metadata. Held for the life of the page; `refresh` reads it again from the service. It is shared by
    * every caller, so it takes no abort signal: one caller leaving must not fail the others.
    */
+  const metadataListeners = new Set<(m: Metadata) => void>();
+  /** Called with the new /metadata whenever a refresh (after a stale model version) read it again. */
+  function onMetadataRefreshed(listener: (m: Metadata) => void): () => void {
+    metadataListeners.add(listener);
+    return () => void metadataListeners.delete(listener);
+  }
+
   function metadata(options: { refresh?: boolean } = {}): Promise<Metadata> {
     if (metadataPromise && !options.refresh) return metadataPromise;
     const request = (async () => {
@@ -128,6 +135,9 @@ export function createApiClient(fetchImpl: FetchLike = (input, init) => fetch(in
       return body;
     })();
     metadataPromise = request;
+    if (options.refresh) {
+      void request.then((m) => metadataListeners.forEach((l) => l(m))).catch(() => undefined);
+    }
     // A failed read must not be remembered: the next call tries again.
     request.catch(() => {
       if (metadataPromise === request) metadataPromise = null;
@@ -163,6 +173,7 @@ export function createApiClient(fetchImpl: FetchLike = (input, init) => fetch(in
 
   return {
     metadata,
+    onMetadataRefreshed,
     modelVersion,
     fleet: (q: FleetQuery, o: RequestOptions = {}) => get<Fleet>("/fleet", q, o),
     fleetTrend: (q: FleetQuery & { range?: Range }, o: RequestOptions = {}) => get<FleetTrend>("/fleet/trend", q, o),
