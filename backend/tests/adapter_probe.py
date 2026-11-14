@@ -53,6 +53,28 @@ def main(frontend: Path) -> None:
     call("model/metrics", f"{V}/model/metrics?mv={mv}")
     call("model/threshold-analysis", f"{V}/model/threshold-analysis?mv={mv}")
     call("fleet (first hour)", f"{V}/fleet?mv={mv}&at={start}")
+    # The largest allowed /plan request: all 100 machines listed, every cost and the slots at their maximum,
+    # a per-model cost for all four models, risk reduction at its maximum, and the largest body the service
+    # reads. Posted through the adapter like everything else.
+    plan_body = {
+        "at": end,
+        "cutoff_percent": 0,
+        "include_below_cutoff": True,
+        "failure_cost": 10_000_000,
+        "failure_cost_by_model": {
+            m: 10_000_000 - i for i, m in enumerate(("model1", "model2", "model3", "model4"))
+        },
+        "planned_cost": 10_000_000,
+        "crew_slots": 100,
+        "risk_reduction_percent": 90,
+    }
+    r = client.post(f"{V}/plan?mv={mv}", json=plan_body)
+    out["POST plan (100 machines listed, maximum inputs)"] = {
+        "status": r.status_code,
+        "bytes": len(r.content),
+        "cache": r.headers.get("cache-control"),
+        "rows": len(r.json()["rows"]) if r.status_code == 200 else None,
+    }
     print(json.dumps(out))
 
 

@@ -134,6 +134,17 @@ _Updated 2026-11-14 11:36 AM ET, Stage 3 in review on branch `core-screens`._
 4. Raw data is not in the repo. Fetch it with `python3 scripts/download_data.py` (hash-checked).
 5. Re-render wireframes: `node docs/wireframes/render.mjs`. Recheck contrast: `python3 -I docs/design/check-contrast.py`.
 
+## Stage 4, session 1 of 2: planner calculation and `POST /plan` (branch `planner`, 14 Nov 2026)
+**Done:**
+- **Planner service** (`backend/app/services/planner.py`, pure and deterministic): expected exposure = predicted chance × failure cost (the machine model's own cost where set); ranked by exposure, ties to the higher chance then the lower machine number; shortlist = first N (crew slots) machines at or above the cut-off only; "also list below" adds them marked and never shortlisted; planned spend = shortlisted × planned cost; net benefit only when a risk-reduction assumption is set (shortlisted exposure × reduction − planned spend, labelled an estimate); "moved" versus the order by chance alone when per-model costs differ. Arithmetic is in exact integers. Everything is labelled illustrative; no "savings" wording anywhere.
+- **`POST /api/v1/plan`**: strict body (unknown fields, out-of-range values, non-integers refused with problem+json 422, a message with the allowed range, no echo; bodies over 4,096 bytes get 413), current `mv` required (other 404, missing 400, `no-store`), `Cache-Control: no-store`, stores nothing, at most 100 machines. Shape recorded as decision 63. Largest response: 22,958 bytes on the real bundle (23,205 synthetic), well under 256 KB, measured through the Vercel adapter.
+- **Tests:** hand-made arithmetic cases; each row of the spec table (shared cost scales exposure but not order; per-model costs change order and shortlist; crew slots change the shortlist, not the order; the cut-off changes which machines are listed; planned cost changes spend and net benefit, not order; no reduction means no benefit figure); determinism (byte-identical responses); bounds and every refusal; answers against saved scores (synthetic in CI, same tests on the real bundle with `pytest -m realbundle`), including agreement with the Fleet scores and Alert count.
+- **Web client:** typed `api.plan()` in `frontend/lib/api.ts` with the `mv` retry; `ApiError.detail` carries the service's allowed-range message. No Planner screen yet.
+**Results:** ruff, ruff format, mypy clean; pytest 238 passed (16 opt-in deselected); `pytest -m realbundle` 12 passed; frontend lint, typecheck clean, Vitest 114 passed, build passes.
+**Worth knowing:** two older tests that said `/plan` is absent were changed to the new contract. The Planner's starting values come from `/metadata` `planner_defaults` (per-model failure costs); the single planned cost field needs one number, which the screen must choose (the defaults hold one per model).
+**Next:** session 2: the Planner screen, the Fleet guide step, e2e and screenshots.
+**Blockers:** none.
+
 ## Architecture review result (13 Nov 2026)
 Independent review: first pass FAIL (1 High: the test window included hours with incomplete labels). After one fix round the re-check is PASS WITH KNOWN ISSUES. The High finding and 2 of 3 Mediums are resolved. The hosting finding is partly resolved; it stays conditional on the deploy spike. Two new small documentation issues and the document's length are tracked in the task list.
 - 13 Nov 2026: Vercel Python function now bundles the backend (prebuild copy to frontend/_backend, includeFiles, Next.js app/ excluded); verify-fn.sh prints VERIFY_FN_OK.

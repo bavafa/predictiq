@@ -52,7 +52,7 @@ def test_pinned_commit_matches_provenance_document() -> None:
     assert re.fullmatch(r"[0-9a-f]{40}", config.DATASET_PINNED_COMMIT)
 
 
-def test_routes_are_exactly_the_contract_without_plan() -> None:
+def test_routes_are_exactly_the_contract() -> None:
     paths = {getattr(r, "path", "") for r in app.routes if getattr(r, "path", "").startswith("/api/v1/")}
     assert paths == {
         "/api/v1/health",
@@ -64,6 +64,7 @@ def test_routes_are_exactly_the_contract_without_plan() -> None:
         "/api/v1/assets/{machine_id}/explanation",
         "/api/v1/model/metrics",
         "/api/v1/model/threshold-analysis",
+        "/api/v1/plan",
     }
 
 
@@ -75,9 +76,9 @@ def test_unknown_path_404_with_problem_json_and_no_store() -> None:
     assert r.json() == {"type": "about:blank", "title": "Not found", "status": 404}
 
 
-def test_plan_endpoint_is_absent() -> None:
+def test_plan_without_model_data_is_503_no_store() -> None:
     r = client.post("/api/v1/plan", json={})
-    assert r.status_code == 404
+    assert r.status_code == 503
     assert r.headers["cache-control"] == "no-store"
 
 

@@ -70,3 +70,8 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [ ] Stage 4: restore the Fleet Overview guide step "open Maintenance Planner, set a cost per machine model, watch machines move up" once the Planner is built (`components/fleet-screen.tsx`, and the guide test in `tests/fleet.test.tsx`).
 - [x] Stage 3 independent review: three rounds, all Medium findings fixed; passed with known issues.
 - [ ] Low (review): accessibility tests don't yet check every contrast pair or mobile target size.
+
+## Stage 4: Maintenance planning (started 14 Nov 2026, branch `planner`)
+- [x] Session 1 (14 Nov 2026): planner service, `POST /plan` (decision 63), arithmetic / spec-table / determinism / bounds / saved-score tests (real bundle opt-in), largest `/plan` request through the adapter, typed `api.plan()` with `mv` retry.
+- [ ] Session 2: Planner screen (assumptions panel, ranked list, summary, "How this is calculated", states), restore the Fleet guide step 4, e2e, screenshots.
+- [ ] Owner: the planned maintenance cost is one number in the request while `planner_defaults` holds one per model; confirm the screen's starting value.

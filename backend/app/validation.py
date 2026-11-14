@@ -5,13 +5,16 @@ submitted value."""
 
 from __future__ import annotations
 
+import json
 import re
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal, cast
 
 from app import config
 from app.bundle import Bundle
 from app.problems import ProblemError
+from app.services.planner import PlanInputs
 
 _AT = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:00(:00)?")
 _WHOLE = re.compile(r"[0-9]{1,3}")
@@ -87,3 +90,111 @@ def parse_status(text: str | None) -> str | None:
     if text is not None and text not in config.STATUSES:
         raise ProblemError(422, "Invalid request", "Invalid parameter: status must be alert or below_cutoff")
     return text
+
+
+# ---- POST /plan body -------------------------------------------------------------------------------------
+
+COST_MAX = 10_000_000
+SLOTS_MAX = 100
+REDUCTION_MAX = 90
+REDUCTION_STEP = 5
+MAX_BODY_BYTES = 4096
+PLAN_FIELDS = (
+    "at",
+    "cutoff_percent",
+    "failure_cost",
+    "failure_cost_by_model",
+    "planned_cost",
+    "crew_slots",
+    "risk_reduction_percent",
+    "include_below_cutoff",
+)
+
+
+def _bad(detail: str) -> ProblemError:
+    return ProblemError(422, "Invalid request", detail)
+
+
+def _whole(value: object, name: str, low: int, high: int) -> int:
+    """A JSON integer in [low, high]. Floats (even 5.0), strings, booleans and null are refused."""
+    if isinstance(value, bool) or not isinstance(value, int) or not low <= value <= high:
+        raise _bad(f"Invalid field: {name} must be a whole number from {low:,} to {high:,}")
+    return value
+
+
+def parse_json_object(raw: bytes) -> dict[str, object]:
+    if len(raw) > MAX_BODY_BYTES:
+        raise ProblemError(
+            413, "Request too large", f"The request body can be at most {MAX_BODY_BYTES} bytes."
+        )
+
+    def refuse_constant(_: str) -> object:
+        raise ValueError("not a JSON number")
+
+    try:
+        body = json.loads(raw, parse_constant=refuse_constant)
+    except (ValueError, RecursionError):
+        raise _bad("The request body must be a JSON object") from None
+    if not isinstance(body, dict):
+        raise _bad("The request body must be a JSON object")
+    return body
+
+
+@dataclass(frozen=True)
+class PlanRequest:
+    at_index: int
+    at: datetime
+    inputs: PlanInputs
+
+
+def parse_plan_body(bundle: Bundle, body: dict[str, object]) -> PlanRequest:
+    """Strict: unknown fields, out-of-range values and non-integers are refused, never adjusted. Messages name
+    the field and the allowed range, never the submitted value."""
+    if any(k not in PLAN_FIELDS for k in body):
+        raise _bad("Unknown field in the request. Allowed fields: " + ", ".join(PLAN_FIELDS))
+    for required in ("at", "failure_cost", "planned_cost", "crew_slots"):
+        if required not in body:
+            raise _bad(f"Missing field: {required}")
+    at = body["at"]
+    if not isinstance(at, str):
+        raise _bad("Invalid field: at must be a whole hour, YYYY-MM-DDTHH:00")
+    idx, t = parse_at(bundle, at)
+    cutoff = (
+        bundle.default_cutoff
+        if "cutoff_percent" not in body
+        else _whole(body["cutoff_percent"], "cutoff_percent", 0, 100)
+    )
+    failure_cost = _whole(body["failure_cost"], "failure_cost", 0, COST_MAX)
+    planned_cost = _whole(body["planned_cost"], "planned_cost", 0, COST_MAX)
+    slots = _whole(body["crew_slots"], "crew_slots", 0, SLOTS_MAX)
+
+    by_model: dict[str, int] = {}
+    raw_models = body.get("failure_cost_by_model", {})
+    if not isinstance(raw_models, dict):
+        raise _bad("Invalid field: failure_cost_by_model must be an object keyed by machine model")
+    for key, value in raw_models.items():
+        if key not in config.MACHINE_MODELS:
+            raise _bad("Invalid field: failure_cost_by_model keys must be model1 to model4")
+        by_model[key] = _whole(value, f"failure_cost_by_model.{key}", 0, COST_MAX)
+
+    reduction: int | None = None
+    if body.get("risk_reduction_percent") is not None:
+        reduction = _whole(body["risk_reduction_percent"], "risk_reduction_percent", 0, REDUCTION_MAX)
+        if reduction % REDUCTION_STEP:
+            raise _bad("Invalid field: risk_reduction_percent must be off (null) or 0 to 90 in steps of 5")
+    below = body.get("include_below_cutoff", False)
+    if not isinstance(below, bool):
+        raise _bad("Invalid field: include_below_cutoff must be true or false")
+    return PlanRequest(
+        at_index=idx,
+        at=t,
+        inputs=PlanInputs(
+            cutoff_percent=cutoff,
+            failure_cost=failure_cost,
+            failure_cost_by_model=by_model,
+            planned_cost=planned_cost,
+            crew_slots=slots,
+            risk_reduction_percent=reduction,
+            include_below_cutoff=below,
+        ),
+    )

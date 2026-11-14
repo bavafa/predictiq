@@ -61,7 +61,10 @@ def check(sizes: dict[str, dict[str, object]], capsys: pytest.CaptureFixture[str
     for name, v in sizes.items():
         assert v["status"] == 200, name
         assert isinstance(v["bytes"], int) and v["bytes"] < LIMIT, name
-        if name not in ("metadata", "health"):
+        if name.startswith("POST plan"):
+            assert v["cache"] == "no-store", name
+            assert v["rows"] == 100, name  # the largest allowed answer: every machine listed
+        elif name not in ("metadata", "health"):
             assert v["cache"] == EXPECTED_CACHE, name
 
 

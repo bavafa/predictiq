@@ -28,7 +28,7 @@ STATUSES = ("alert", "below_cutoff")
 
 # EXAMPLE planner costs. ILLUSTRATIVE, NOT REAL: the dataset has no money figures. Proposed, owner to
 # confirm (DECISIONS.md, decision 55). Shown with the word "illustrative" wherever they appear.
-# The planner itself (POST /plan) is built in a later stage.
+# POST /plan takes its costs from the request; these are only the starting values the Planner screen shows.
 PLANNER_DEFAULTS: dict[str, str | int | dict[str, int]] = {
     "label": "illustrative",
     "unit": "illustrative currency units",

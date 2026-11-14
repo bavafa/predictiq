@@ -2,11 +2,13 @@ from fastapi import APIRouter, Response
 
 from app import config
 from app.api.data import router as data_router
+from app.api.plan import router as plan_router
 from app.bundle import Bundle, BundleError, get_bundle
 from app.schemas import Dataset, Health, MachineInfo, Metadata, PlannerDefaults, ReplayWindow
 
 router = APIRouter()
 router.include_router(data_router)
+router.include_router(plan_router)
 
 
 def _bundle_or_none() -> Bundle | None:
