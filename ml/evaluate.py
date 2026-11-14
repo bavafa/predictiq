@@ -173,7 +173,7 @@ def verify(version_dir: Path, tables: Tables) -> list[str]:
     problems += compare(stored, fresh)
     meta = json.loads((version_dir / "metadata.json").read_text())
     if "replay" in meta:
-        problems += compare(meta["replay"], compute_replay(version_dir, tables), "/replay")
+        problems += compare(meta["replay"], compute_replay(version_dir, tables, use_cache=False), "/replay")
     return problems
 
 

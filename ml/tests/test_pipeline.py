@@ -205,3 +205,19 @@ def test_replay_is_stored_in_metadata_and_checked_by_verify(version: Path, table
     meta_path.write_text(json.dumps(meta, indent=1, sort_keys=True) + "\n")
     write_manifest(version)
     assert any("replay" in p for p in evaluate.verify(version, tables))
+
+
+def test_verify_ignores_a_tampered_score_cache(version: Path, tables: Tables) -> None:
+    evaluate.write(version, tables)
+    meta_path = version / "metadata.json"
+    meta = json.loads(meta_path.read_text())
+    meta["replay"] = replay.compute_replay(version, tables, use_cache=False)
+    meta_path.write_text(json.dumps(meta, indent=1, sort_keys=True) + "\n")
+    write_manifest(version)
+    cache = version / "test_scores.npz"
+    with np.load(cache) as z:
+        arrays = {k: z[k] for k in z.files}
+    arrays["hours"] = arrays["hours"] + 5 * 3600  # shifted hours: the cached replay start is now wrong
+    np.savez(cache, **arrays)
+    assert replay.compute_replay(version, tables)["start"] != meta["replay"]["start"]  # cache is poisoned
+    assert evaluate.verify(version, tables) == []  # verify never reads it

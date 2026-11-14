@@ -11,7 +11,7 @@ Two models score each machine at the start of every hour. Each score is a chance
 - **Baseline:** logistic regression on scaled features. Missing values are filled with the training median. No class weighting, regularisation strength 1.0.
 - **Main model:** XGBoost (gradient-boosted trees). Fixed seed, one thread, so the same data gives the same files. A small grid of four settings (depth 3 or 5, 100 or 300 trees) was compared on the validation period only. Depth 5 with 300 trees had the best validation precision-recall area (0.9949 against 0.9798 to 0.9930 for the others).
 
-Both models use the same 36 features, built only from records before the scoring hour: the last sensor reading, 3-hour and 24-hour averages and spread, a 24-hour slope, 24-hour error counts by type, hours since each part was last replaced, and the machine's model number and age. No failure record is used as an input.
+Both models use the same 35 features, built only from records before the scoring hour: the last sensor reading, 3-hour and 24-hour averages and spread, a 24-hour slope, 24-hour error counts by type, hours since each part was last replaced, and the machine's model number and age. No failure record is used as an input.
 
 An **event** is one machine-hour with at least one failure row (761 failure rows are 719 events). An hour is labeled positive when an event falls in the next 24 hours.
 

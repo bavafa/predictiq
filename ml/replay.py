@@ -45,10 +45,11 @@ def replay_start(
     }
 
 
-def compute_replay(version_dir: Path, tables: Tables | None) -> dict[str, Any]:
+def compute_replay(version_dir: Path, tables: Tables | None, use_cache: bool = True) -> dict[str, Any]:
+    """With `use_cache=False` (used by --verify) scores are always recomputed; the cache is never read."""
     meta = json.loads((version_dir / "metadata.json").read_text())
     cutoff = int(meta["models"]["main"]["default_cutoff"])
-    cached = load_cached_scores(version_dir)
+    cached = load_cached_scores(version_dir) if use_cache else None
     if cached is not None:
         with np.load(version_dir / "test_scores.npz") as z:
             hours = pd.DatetimeIndex(z["hours"].astype("datetime64[s]"))
