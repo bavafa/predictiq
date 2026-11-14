@@ -1,12 +1,13 @@
 # Status
 
-_Updated 2026-11-14 3:55 PM ET, Stage 5 on branch `model-perf` (stacked on `deps-nov14`)._
+_Updated 2026-11-14 6:05 PM ET, Stage 5 on branch `model-perf` (PR #33, targets main)._
 
 ## Current stage
-**Stage 5, launch preparation, on branch `model-perf`, stacked on `deps-nov14` (PR #32, waiting for Meysam).** Meysam authorized Stage 5 at 3:47 PM ET. The repo stays private, protection stays on, and there is no production promotion or domain until his go-ahead at the launch gate.
-- Session 1 (Model Performance page): built; see the block below. Waiting for review.
-- Then: full testing including the remaining accessibility coverage; launch preparation (limitations, README, model card, launch checklist, plan for getting the bundle to production); protected preview; review.
-- Blockers: none.
+**Stage 5, launch preparation, on branch `model-perf` (PR #33, base main).** PR #32 (dependency updates) was merged by Meysam at 3:49 PM ET. Dependabot #25 to #28 are closed and #24 stays open (decision 69). The repo stays private, protection stays on, and there is no production deployment or domain change until Meysam's go-ahead at the launch gate.
+- Built: the Model Performance page; full testing, including the Stage 3 accessibility coverage gap; launch preparation (limitations, README, model card, launch checklist, production bundle download with hash check, and history scan).
+- Reviews so far: rounds 1 to 5 (`docs/QA_REPORTS/stage5-codex-review-round*.md`). All High and Medium findings are fixed, except the history items, which need an owner decision.
+- Next: protected preview live checks, final review, then the GATE M4 report.
+- Needs Meysam: launch go-ahead; the personal author email in commit 874a686 and older path names in history; a licence for the code; decisions 70 and 71.
 
 - 4:40 PM ET process check: an Opus `claude -p` process (pid 921100) was running at the same time. It belongs to a different project on the build machine (NeuroGate), not PredictIQ, and had no PredictIQ files open, so it was left alone. Only one PredictIQ builder (Sonnet) ran at a time. No Opus was used for PredictIQ.
 
