@@ -1,19 +1,21 @@
 # Tasks
 
-Current stage: **Gate 0 (data check) and requirements draft.**
+Current stage: **User-experience design.**
 
-## Current stage
-- [x] Gate 0 data check: source, hashes, schema, license recorded in `docs/DATA_PROVENANCE.md` (done; pending owner sign-off)
-- [x] Requirements draft: `docs/PRD.md` (done; pending review and owner approval)
-- [x] Stories draft: `docs/stories.md` (done; pending review and owner approval)
-- [x] Independent review of data provenance and requirements (done: `docs/QA_REPORTS/gate0-prd-codex-review.md`)
-- [x] Fix review findings 2, 3, 4, 5, 7 in requirements and stories (done; stories word target not fully met; re-review pending)
-- [x] Independent re-review rounds 1–2 (done: Gate 0 PASS recommended; stories length accepted as known issue)
-- [ ] Owner approval of Gate 0 (pending)
-- [ ] Owner confirmation of license reading (pending)
-- [ ] Owner approval of requirements and stories (pending)
+## Done (approved by Meysam (Owner), 13 Nov 2026 8:41 PM ET)
+- [x] Gate 0 data check, approved. License accepted and credit line applied.
+- [x] Requirements and stories, approved.
+- [x] Independent review rounds for Gate 0 and the requirements.
+
+## Current stage: user-experience design
+- [ ] Experience spec: users, the 90-second visitor path, screens, interactions, states, accessibility, labeling rules
+- [ ] Low-fidelity wireframes, desktop and mobile, for the five screens, rendered to images
+- [ ] Component list
+- [ ] Colour and type tokens
+- [ ] Independent review of the design documents
+- [ ] One bounded fix round
+- [ ] Owner approval of the design gate
 
 ## Next stages
-- [ ] User-experience design: not started — waits for approval
-- [ ] Architecture: not started — waits for approval
-- [ ] Build in stories (M0 project skeleton, then M1–M4): not started — waits for approval
+- [ ] Architecture: not started; waits for design approval
+- [ ] Build in stories (project skeleton, then data and model, screens, planner, launch): not started; waits for approval
