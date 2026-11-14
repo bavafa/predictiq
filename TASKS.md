@@ -27,6 +27,11 @@ Current stage: **Build, story 1: project skeleton.**
 - [x] Vercel deploy spike (decision gate for decision 41), passed for everything the skeleton can test on 14 Nov 2026 (checks 2 and 4 measured again later), on a new Hobby project. It passes only if: (1) `/api/v1/*` reaches FastAPI and everything else reaches Next.js in one project; (2) Python function plus bundle under 500 MB uncompressed, bytes recorded; (3) cold start over 10 requests, median under 3 s, worst under 10 s; (4) largest allowed response per endpoint under 256 KB; (5) a repeated GET is a cache HIT and the WAF rule returns 429; (6) owner confirms in writing that the demo is personal and non-commercial (Hobby terms). If 1–5 fail: fall back to Vercel frontend + Render free backend. If 6 fails: hosting goes back to the owner.
 - [ ] Data and model, screens, planner, launch: wait for approval.
 
+## Stage 2: Data and model (started 14 Nov 2026, branch `data-model`)
+- [x] Session 1: data checks (`ml/validate.py`), 24-hour label (`ml/labels.py`), past-only features (`ml/features/`), splits and unseen-machine set (`ml/splits.py`, `ml/unseen_machines.json`), tests including the leakage test and an opt-in real-data test, `ml` dependency group, Makefile targets, data-checks section in `docs/DATA_PROVENANCE.md`.
+- [ ] Session 2: logistic regression baseline, XGBoost main model, calibration, default cut-off.
+- [ ] Session 3: evaluation (`--write` once, `--verify`), unseen-machine results, artifacts and replay scores.
+
 ## Known issues from the architecture re-check (tracked; the one fix round was used)
 - [x] Medium (fixed 13 Nov, only the latest version is served): the cache contract conflicts with itself. URLs are "immutable per model version", yet a stale version returns 404, and browsers keep a 200 for an hour. Decide whether old versions stay servable, and define cache behaviour at release.
 - [x] Low (fixed 13 Nov): the event-lookback sentence mixes populations. 3 of the 110 test events lack a full lookback; the other 4 fall after the test window.

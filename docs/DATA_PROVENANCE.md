@@ -59,6 +59,19 @@ _Run 13 Nov 2026 by the orchestrator on the downloaded files; the event, duplica
 | Failure events | 761 component-failure rows collapse to **719 machine-time events** (42 events have two components failing in the same hour; none more). Every event joins to a telemetry row at the same machine-hour. |
 | Maintenance at failure time | **702 of 719** failure events have a maintenance record at the same machine-hour (1,022 maintenance rows sit on failure timestamps; 743 failure rows match a same-hour replacement of the same component). These are repairs logged at failure time and are a **leakage hazard**: the data-and-model stage must treat records at the prediction timestamp as unavailable unless strictly earlier, and document the rule. |
 
+## Checks run on 2026-11-14
+
+_Run by the data-and-model builder with `make validate`, `make labels`, `make features` and `make splits` on the five files downloaded from the pinned commit (all five fingerprints matched). Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e)._
+
+In plain English, the checks passed and every count in this document was reproduced:
+
+- IDs, hourly steps, duplicates, blanks, value ranges and joins all passed. Each of the 100 machines has 8,761 hourly telemetry rows with no gaps; every failure joins to a telemetry row.
+- 761 failure rows became **719 events** (42 events had two parts fail in the same hour); 702 of the 719 have a repair logged in the same hour, so records stamped at the scoring hour are treated as not yet known.
+- Scored hours run 2015-01-02 06:00 to 2015-12-30 06:00: 868,900 machine-hours (8,689 hours x 100 machines). 2,400 machine-hours at the start are dropped as warm-up and 4,800 at the end are dropped because their 24-hour window passes the last recorded failure. Of the scored machine-hours, 16,684 (1.92%) are labeled as failing within 24 hours.
+- Events by period: 17 before the first scored hour, 473 train, 3 in the first embargo day, 109 validation, 3 in the second embargo day, 110 test, 4 after the last scored hour. 107 of the 110 test events have their whole 24-hour lookback inside the test period. The test period has 142,300 machine-hours. These match the architecture; nothing differed.
+- Unseen-machine set: 20 machines chosen once with seed 20261114 (listed in `ml/unseen_machines.json`); 25 of the 110 test events are on those machines.
+- Building all 35 past-only features for all 868,900 machine-hours takes about 1.5 seconds, with no missing values.
+
 ## License and redistribution
 
 What the source actually says (checked at the pinned commit):
