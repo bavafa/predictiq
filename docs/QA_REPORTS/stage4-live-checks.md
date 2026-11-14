@@ -1,0 +1,20 @@
+# Stage 4: planner checked live on a protected preview
+
+Measured on 14 Nov 2026, just after 2 PM (Toronto time). Protection stayed on. The preview was built on the build machine from this branch, with the real serving bundle downloaded from the release and hash-checked. It was not promoted to production. Raw output and the script are in `stage4-live-evidence/`.
+
+## Check 4: planner answer under 256 KB: met
+The largest allowed planner request lists all 100 machines, with every cost and the crew slots at their maximum and the risk reduction at 90%. Its answer was 25,466 bytes, about 10% of the limit (n=3). All three answers were byte-for-byte identical, which also shows the same inputs give the same list. The smallest request's answer was 1,809 bytes.
+
+## Check 2: data service size: still met
+Vercel reports the data-service function at 30,005,883 bytes (n=1). Vercel does not say whether that figure is compressed. The limit is 500 MB.
+
+## Refusals
+- An old model version got 404.
+- 101 crew slots got 422, with the allowed range in the message.
+- An unknown field got 422.
+- A body over 4,096 bytes got 413.
+
+Every planner answer, including the refusals, was marked not cacheable (no-store).
+
+## Live screenshots
+`stage4-live-screenshots/` has four images: the planner and the fleet overview, each on desktop and mobile. All four pages returned 200 (see the screenshot log).
