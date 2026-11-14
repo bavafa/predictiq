@@ -46,18 +46,33 @@ Git blob SHAs below match the GitHub API listing of the pinned commit, so the fi
 
 Timestamps carry no time zone in the source; we treat them as naive hourly timestamps.
 
+## Validation checks
+
+_Run 13 Nov 2026 by the orchestrator on the downloaded files; the event, duplicate-key and maintenance counts were independently reproduced by the reviewer._
+
+| Check | Result |
+|---|---|
+| Telemetry completeness | 100 machines × 8,761 hourly rows each; every consecutive gap is exactly 1 hour; no blank fields; no duplicate machine-hours. |
+| Blank fields / identical rows | Zero in all five files. |
+| Repeated machine-hour keys | Errors: 303 rows share a machine-hour with another error row; maintenance: 758. These are legitimate multiple records (different error types / components), not duplicate rows. |
+| Machine IDs | Every machine ID in errors, maintenance and failures exists in the machine table. Machine ages 0–20 years. |
+| Failure events | 761 component-failure rows collapse to **719 machine-time events** (42 events have two components failing in the same hour; none more). Every event joins to a telemetry row at the same machine-hour. |
+| Maintenance at failure time | **702 of 719** failure events have a maintenance record at the same machine-hour (1,022 maintenance rows sit on failure timestamps; 743 failure rows match a same-hour replacement of the same component). These are repairs logged at failure time and are a **leakage hazard**: the data-and-model stage must treat records at the prediction timestamp as unavailable unless strictly earlier, and document the rule. |
+
 ## License and redistribution
 
-- The `microsoft/sqlworkshops` repository's `LICENSE` file is the **MIT License** (Copyright Microsoft Corporation). GitHub reports it as MIT.
-- The same repository's README says: "Microsoft and any contributors grant you a license to the Microsoft documentation and other content in this repository under the Creative Commons Attribution 4.0 International Public License … and grant you a license to any code in the repository under the MIT License."
-- Neither statement names the CSV files specifically. Under either reading (MIT or CC BY 4.0) use, modification and redistribution are permitted **with attribution / notice retained**.
+What the source actually says (checked at the pinned commit):
+- The repository root has a single `LICENSE` file, and it is the **MIT License** ("Copyright (c) Microsoft Corporation"). There is no `LICENSE-CODE` file at the root.
+- The repository README's License section says: "Microsoft and any contributors grant you a license to the Microsoft documentation and other content in this repository under the Creative Commons Attribution 4.0 International Public License, see the LICENSE file, and grant you a license to any code in the repository under the MIT License, see the LICENSE-CODE file." Both of those links point to a **different** Microsoft repository (`MicrosoftDocs/mslearn-tailspin-spacegame-web`), not to this one.
+- Nothing names the CSV files specifically.
 
-**Our approach (conservative):**
+**Reading:** the README's wording suggests the CSV files ("other content") fall under **CC BY 4.0**, while the only license file actually present is **MIT**. The two statements conflict, and the README's links point elsewhere, so the license of the data files is **unresolved on the face of the source**. Both candidate licenses permit use, modification and redistribution with attribution, so the practical risk is low, but this is a legal judgment for the owner, not something we decide.
+
+**Our approach until the owner decides (conservative):**
 1. Raw CSVs are **not committed**. A download script (planned for the project-skeleton stage; **not built yet**) will fetch them from the pinned commit and fail if any SHA-256 differs. The raw-data folder will be gitignored.
-2. Public builds will credit: "Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), via github.com/microsoft/sqlworkshops, licensed CC BY 4.0 / MIT."
-3. Derived artifacts (model outputs, aggregated replay predictions) may be published with that credit.
+2. Nothing is published yet. Proposed credit for any future public build, to be confirmed by the owner: "Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from github.com/microsoft/sqlworkshops (pinned commit e836f4e). Microsoft states content in that repository is licensed under CC BY 4.0; the repository's license file is MIT." Following CC BY 4.0 attribution (the stricter of the two) covers both readings.
 
-**Owner decision needed (low risk):** confirm you are comfortable publishing derived outputs under the attribution above, given the data files' license is stated only at repository level. Raw data stays out of the repo regardless.
+**Owner decision needed:** confirm you are comfortable using the data and publishing derived outputs (model scores, charts) with the credit above, given the license conflict described. Alternative: ask Microsoft (the README lists sqlserversamples@microsoft.com) before public release.
 
 ## Do not
 
