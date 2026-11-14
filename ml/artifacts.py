@@ -56,7 +56,11 @@ def write_manifest(version_dir: Path) -> dict[str, str]:
         for p in sorted(version_dir.iterdir())
         if p.is_file() and p.name not in (MANIFEST, "test_scores.npz")
     }
-    (version_dir / MANIFEST).write_text(json.dumps({"sha256": files}, indent=2, sort_keys=True) + "\n")
+    manifest: dict[str, Any] = {"sha256": files}
+    path = version_dir / MANIFEST
+    if path.exists() and "bundle" in (old := json.loads(path.read_text())):
+        manifest["bundle"] = old["bundle"]  # written by scripts/build_bundle.py; keep it
+    path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
     return files
 
 

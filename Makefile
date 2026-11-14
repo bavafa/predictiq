@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-.PHONY: help setup lint typecheck test e2e build dev data validate labels features splits test-realdata export-requirements screenshots train evaluate verify replay
+.PHONY: help setup lint typecheck test e2e build dev data validate labels features splits test-realdata export-requirements screenshots train evaluate verify replay bundle fetch-bundle
 
 help:
 	@echo "Targets: setup lint typecheck test e2e build dev data validate labels features splits screenshots export-requirements"
@@ -77,3 +77,10 @@ verify: ## read-only re-check of the saved test result
 
 replay:
 	uv run --group ml python -m ml.replay
+
+# Serving bundle for the latest model version (needs `make data`); fetch downloads it from the release.
+bundle:
+	uv run --group ml python -m scripts.build_bundle
+
+fetch-bundle:
+	uv run python -m scripts.fetch_bundle
