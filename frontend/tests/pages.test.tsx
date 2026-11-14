@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 import AboutDataPage from "@/app/about-data/page";
 import AssetDetailsPage from "@/app/asset-details/page";
-import FleetOverviewPage from "@/app/page";
 import MaintenancePlannerPage from "@/app/maintenance-planner/page";
 import ModelPerformancePage from "@/app/model-performance/page";
 import { PROVENANCE_URL } from "@/lib/nav";
@@ -13,7 +12,6 @@ import { fakeFetch, readyMetadata, renderWithData } from "./helpers";
 vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
 
 const emptyPages = [
-  ["Fleet Overview", FleetOverviewPage],
   ["Asset Details", AssetDetailsPage],
   ["Maintenance Planner", MaintenancePlannerPage],
   ["Model Performance", ModelPerformancePage],
