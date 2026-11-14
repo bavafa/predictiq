@@ -165,3 +165,10 @@ The scan finds no secrets and no personal email addresses in committed files. On
 - No real devices. Mobile checks use a 390 × 844 browser window in Chromium only; no Safari, Firefox or physical phones.
 - Manual WCAG checks that automation cannot make: whether labels and alternative descriptions make sense, reading order meaning, zoom and text-spacing behaviour, colour-only meaning judged by a person, and cognitive load.
 - The Stage 3 accessibility finding (contrast pairs and mobile target sizes) is covered by automated tests only to the extent described above.
+
+## Fresh-copy run (14 Nov 2026, about 6:20 PM Toronto time)
+`REQUIRE_REAL=1 bash scripts/fresh_copy_check.sh` cloned commit `758023d` into an empty folder and ran everything from scratch. The run took 406 s and ended `FRESH COPY CHECK PASSED`. It included the real-bundle and real-data checks. Results:
+- Synthetic Playwright: 218 passed. No-model run: 18 passed. Real-bundle Playwright: 223 passed.
+- pytest: 351 passed, 1 skipped, 1 expected failure. With the real data and the real bundle: 368 passed, 1 expected failure.
+
+The expected failure is the personal author email in commit `874a686`, which needs an owner decision. Log: `stage5-fresh-copy.log`. An earlier run on `0dafddc` failed in one place: a real-data test errored instead of skipping when the raw data was missing. Commit `758023d` fixed it.
