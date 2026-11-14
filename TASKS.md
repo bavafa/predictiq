@@ -29,8 +29,8 @@ Current stage: **Build, story 1: project skeleton.**
 
 ## Stage 2: Data and model (started 14 Nov 2026, branch `data-model`)
 - [x] Session 1: data checks (`ml/validate.py`), 24-hour label (`ml/labels.py`), past-only features (`ml/features/`), splits and unseen-machine set (`ml/splits.py`, `ml/unseen_machines.json`), tests including the leakage test and an opt-in real-data test, `ml` dependency group, Makefile targets, data-checks section in `docs/DATA_PROVENANCE.md`.
-- [ ] Session 2: logistic regression baseline, XGBoost main model, calibration, default cut-off.
-- [ ] Session 3: evaluation (`--write` once, `--verify`), unseen-machine results, artifacts and replay scores.
+- [x] Session 2 (14 Nov 2026): logistic regression baseline and XGBoost main model (`ml/train.py`), calibration and default cut-off on validation, `evaluate.py --write` once and `--verify`, seen / unseen / all results, threshold analysis, model version and manifest, replay start (`ml/replay.py`), determinism check (two from-scratch runs identical), `docs/MODEL_CARD.md`.
+- [ ] Session 3: remaining serving artifacts (per-hour replay scores bundle, explanations), anything the data service needs.
 
 ## Known issues from the architecture re-check (tracked; the one fix round was used)
 - [x] Medium (fixed 13 Nov, only the latest version is served): the cache contract conflicts with itself. URLs are "immutable per model version", yet a stale version returns 404, and browsers keep a 200 for an hour. Decide whether old versions stay servable, and define cache behaviour at release.

@@ -12,6 +12,13 @@ _Updated 2026-11-14, after data-and-model session 1._
 **Blockers:** none.
 **Note:** the extra data-science libraries live in a separate optional group, so the website's server stays as small as before; CI now installs that group to run the new tests.
 
+## Data and model, session 2 of 3 (branch `data-model`, 14 Nov 2026)
+**Done:** the simple baseline (logistic regression) and the main model (XGBoost, a four-setting grid compared on validation only) are trained on the 80 seen machines. Calibration and the default cut-off were chosen on validation: baseline sigmoid and 27%, main none and 51%. The test period was evaluated once (`artifacts/piq-20261114-efc9c243/evaluation.json`, committed; `make verify` passes) for both models, on the 80 seen machines, the 20 unseen machines and all 100, with both models at every whole-percent cut-off. The replay starts at 2015-11-01 00:00 (an alert is already present). Running the whole pipeline twice from scratch gave byte-identical files. All numbers are simulated; the plain-English results are in `docs/MODEL_CARD.md`.
+**Headline (simulated, test window, all 100 machines):** main model precision 0.971, recall 0.947, 107 of 107 countable events caught, 0.10 false alerts per 100 machine-days; baseline 0.734, 0.900, 107 of 107, 1.50. Unseen 20 machines, main: precision 0.975, recall 0.920, 25 of 25 events caught.
+**Worth knowing:** the scores are very high because the simulated failures leave a clear mark in the sensors; the model card says not to read them as real-world performance. The data checks and the past-only leakage test from session 1 still pass.
+**Next:** session 3 (the remaining artifacts for the data service: replay scores, explanations).
+**Blockers:** none.
+
 ## Skeleton story (branch `skeleton`)
 **Done:** Next.js shell with five routes, disclosure banner, "Historical replay" badge and honest empty states (no numbers); FastAPI `/api/v1/health` and `/api/v1/metadata` only; `ml/` placeholders that exit 1; hash-checked `scripts/download_data.py` (run against the live source on 13 Nov 2026: all 5 files matched; `data/raw` is gitignored); Makefile; ruff/mypy/pytest, Vitest, Playwright smoke test plus axe accessibility checks (5 routes, desktop and mobile, plus the open menu); CI workflow with actions pinned to commit SHAs; Dependabot; Vercel layout and `ignoreCommand` (`docs/DEPLOY.md`); screenshots.
 **Review fix round (done):** gitleaks permission, axe in e2e, pinned actions, modal mobile menu (dialog semantics, inert background), stale notes, Dependabot.
