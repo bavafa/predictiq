@@ -22,3 +22,8 @@ Every planner answer, including the refusals, was marked not cacheable (no-store
 ## What was deployed
 - Preview deployment `dpl_AVMm8gUWXHmBEX3Bmdozy2ZkvsZY`, built from branch commit `09c86e2` (protection: Vercel Authentication).
 - Serving bundle `piq-20261114-efc9c243`: `bundle.zip` 8,122,585 bytes, sha256 starting `0ad2916e` and ending `2d57d2`, checked by `scripts.fetch_bundle` before the build.
+
+## Re-check on the final branch (2:27 PM Toronto time)
+After review fixes changed the screen (decision 65), a second protected preview was built from commit `f96a208`: deployment `dpl_6PKxDe7VKTXYUPbXK676ouTqbBmj`, preview target, protection on, same bundle (hash re-checked by `scripts.fetch_bundle`). The planner calculation code did not change between the two builds.
+- Largest allowed planner answer: 25,466 bytes again (n=3, identical). Smallest 1,809 bytes. Refusals 404 / 422 / 422 / 413; all no-store. Raw output: `stage4-live-evidence/s4-plan-final.log`.
+- The four images in `stage4-live-screenshots/` were retaken from this preview and show the final screen. All four pages returned 200 (`s4-live-shots.log`).
