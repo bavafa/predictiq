@@ -17,6 +17,7 @@ import {
   type Sort,
   type SortKey,
 } from "@/lib/fleet";
+import { parseHour, shortHour } from "@/lib/time";
 import { carriedSearch } from "@/lib/url-state";
 import type { FleetRow, Status } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -44,6 +45,13 @@ function useMachineHref() {
     params.set("machine", String(id));
     return `/asset-details?${params.toString()}`;
   };
+}
+
+/** "error3 · 12 Nov 2015, 14:00", or "None yet" when the machine has no error record before the replay hour. */
+export function latestErrorText(e: FleetRow["latest_error"]): string {
+  if (!e) return "None yet";
+  const h = parseHour(e.time.slice(0, 16));
+  return h === null ? e.error : `${e.error} · ${shortHour(h)}`;
 }
 
 const COLUMNS: { key: SortKey; label: string; align?: "right" }[] = [
@@ -113,6 +121,9 @@ export function FleetTable({
               {COLUMNS.map((c) => (
                 <SortHeader key={c.key} col={c} sort={sort} onSort={toggle} />
               ))}
+              <th scope="col" className="border-b border-line bg-subtle px-3 text-left text-xs font-semibold text-ink-2">
+                Latest error
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -130,12 +141,15 @@ export function FleetTable({
                 <td className="px-3 py-2">
                   <StatusTag status={r.status} />
                 </td>
+                <td className="px-3 py-2 text-sm" data-testid="latest-error">
+                  {latestErrorText(r.latest_error)}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
         <p className="mt-2 mb-0 text-xs text-ink-2">
-          <ValueLabel kind="Predicted" /> Predicted chance and status. <ValueLabel kind="Historical" /> Machine model and age.
+          <ValueLabel kind="Predicted" /> Predicted chance and status. <ValueLabel kind="Historical" /> Machine model, age and latest error (the newest error record before the replay time).
         </p>
       </div>
 
@@ -149,7 +163,7 @@ export function FleetTable({
                     {r.rank} · Machine {r.machine_id}
                   </span>
                   <span className="block text-xs text-ink-2">
-                    {r.model} · {r.age} years (historical)
+                    {r.model} · {r.age} years · latest error {latestErrorText(r.latest_error)} (historical)
                   </span>
                 </span>
                 <span className="flex flex-none items-center gap-2">

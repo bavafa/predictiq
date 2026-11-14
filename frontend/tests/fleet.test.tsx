@@ -25,6 +25,7 @@ function fleetAnswer(params: URLSearchParams) {
       age: 5 + Number(id),
       score,
       status: (score * 100 >= cutoff ? "alert" : "below_cutoff") as FleetRow["status"],
+      latest_error: Number(id) === 1 ? { error: "error3", time: "2015-10-30T14:00:00" } : null,
     }))
     .filter((r) => (!model || r.model === model) && (!status || r.status === status) && (!machine || r.machine_id === Number(machine)))
     .sort((a, b) => b.score - a.score)
@@ -278,10 +279,22 @@ describe("Fleet Overview", () => {
   });
 });
 
+describe("latest error column", () => {
+  it("shows the newest error type and hour, or None yet", async () => {
+    setAddress("");
+    renderWithData(<FleetOverviewPage />, server());
+    await screen.findByTestId("card-shown");
+    const cells = screen.getAllByTestId("latest-error").map((c) => c.textContent);
+    expect(cells[0]).toBe("error3 · 30 Oct 2015, 14:00"); // machine 1 is ranked first
+    expect(cells.slice(1).every((c) => c === "None yet")).toBe(true);
+    expect(screen.getByRole("columnheader", { name: "Latest error" })).toBeInTheDocument();
+  });
+});
+
 describe("sortRows", () => {
   const rows: FleetRow[] = [
-    { rank: 1, machine_id: 9, model: "model2", age: 3, score: 0.9, status: "alert" },
-    { rank: 2, machine_id: 2, model: "model1", age: 10, score: 0.2, status: "below_cutoff" },
+    { rank: 1, machine_id: 9, model: "model2", age: 3, score: 0.9, status: "alert", latest_error: null },
+    { rank: 2, machine_id: 2, model: "model1", age: 10, score: 0.2, status: "below_cutoff", latest_error: null },
   ];
   it("orders by the chosen column", () => {
     expect(sortRows(rows, { key: "machine", dir: "asc" }).map((r) => r.machine_id)).toEqual([2, 9]);

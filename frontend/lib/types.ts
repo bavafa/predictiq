@@ -42,6 +42,8 @@ export type FleetRow = {
   age: number;
   score: number;
   status: Status;
+  /** Newest error stamped strictly before the replay hour, from all records; null when none yet. */
+  latest_error: { error: string; time: string } | null;
 };
 
 export type Fleet = {
