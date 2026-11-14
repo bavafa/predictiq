@@ -14,7 +14,15 @@ const button = (name: RegExp | string) => screen.getByRole("button", { name });
 async function ready(path = "/") {
   mockPath = path;
   renderWithData(<ReplayBar />, fakeFetch(readyMetadata()));
-  await screen.findByRole("button", { name: "Play" });
+  // Generous timeout so a loaded machine (full parallel run) cannot time out before /metadata settles.
+  await screen.findByRole("button", { name: "Play" }, { timeout: 10_000 });
+  await waitFor(() => expect(screen.getByTestId("replay-time").textContent).toBeTruthy());
+}
+
+// Only the replay interval is faked: promises, microtasks and React's own scheduling stay real, so
+// nothing the test awaits can hang on a frozen clock.
+function useFakeInterval() {
+  vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
 }
 
 beforeEach(() => setAddress(""));
@@ -72,7 +80,7 @@ describe("replay bar", () => {
 
   it("Play steps once per second, Pause stops, and focus stays on the button", async () => {
     await ready();
-    vi.useFakeTimers();
+    useFakeInterval();
     const play = button("Play");
     play.focus();
     fireEvent.click(play);
@@ -92,7 +100,7 @@ describe("replay bar", () => {
 
   it("announces the replay time every sixth step only", async () => {
     await ready();
-    vi.useFakeTimers();
+    useFakeInterval();
     fireEvent.click(button("Play"));
     const announcer = screen.getByTestId("replay-announcer");
     await act(async () => {
@@ -108,7 +116,7 @@ describe("replay bar", () => {
   it("stops cleanly at the end: end state shown, Play and Step forward unavailable, never wraps, Jump to start works", async () => {
     setAddress("?at=2015-11-02T22:00");
     await ready();
-    vi.useFakeTimers();
+    useFakeInterval();
     fireEvent.click(button("Play"));
     await act(async () => {
       vi.advanceTimersByTime(10_000); // would be far past the end if it wrapped or kept going
@@ -132,7 +140,7 @@ describe("replay bar", () => {
   it("a 24 hour step that would overshoot the end lands on the last hour and stops", async () => {
     setAddress("?at=2015-11-02T12:00");
     await ready();
-    vi.useFakeTimers();
+    useFakeInterval();
     fireEvent.change(screen.getByLabelText("Step size"), { target: { value: "24" } });
     fireEvent.click(button("Play"));
     await act(async () => {

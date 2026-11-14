@@ -66,3 +66,5 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [ ] Re-review of the fix round.
 - [x] Cut-off control built (`components/cutoff-control.tsx`) and used on Fleet Overview; reuse on Planner and Model Performance in their stages.
 - [x] Update the About & Data status text.
+- [x] Fix round 2 (14 Nov 2026): Fleet Overview guide step 3 now describes the cut-off and says the Planner comes later; replay-bar tests made deterministic; screenshot README matches the charts-as-tables shots.
+- [ ] Stage 4: restore the Fleet Overview guide step "open Maintenance Planner, set a cost per machine model, watch machines move up" once the Planner is built (`components/fleet-screen.tsx`, and the guide test in `tests/fleet.test.tsx`).

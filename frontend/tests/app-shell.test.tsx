@@ -39,7 +39,7 @@ describe("AppShell", () => {
     window.history.replaceState(null, "", "/?at=2015-11-02T00:00&cutoff=30&status=alert");
     service = fakeFetch(readyMetadata());
     renderShell();
-    await screen.findByRole("button", { name: "Play" });
+    await screen.findByRole("button", { name: "Play" }, { timeout: 10_000 });
     expect(screen.getByRole("link", { name: "Asset Details" })).toHaveAttribute(
       "href",
       "/asset-details?at=2015-11-02T00%3A00&cutoff=30",

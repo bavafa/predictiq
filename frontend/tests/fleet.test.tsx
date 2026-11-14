@@ -242,6 +242,14 @@ describe("Fleet Overview", () => {
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
+  it("the guide only describes what exists: replay, Asset Details, cut-off; the Planner is said to come later", async () => {
+    renderWithData(<FleetOverviewPage />, server());
+    const guide = await screen.findByTestId("guide");
+    expect(guide).toHaveTextContent(/cut-off/);
+    expect(guide).toHaveTextContent(/arrives in a later stage/);
+    expect(guide).not.toHaveTextContent(/Set cost per machine model|moved up/);
+  });
+
   it("Hide guide hides it for the visit", async () => {
     const user = userEvent.setup();
     renderWithData(<FleetOverviewPage />, server());

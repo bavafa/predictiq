@@ -307,7 +307,9 @@ async function captureAsset() {
     await page.getByRole("radio", { name: "24 h" }).click();
     await page.getByTestId("sensor-volt-summary").getByText(/24 hourly readings/).waitFor();
     await page.getByTestId("past-estimates").getByRole("button", { name: "View as table" }).click();
-    if (label === "desktop") await page.getByTestId("sensor-volt").getByRole("button", { name: "View as table" }).click();
+    // every sensor chart on screen (all of them on desktop, the chosen tab on mobile)
+    const sensorTables = page.getByTestId("sensor-tabs").or(page.getByTestId("sensor-grid")).getByRole("button", { name: "View as table" });
+    for (let n = await sensorTables.count(); n > 0; n--) await sensorTables.first().click();
     await save(page, `asset-details-state-charts-as-tables-${label}`);
 
     if (label === "mobile") {

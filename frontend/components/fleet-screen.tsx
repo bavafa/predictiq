@@ -60,8 +60,8 @@ function Guide() {
         </li>
         <li>Open the top machine in the table to see its sensors and what pushed its estimate up.</li>
         <li>
-          Open the <strong>Maintenance Planner</strong>, open &ldquo;Set cost per machine model&rdquo; and give one machine model a higher
-          illustrative failure cost. Machines of that model move up the list, with &ldquo;moved up&rdquo; marks.
+          Change the <strong>cut-off</strong> to see how many machines count as alerts. The Maintenance Planner, where you can set a
+          failure cost per machine model, arrives in a later stage.
         </li>
       </ol>
     </section>
