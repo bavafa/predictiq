@@ -1,17 +1,21 @@
 # Status
 
-_Updated 2026-11-14, Stage 3 (core screens) session 3 of 3 done on branch `core-screens`._
+_Updated 2026-11-14 11:36 AM ET, Stage 3 in review on branch `core-screens`._
 
 ## Current stage
-**Data-and-model stage built and reviewed, on branch `data-model`; waiting for the owner to review and merge.** The project skeleton was merged by Meysam (Owner) on 14 Nov 2026 at 8:08 AM ET.
-- **Done:** data checks, the 24-hour label, past-only features, the baseline and main models, the alert cut-off and event measures, the twenty-machine unseen test, and the serving bundle for the latest model only. The bundle is kept on a GitHub pre-release, not in git.
-- **Data service:** answers every data question from the bundle.
-- **Size checks** re-measured live on a protected preview, both met:
-  - the data service is about 30 MB as Vercel reports it (75 MB uncompressed in the local build);
-  - the largest answer is 144,715 bytes.
-- **Independent review:** round 1 found one Medium and one Low, both fixed. Round 2 passed with known issues; its one Low (a missing raw record) is fixed.
-- **Next:** the owner reviews; then Stage 3, the core screens.
-- **Blockers:** none. The owner has two decisions to make: the example planner costs, and how model data reaches the public launch.
+**Stage 3, core screens and data service, on branch `core-screens`. All three build sessions are done; independent review and fixes are in progress.**
+- **Merged by Meysam (Owner):**
+  - The data-and-model stage, on 14 Nov 2026 at 9:53 AM ET. He also approved the example planner costs (still illustrative units).
+  - The decision to make the repository public at launch, and only then. This lets Vercel's builds download the model data. Until launch, live checks use protected previews built on the build machine.
+- **Built:**
+  - Fleet Overview and Asset Details on the real data service.
+  - The historical replay bar.
+  - The "no model data" state and loading and error states.
+  - About & Data, updated.
+  - A Playwright test stack using a synthetic model.
+  - 38 screenshots from the real model data, all simulated.
+- **Next:** fix the review findings, verify again, open the pull request.
+- **Blockers:** none.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
 **Done:** the data checks now run and pass on the real files: 761 failure rows become 719 events, and everything matches the recorded counts. The 24-hour failure label, the past-only features (nothing from the scoring hour or later is used, proven by an automated test that scrambles the future) and the train / tuning / test split with a 24-hour gap between periods are built and tested. Twenty machines are set aside once, with a fixed seed, to test how the model does on machines it never saw. Building every feature for all 100 machines over the whole year takes about 1.5 seconds.
