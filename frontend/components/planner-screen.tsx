@@ -234,7 +234,7 @@ function Assumptions({
               if (all) set({ plannedByModel: all });
             }}
             testId="planned-cost"
-            help="Writes this value into the four planned-cost fields above. Changes planned spend only."
+            help="Writes this value into the four planned-cost fields above. Changes planned spend and, if the risk-reduction assumption is on, net benefit. Never changes the order or who is shortlisted."
           />
         </section>
 

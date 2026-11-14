@@ -236,7 +236,7 @@ describe("Maintenance Planner screen", () => {
     expect(bodies.at(-1)!.failure_cost_by_model).toEqual({ model1: 20000, model2: 20000, model3: 20000, model4: 20000 });
   });
 
-  it("Apply to all models for planned cost changes planned spend only, never the order", async () => {
+  it("Apply to all models for planned cost changes planned spend, never the order or shortlist", async () => {
     const user = userEvent.setup();
     renderWithData(<MaintenancePlannerPage />, server());
     await ready();
