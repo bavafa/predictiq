@@ -60,8 +60,8 @@ function Guide() {
         </li>
         <li>Open the top machine in the table to see its sensors and what pushed its estimate up.</li>
         <li>
-          Open <strong>Maintenance Planner</strong>, open &ldquo;Set cost per machine model&rdquo; and give one machine model a higher failure
-          cost. That model&apos;s machines move up the list, marked &ldquo;moved up&rdquo;, and the shortlist changes.
+          Open <strong>Maintenance Planner</strong>, raise the failure cost of one machine model. That can change the order of the list,
+          marked &ldquo;moved up&rdquo; or &ldquo;moved down&rdquo;, and at some hours who is shortlisted.
         </li>
       </ol>
     </section>

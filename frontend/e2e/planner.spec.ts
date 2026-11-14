@@ -31,7 +31,6 @@ test("a cost per machine model reorders the list and shows Moved marks", async (
   const lowest = ms[ms.length - 1]!; // the model of the last listed machine
   // decision 55: the per-model costs start filled in, so the Moved column is already there; the visitor RAISES one
   await expect(page.getByTestId(`cost-${lowest}`)).not.toHaveValue("");
-  await page.getByText("Set cost per machine model (optional)").click();
   await page.getByTestId(`cost-${lowest}`).fill("10000000");
   await expect(page.getByTestId("order-note")).toBeVisible();
   await settled(page);
@@ -41,6 +40,37 @@ test("a cost per machine model reorders the list and shows Moved marks", async (
   const moved = (await page.getByTestId("moved").allTextContents()).join(" ");
   expect(moved).toMatch(/▲ up \d+/);
   expect(moved).toMatch(/▼ down \d+/);
+});
+
+test("Apply to all models writes the shared cost into every model's field: equal costs, no Moved, order by chance alone", async ({ page }) => {
+  await open(page);
+  await expect(page.getByTestId("cost-model1")).toBeVisible(); // the per-model fields are visible by default
+  const ms = await models(page);
+  expect(new Set(ms).size).toBeGreaterThan(1);
+  await page.getByTestId("failure-cost").fill("20000");
+  await expect(page.getByTestId("cost-model2")).toHaveValue("8000"); // typing alone changes nothing
+  await page.getByTestId("failure-cost-apply").click();
+  for (const m of ["model1", "model2", "model3", "model4"]) await expect(page.getByTestId(`cost-${m}`)).toHaveValue("20000");
+  await expect(page.getByTestId("moved")).toHaveCount(0);
+  await settled(page);
+  // the order is by predicted chance alone: percentages never increase going down the list
+  const chances = (await page.getByTestId("plan-row").locator("td:nth-child(4) div:first-child").allTextContents()).map((t) => parseFloat(t));
+  expect([...chances].sort((a, b) => b - a)).toEqual(chances);
+  // planned cost: spend changes, the order does not
+  const before = await machines(page);
+  await page.getByTestId("planned-cost").fill("1000");
+  await page.getByTestId("planned-cost-apply").click();
+  await expect(page.getByTestId("planned-model3")).toHaveValue("1000");
+  await settled(page);
+  expect(await machines(page)).toEqual(before);
+  // an out-of-range shared value is refused and the last result stays
+  await page.getByTestId("failure-cost").fill("-5");
+  await expect(page.getByTestId("invalid-note")).toBeVisible();
+  await page.getByTestId("failure-cost-apply").click({ force: true });
+  await expect(page.getByTestId("cost-model1")).toHaveValue("20000");
+  await page.getByRole("button", { name: "Reset to defaults" }).click();
+  await expect(page.getByTestId("cost-model3")).toHaveValue("12000");
+  await expect(page.getByTestId("planned-model3")).toHaveValue("3000");
 });
 
 test("crew slots change the shortlist only, not the order", async ({ page }) => {
@@ -145,8 +175,7 @@ for (const vp of [
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await open(page);
     expect(await blocking(page)).toEqual([]);
-    await page.getByText("Set cost per machine model (optional)").click();
-    await page.getByTestId("reduction-toggle").check();
+      await page.getByTestId("reduction-toggle").check();
     await page.getByTestId("failure-cost").fill("-1");
     await page.getByRole("button", { name: "How this is calculated" }).click();
     await settled(page);
@@ -160,14 +189,15 @@ test("mobile: no sideways scrolling and the buttons and disclosure are at least 
   await expect(page.getByTestId("plan-cards")).toBeVisible();
   await expect(page.getByTestId("plan-table")).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
-  const summary = await page.getByText("Set cost per machine model (optional)").boundingBox();
-  expect(summary!.height).toBeGreaterThanOrEqual(44);
   for (const name of ["Fewer crew slots", "More crew slots", "Reset to defaults", "How this is calculated"]) {
     const box = await page.getByRole("button", { name }).boundingBox();
     expect(box!.height).toBeGreaterThanOrEqual(44);
     expect(box!.width).toBeGreaterThanOrEqual(44);
   }
-  for (const id of ["failure-cost", "planned-cost", "crew-slots"]) {
+  for (const box of await page.getByRole("button", { name: "Apply to all models" }).all()) {
+    expect((await box.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+  for (const id of ["failure-cost", "planned-cost", "crew-slots", "cost-model1", "planned-model1"]) {
     expect((await page.getByTestId(id).boundingBox())!.height).toBeGreaterThanOrEqual(44);
   }
 });

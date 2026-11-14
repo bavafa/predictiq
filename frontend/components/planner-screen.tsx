@@ -18,6 +18,7 @@ import {
   MODELS,
   REDUCTION_STEP,
   answersInputs,
+  applyToAll,
   check,
   defaultFields,
   money,
@@ -158,9 +159,6 @@ function Assumptions({
   isDefault: boolean;
   onReset: () => void;
 }) {
-  const modelError = MODELS.some((m) => errors[m] || errors[`planned_${m}` as const]);
-  const [open, setOpen] = useState(false);
-  const modelsOpen = open || modelError;
   const slotId = useId();
   const slots = wholeNumber(fields.crewSlots);
   const bump = (d: number) => set({ crewSlots: String(Math.min(MAX_SLOTS, Math.max(0, (slots ?? 0) + d))) });
@@ -172,56 +170,73 @@ function Assumptions({
       </h2>
 
       <div className="mt-3 flex flex-col gap-4">
-        <TextField
-          label={`Cost if a failure happens (${unit} per failure)`}
-          value={fields.failureCost}
-          onChange={(failureCost) => set({ failureCost })}
-          error={errors.failureCost}
-          testId="failure-cost"
-          help="Illustrative. Used for any machine model whose own cost below is blank. On its own it scales exposure but cannot change the order."
-        />
-
-        <details
-          open={modelsOpen}
-          onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
-          className="rounded-md"
-          data-testid="per-model"
-        >
-          <summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold">Set cost per machine model (optional)</summary>
-          <p className="mt-1 mb-2 text-xs leading-5 text-ink-2">
-            Starts with the example costs for each machine model. Blank = use the shared cost. Different failure costs per machine
-            model change the order; planned maintenance costs change spend only. Illustrative.
+        <section aria-labelledby="failure-costs-title" data-testid="failure-costs" className="flex flex-col gap-3">
+          <h3 id="failure-costs-title" className="m-0 text-sm font-semibold">
+            Cost if a failure happens ({unit} per failure)
+          </h3>
+          <p className="m-0 text-xs leading-5 text-ink-2">
+            One field per machine model, starting with the example costs. Equal costs for all models give the order by predicted chance alone
+            and leave Moved empty. Failure costs that differ by model can change the order and, at some hours, who is shortlisted. Illustrative.
           </p>
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {MODELS.map((m) => (
-              <div key={m} className="grid grid-cols-2 gap-3">
-                <TextField
-                  label={`${m}: cost if a failure happens (${unit})`}
-                  value={fields.byModel[m]}
-                  onChange={(text) => set({ byModel: { ...fields.byModel, [m]: text } })}
-                  error={errors[m]}
-                  testId={`cost-${m}`}
-                />
-                <TextField
-                  label={`${m}: planned maintenance cost (${unit})`}
-                  value={fields.plannedByModel[m]}
-                  onChange={(text) => set({ plannedByModel: { ...fields.plannedByModel, [m]: text } })}
-                  error={errors[`planned_${m}` as const]}
-                  testId={`planned-${m}`}
-                />
-              </div>
+              <TextField
+                key={m}
+                label={`${m}: cost if a failure happens`}
+                value={fields.byModel[m]}
+                onChange={(text) => set({ byModel: { ...fields.byModel, [m]: text } })}
+                error={errors[m]}
+                testId={`cost-${m}`}
+              />
             ))}
           </div>
-        </details>
+          <ApplyAll
+            label="Set every machine model's failure cost to"
+            value={fields.failureCost}
+            onChange={(failureCost) => set({ failureCost })}
+            error={errors.failureCost}
+            onApply={() => {
+              const all = applyToAll(fields.failureCost);
+              if (all) set({ byModel: all });
+            }}
+            testId="failure-cost"
+            help="Writes this value into the four failure-cost fields above. Nothing else changes until you press the button."
+          />
+        </section>
 
-        <TextField
-          label={`Planned maintenance cost (${unit} per machine)`}
-          value={fields.plannedCost}
-          onChange={(plannedCost) => set({ plannedCost })}
-          error={errors.plannedCost}
-          testId="planned-cost"
-          help="Used for any machine model whose own planned cost above is blank. Changes planned spend only. Does not change the order."
-        />
+        <section aria-labelledby="planned-costs-title" data-testid="planned-costs" className="flex flex-col gap-3">
+          <h3 id="planned-costs-title" className="m-0 text-sm font-semibold">
+            Planned maintenance cost ({unit} per machine)
+          </h3>
+          <p className="m-0 text-xs leading-5 text-ink-2">
+            One field per machine model, starting with the example costs. Planned cost changes planned spend and, if turned on, net benefit.
+            It never changes the order or who is shortlisted. Illustrative.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {MODELS.map((m) => (
+              <TextField
+                key={m}
+                label={`${m}: planned maintenance cost`}
+                value={fields.plannedByModel[m]}
+                onChange={(text) => set({ plannedByModel: { ...fields.plannedByModel, [m]: text } })}
+                error={errors[`planned_${m}` as const]}
+                testId={`planned-${m}`}
+              />
+            ))}
+          </div>
+          <ApplyAll
+            label="Set every machine model's planned cost to"
+            value={fields.plannedCost}
+            onChange={(plannedCost) => set({ plannedCost })}
+            error={errors.plannedCost}
+            onApply={() => {
+              const all = applyToAll(fields.plannedCost);
+              if (all) set({ plannedByModel: all });
+            }}
+            testId="planned-cost"
+            help="Writes this value into the four planned-cost fields above. Changes planned spend only."
+          />
+        </section>
 
         <div>
           <label htmlFor={slotId} className="text-sm font-semibold">
@@ -295,7 +310,7 @@ function Assumptions({
             Reset to defaults
           </Button>
           <p className="mt-1 mb-0 text-xs leading-5 text-ink-2">
-            Restores the illustrative starting values above. The alert cut-off is shared and has its own reset.
+            Restores the illustrative starting values (the example costs for each machine model). The alert cut-off is shared and has its own reset.
           </p>
         </div>
       </div>
@@ -309,6 +324,41 @@ function FieldError({ id, children }: { id: string; children: ReactNode }) {
       <span aria-hidden="true">⚠ </span>
       {children} The list still shows your last valid inputs.
     </p>
+  );
+}
+
+function ApplyAll({
+  label,
+  value,
+  onChange,
+  error,
+  onApply,
+  help,
+  testId,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  onApply: () => void;
+  help: string;
+  testId: string;
+}) {
+  const bad = applyToAll(value) === null;
+  return (
+    <div className="rounded-md border border-line bg-subtle p-3">
+      <TextField label={label} value={value} onChange={onChange} error={error} help={help} testId={testId} />
+      <Button
+        className="mt-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+        aria-disabled={bad}
+        data-testid={`${testId}-apply`}
+        onClick={() => {
+          if (!bad) onApply();
+        }}
+      >
+        Apply to all models
+      </Button>
+    </div>
   );
 }
 

@@ -16,7 +16,7 @@ export default function AboutDataPage() {
         <h2 className={h2}>What this is</h2>
         <p className="m-0">
           PredictIQ is a portfolio prototype that estimates which machines may have a recorded failure in the next 24 hours
-          and, in a later stage, turns those estimates into an assumption-based maintenance list. It is built on a public
+          and turns those estimates into an assumption-based maintenance list. It is built on a public
           predictive-maintenance sample dataset. It is a demonstration of analytics and product design, not a deployed
           production system.
         </p>
@@ -89,7 +89,7 @@ export default function AboutDataPage() {
             <li>The scores are saved estimates for a held-out replay period, not forecasts for any real equipment.</li>
             <li>The model was also tried on 20 machines it never saw, and results are in the model card; the Model Performance page is not built yet.</li>
             <li>Explanations are patterns the model found, not causes.</li>
-            <li>Costs, when added, will be illustrative. No savings are claimed.</li>
+            <li>Costs in the maintenance list are illustrative assumptions you set. They are not real costs and promise no financial result.</li>
           </ul>
         </div>
         <div className={card}>

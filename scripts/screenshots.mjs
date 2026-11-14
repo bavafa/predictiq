@@ -409,7 +409,6 @@ async function captureStage4() {
       if (row) return row.querySelector("td:nth-child(3)").textContent;
       return /model [a-z0-9]+/.exec(cards.at(-1).textContent)[0].split(" ")[1];
     });
-    await page.getByText("Set cost per machine model (optional)").click();
     await page.getByTestId(`cost-${lastModel}`).fill("40000");
     await page.getByTestId("order-note").waitFor();
     await ready(page);

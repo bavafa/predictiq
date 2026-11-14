@@ -12,7 +12,7 @@ export const DEFAULT_REDUCTION = 20;
 /** Decision 55's example costs per machine model (illustrative); used if /metadata does not supply them. */
 export const FALLBACK_FAILURE_BY_MODEL: Record<MachineModel, number> = { model1: 10_000, model2: 8_000, model3: 12_000, model4: 9_000 };
 export const FALLBACK_PLANNED_BY_MODEL: Record<MachineModel, number> = { model1: 2_500, model2: 2_000, model3: 3_000, model4: 2_250 };
-/** The shared costs are only the fallback for a machine model whose own field is blank (model1's values). */
+/** The shared "Set every machine model to" values start at model1's numbers; they change nothing until "Apply to all models". */
 export const FALLBACK_PLANNED_COST = 2_500;
 export const FALLBACK_FAILURE_COST = 10_000;
 export const FALLBACK_CREW_SLOTS = 5;
@@ -69,8 +69,7 @@ export type PlannerInputs = Omit<PlanRequest, "at" | "cutoff_percent">;
 
 export function check(fields: PlannerFields): Checked {
   const errors: FieldErrors = {};
-  const cost = (text: string, key: FieldKey, optional: boolean): number | undefined => {
-    if (optional && text.trim() === "") return undefined;
+  const cost = (text: string, key: FieldKey): number | undefined => {
     const n = wholeNumber(text);
     if (n === null || n > MAX_COST) {
       errors[key] = COST_RANGE_MESSAGE;
@@ -78,33 +77,38 @@ export function check(fields: PlannerFields): Checked {
     }
     return n;
   };
-  const failure_cost = cost(fields.failureCost, "failureCost", false);
-  const planned_cost = cost(fields.plannedCost, "plannedCost", false);
+  // The shared fields are only checked (message, last result kept); they reach the request only through "Apply to all models".
+  cost(fields.failureCost, "failureCost");
+  cost(fields.plannedCost, "plannedCost");
   const byModel: Partial<Record<MachineModel, number>> = {};
-  for (const m of MODELS) {
-    const n = cost(fields.byModel[m], m, true);
-    if (n !== undefined) byModel[m] = n;
-  }
   const plannedByModel: Partial<Record<MachineModel, number>> = {};
   for (const m of MODELS) {
-    const n = cost(fields.plannedByModel[m], `planned_${m}`, true);
-    if (n !== undefined) plannedByModel[m] = n;
+    const f = cost(fields.byModel[m], m);
+    if (f !== undefined) byModel[m] = f;
+    const p = cost(fields.plannedByModel[m], `planned_${m}`);
+    if (p !== undefined) plannedByModel[m] = p;
   }
   const slots = wholeNumber(fields.crewSlots);
   if (slots === null || slots > MAX_SLOTS) errors.crewSlots = SLOT_RANGE_MESSAGE;
-  if (Object.keys(errors).length > 0 || failure_cost === undefined || planned_cost === undefined || slots === null) {
-    return { ok: false, errors };
-  }
+  if (Object.keys(errors).length > 0 || slots === null) return { ok: false, errors };
+  // failure_cost and planned_cost are required by the service; they carry model1's current values.
   const inputs: PlannerInputs = {
-    failure_cost,
-    planned_cost,
+    failure_cost: byModel.model1!,
+    planned_cost: plannedByModel.model1!,
     crew_slots: slots,
     include_below_cutoff: fields.includeBelow,
     risk_reduction_percent: fields.reductionOn ? fields.reduction : null,
+    failure_cost_by_model: byModel,
+    planned_cost_by_model: plannedByModel,
   };
-  if (Object.keys(byModel).length > 0) inputs.failure_cost_by_model = byModel;
-  if (Object.keys(plannedByModel).length > 0) inputs.planned_cost_by_model = plannedByModel;
   return { ok: true, inputs };
+}
+
+/** "Apply to all models": the shared value written into the four per-model fields; null when it is out of range. */
+export function applyToAll(text: string): Record<MachineModel, string> | null {
+  const n = wholeNumber(text);
+  if (n === null || n > MAX_COST) return null;
+  return Object.fromEntries(MODELS.map((m) => [m, String(n)])) as Record<MachineModel, string>;
 }
 
 export const sameFields = (a: PlannerFields, b: PlannerFields) => JSON.stringify(a) === JSON.stringify(b);

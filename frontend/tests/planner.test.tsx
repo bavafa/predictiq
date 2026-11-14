@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import MaintenancePlannerPage from "@/app/maintenance-planner/page";
-import { check, defaultFields, answersInputs, wholeNumber } from "@/lib/planner";
+import { check, defaultFields, answersInputs, applyToAll, wholeNumber } from "@/lib/planner";
 import type { MachineModel, Metadata, PlanRequest, PlanResponse, PlanRow, ReadyMetadata } from "@/lib/types";
 import { fakeFetch, json, noModelMetadata, problem, readyMetadata, renderWithData, setAddress } from "./helpers";
 
@@ -145,6 +145,16 @@ describe("planner helpers", () => {
     expect(check({ ...f, plannedCost: "-1" }).ok).toBe(false);
     expect(check({ ...f, crewSlots: "101" }).ok).toBe(false);
     expect(check({ ...f, byModel: { ...f.byModel, model2: "x" } }).ok).toBe(false);
+    expect(check({ ...f, byModel: { ...f.byModel, model2: "" } }).ok).toBe(false);
+  });
+
+  it("sends model1's current values as the required costs, with every per-model value; the shared fields only feed Apply", () => {
+    const f = defaultFields(readyMetadata() as ReadyMetadata);
+    const c = check({ ...f, failureCost: "777", plannedCost: "888", byModel: { ...f.byModel, model1: "11000" } });
+    expect(c.ok && c.inputs).toMatchObject({ failure_cost: 11000, planned_cost: 2500 });
+    expect(applyToAll("500")).toEqual({ model1: "500", model2: "500", model3: "500", model4: "500" });
+    expect(applyToAll("-1")).toBeNull();
+    expect(applyToAll("10000001")).toBeNull();
   });
 
   it("matches an answer to the inputs it was computed from", () => {
@@ -165,8 +175,13 @@ describe("Maintenance Planner screen", () => {
     expect(bodies[0]!.planned_cost_by_model).toEqual({ model1: 2500, model2: 2000, model3: 3000, model4: 2250 });
     expect(ids()).toEqual(["1", "3", "2", "4"]); // at or above the 51% cut-off, by exposure (model3 costs more per failure)
     expect(slots()).toEqual(["✓ Slot 1", "✓ Slot 2", "✓ Slot 3", "✓ Slot 4"]);
-    expect(screen.getByLabelText(/Cost if a failure happens \(illustrative currency units per failure\)/)).toHaveValue("10000");
-    expect(screen.getByLabelText(/Planned maintenance cost \(illustrative currency units per machine\)/)).toHaveValue("2500");
+    // the four per-model fields are visible at once (no collapsed panel) and prefilled with decision 55's values
+    expect(screen.getByLabelText(/^model3: cost if a failure happens/)).toBeVisible();
+    expect(screen.getByLabelText(/^model3: cost if a failure happens/)).toHaveValue("12000");
+    expect(screen.getByLabelText(/^model4: planned maintenance cost/)).toHaveValue("2250");
+    expect(screen.getAllByRole("button", { name: "Apply to all models" })).toHaveLength(2);
+    expect(screen.getByLabelText(/Set every machine model's failure cost to/)).toHaveValue("10000");
+    expect(screen.getByLabelText(/Set every machine model's planned cost to/)).toHaveValue("2500");
     expect(screen.getByLabelText(/Crew slots available/)).toHaveValue("5");
     expect(screen.getByTestId("planner-banner")).toHaveTextContent(/illustrative assumptions you set, not real costs/);
     expect(screen.getAllByText("Illustrative").length).toBeGreaterThan(3);
@@ -191,7 +206,6 @@ describe("Maintenance Planner screen", () => {
     const user = userEvent.setup();
     renderWithData(<MaintenancePlannerPage />, server());
     await ready();
-    await user.click(screen.getByText("Set cost per machine model (optional)"));
     const model3 = screen.getByLabelText(/^model3: cost if a failure happens/);
     expect(model3).toHaveValue("12000"); // decision 55 starting value; the visitor RAISES it
     await user.clear(model3);
@@ -204,31 +218,64 @@ describe("Maintenance Planner screen", () => {
     expect(bodies.at(-1)!.failure_cost_by_model).toEqual({ model1: 10000, model2: 8000, model3: 50000, model4: 9000 });
   });
 
-  it("the shared costs are the fallback for blank machine models: failure cost scales exposure, planned cost changes spend only", async () => {
+  it("Apply to all models writes the shared failure cost into the four fields: equal costs give the order by chance alone, Moved empty", async () => {
     const user = userEvent.setup();
     renderWithData(<MaintenancePlannerPage />, server());
     await ready();
-    await user.click(screen.getByText("Set cost per machine model (optional)"));
-    for (const m of ["model1", "model2", "model3", "model4"]) {
-      await user.clear(screen.getByTestId(`cost-${m}`));
-      await user.clear(screen.getByTestId(`planned-${m}`));
-    }
+    const shared = screen.getByLabelText(/Set every machine model's failure cost to/);
+    await user.clear(shared);
+    await user.type(shared, "20000");
+    // typing alone changes nothing
+    expect(screen.getByLabelText(/^model2: cost if a failure happens/)).toHaveValue("8000");
+    const [applyFailure] = screen.getAllByRole("button", { name: "Apply to all models" });
+    await user.click(applyFailure!);
+    for (const m of ["model1", "model2", "model3", "model4"]) expect(screen.getByTestId(`cost-${m}`)).toHaveValue("20000");
     await waitFor(() => expect(ids()).toEqual(["1", "2", "3", "4"]));
-    expect(screen.queryByTestId("moved")).toBeNull(); // all costs equal again
-    expect(bodies.at(-1)!.failure_cost_by_model).toBeUndefined();
-    expect(bodies.at(-1)!.planned_cost_by_model).toBeUndefined();
+    expect(screen.queryByTestId("moved")).toBeNull();
+    expect(bodies.at(-1)).toMatchObject({ failure_cost: 20000 });
+    expect(bodies.at(-1)!.failure_cost_by_model).toEqual({ model1: 20000, model2: 20000, model3: 20000, model4: 20000 });
+  });
+
+  it("Apply to all models for planned cost changes planned spend only, never the order", async () => {
+    const user = userEvent.setup();
+    renderWithData(<MaintenancePlannerPage />, server());
+    await ready();
     const before = ids();
-    const exposureBefore = screen.getAllByTestId("exposure")[0]!.textContent;
-    const field = screen.getByLabelText(/Cost if a failure happens/);
-    await user.clear(field);
-    await user.type(field, "20000");
-    await waitFor(() => expect(screen.getAllByTestId("exposure")[0]!.textContent).not.toBe(exposureBefore));
-    expect(ids()).toEqual(before);
-    const planned = screen.getByLabelText(/Planned maintenance cost/);
-    await user.clear(planned);
-    await user.type(planned, "1000");
+    const shared = screen.getByLabelText(/Set every machine model's planned cost to/);
+    await user.clear(shared);
+    await user.type(shared, "1000");
+    await user.click(screen.getAllByRole("button", { name: "Apply to all models" })[1]!);
     await waitFor(() => expect(screen.getByTestId("summary-spend")).toHaveTextContent("4,000"));
     expect(ids()).toEqual(before);
+    expect(bodies.at(-1)).toMatchObject({ planned_cost: 1000 });
+    expect(bodies.at(-1)!.planned_cost_by_model).toEqual({ model1: 1000, model2: 1000, model3: 1000, model4: 1000 });
+  });
+
+  it("a shared value out of range is marked, Apply does nothing and the last valid list stays", async () => {
+    const user = userEvent.setup();
+    renderWithData(<MaintenancePlannerPage />, server());
+    await ready();
+    const calls = bodies.length;
+    const shared = screen.getByLabelText(/Set every machine model's failure cost to/);
+    await user.clear(shared);
+    await user.type(shared, "-5");
+    expect(shared).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("alert")).toHaveTextContent(/from 0 to 10,000,000/);
+    await user.click(screen.getAllByRole("button", { name: "Apply to all models" })[0]!);
+    expect(screen.getByTestId("cost-model2")).toHaveValue("8000");
+    expect(screen.getByTestId("invalid-note")).toHaveTextContent("Showing results for your last valid inputs.");
+    expect(bodies.length).toBe(calls);
+    expect(ids()).toEqual(["1", "3", "2", "4"]);
+  });
+
+  it("the help text states exactly what each control changes", async () => {
+    renderWithData(<MaintenancePlannerPage />, server());
+    await ready();
+    const failure = screen.getByTestId("failure-costs");
+    expect(failure).toHaveTextContent(/Equal costs for all models give the order by predicted chance alone and leave Moved empty/);
+    expect(failure).toHaveTextContent(/differ by model can change the order and, at some hours, who is shortlisted/);
+    expect(screen.getByTestId("planned-costs")).toHaveTextContent(/never changes the order or who is shortlisted/);
+    expect(screen.getByTestId("assumptions").textContent).not.toMatch(/saving/i);
   });
 
   it("planned cost per machine model: spend is the sum over the shortlist and never changes the order", async () => {
@@ -237,7 +284,6 @@ describe("Maintenance Planner screen", () => {
     await ready();
     const before = ids();
     expect(screen.getByTestId("summary-spend")).toHaveTextContent("10,000"); // 2,500 + 3,000 + 2,000 + 2,500
-    await user.click(screen.getByText("Set cost per machine model (optional)"));
     const model1 = screen.getByLabelText(/^model1: planned maintenance cost/);
     await user.clear(model1);
     await user.type(model1, "1000");
@@ -254,7 +300,6 @@ describe("Maintenance Planner screen", () => {
     const user = userEvent.setup();
     renderWithData(<MaintenancePlannerPage />, server());
     await ready();
-    await user.click(screen.getByText("Set cost per machine model (optional)"));
     const field = screen.getByLabelText(/^model2: planned maintenance cost/);
     await user.clear(field);
     await user.type(field, "99999999");
@@ -329,7 +374,7 @@ describe("Maintenance Planner screen", () => {
     renderWithData(<MaintenancePlannerPage />, server());
     await ready();
     const calls = bodies.length;
-    const field = screen.getByLabelText(/Cost if a failure happens/);
+    const field = screen.getByTestId("failure-cost");
     await user.clear(field);
     await user.type(field, "-500");
     expect(field).toHaveAttribute("aria-invalid", "true");
@@ -364,7 +409,7 @@ describe("Maintenance Planner screen", () => {
     await ready();
     const reset = screen.getByRole("button", { name: "Reset to defaults" });
     expect(reset).toHaveAttribute("aria-disabled", "true");
-    const planned = screen.getByLabelText(/Planned maintenance cost/);
+    const planned = screen.getByTestId("planned-model1");
     await user.clear(planned);
     await user.type(planned, "9");
     await user.click(screen.getByTestId("reduction-toggle"));
@@ -415,7 +460,7 @@ describe("Maintenance Planner screen", () => {
     renderWithData(<MaintenancePlannerPage />, slow);
     expect(await screen.findByText("Loading predicted chances for this hour…")).toBeInTheDocument();
     expect(screen.getAllByTestId("skeleton").length).toBeGreaterThan(0);
-    expect(screen.getByLabelText(/Cost if a failure happens/)).toBeEnabled();
+    expect(screen.getByTestId("failure-cost")).toBeEnabled();
     release(json(plan({ at: "2015-11-01T06:00", failure_cost: 1, planned_cost: 1, crew_slots: 1 })));
   });
 
@@ -426,7 +471,7 @@ describe("Maintenance Planner screen", () => {
     expect(await screen.findByTestId("service-error")).toHaveTextContent(/Couldn.t load the predicted chances for 1 Nov 2015|Couldn.t load the predicted chances for/);
     expect(screen.queryByTestId("plan-table")).toBeNull();
     expect(screen.queryByTestId("summary")).toBeNull();
-    expect(screen.getByLabelText(/Planned maintenance cost/)).toHaveValue("2500");
+    expect(screen.getByTestId("planned-model1")).toHaveValue("2500");
     failing = false;
     await user.click(screen.getByRole("button", { name: "Try again" }));
     await ready();

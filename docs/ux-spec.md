@@ -29,13 +29,15 @@ How the screens work, in plain words. Everything shown is *simulated* sample dat
 
 | Planner input | (a) Order of the list | (b) Expected exposure values | (c) Shortlist or spend | (d) Which machines are listed |
 |---|---|---|---|---|
-| Cost if a failure happens (one value for all machines) | No. Every exposure is scaled by the same amount, so the order stays the order by predicted chance. | Yes, all scale. | Shortlist members: no. Total exposure: yes. Planned spend: no. | No |
-| Cost per machine model (optional), set to different values | Yes. Machines of a costlier model move up. | Yes, for that model's machines. | Shortlist members can change; total exposure changes. Planned spend: no. | No |
-| Planned maintenance cost | No | No | Planned spend: yes. Net benefit: yes, if turned on. Shortlist members: no. | No |
+| "Set every machine model's failure cost to" + Apply to all models (equal costs for all models) | No. Every exposure is scaled by the same amount, so the order stays the order by predicted chance. | Yes, all scale. | Shortlist members: no. Total exposure: yes. Planned spend: no. | No |
+| Failure cost per machine model, set to different values (the main inputs, always visible) | Yes. Machines of a costlier model move up. | Yes, for that model's machines. | Shortlist members can change; total exposure changes. Planned spend: no. | No |
+| Planned maintenance cost per machine model (and its "Set every machine model's planned cost to" + Apply to all models) | No | No | Planned spend: yes. Net benefit: yes, if turned on. Shortlist members: no. | No |
 | Crew slots | No | No | Yes: how many are shortlisted, their total exposure and planned spend. | No |
 | Alert cut-off | No change to the relative order of machines that stay listed; rank numbers can shift. | No | Yes: only listed machines at or above the cut-off can be shortlisted. | Yes |
 | Also list machines below the cut-off | No change for machines already listed; added machines slot in by exposure, so rank numbers can shift. | No | No. Machines below the cut-off are shown for context and never shortlisted. | Yes: adds them, marked "Below cut-off". |
 | Assume maintenance lowers the chance of failure by …% | No. The list stays ranked by exposure. | No | Adds an "Expected net benefit (estimate)" column and total. Shortlist members and spend: no. | No |
+
+**How the cost inputs work (decision 65).** There is one failure-cost field and one planned-cost field for each machine model, always visible and prefilled with the decision 55 example costs. Each cost has a "Set every machine model to" field with an "Apply to all models" button that writes that value into the four per-model fields; typing in it changes nothing until the button is pressed. An out-of-range shared value shows the range message, Apply does nothing, and the last valid result stays. The request sends model1's current value as the required `failure_cost` / `planned_cost` plus the per-model maps. Reset to defaults restores the decision 55 values. Help text says: equal costs for all models give the order by predicted chance alone and leave Moved empty; failure costs that differ by model can change the order and, at some hours, who is shortlisted; planned cost never changes the order or who is shortlisted.
 
 The replay time is not a Planner input, but it changes every predicted chance, so it can change all four.
 

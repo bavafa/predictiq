@@ -18,3 +18,7 @@ Every planner answer, including the refusals, was marked not cacheable (no-store
 
 ## Live screenshots
 `stage4-live-screenshots/` has four images: the planner and the fleet overview, each on desktop and mobile. All four pages returned 200 (see the screenshot log).
+
+## What was deployed
+- Preview deployment `dpl_AVMm8gUWXHmBEX3Bmdozy2ZkvsZY`, built from branch commit `09c86e2` (protection: Vercel Authentication).
+- Serving bundle `piq-20261114-efc9c243`: `bundle.zip` 8,122,585 bytes, sha256 starting `0ad2916e` and ending `2d57d2`, checked by `scripts.fetch_bundle` before the build.
