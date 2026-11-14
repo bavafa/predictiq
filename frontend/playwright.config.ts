@@ -1,9 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
+import { existsSync } from "node:fs";
 
 // Smoke test against the production build (`next start`).
-// Locally set PLAYWRIGHT_CHROME_PATH=/usr/bin/google-chrome to reuse system Chrome.
+// Locally (not in CI) an installed system Chrome is reused so no browser download is needed;
+// override with PLAYWRIGHT_CHROME_PATH. CI installs Playwright's chromium instead.
 const port = Number(process.env.E2E_PORT ?? 3100);
-const executablePath = process.env.PLAYWRIGHT_CHROME_PATH || undefined;
+const systemChrome = "/usr/bin/google-chrome";
+const executablePath =
+  process.env.PLAYWRIGHT_CHROME_PATH || (!process.env.CI && existsSync(systemChrome) ? systemChrome : undefined);
 
 export default defineConfig({
   testDir: "./e2e",

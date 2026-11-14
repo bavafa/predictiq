@@ -40,7 +40,7 @@ export default function AboutDataPage() {
           <li>Raw files are not stored in this repository; a script downloads them and checks SHA-256 fingerprints.</li>
         </ul>
         <p className="mt-3 mb-0">
-          <a className="text-link underline" href={PROVENANCE_URL}>
+          <a className="inline-flex min-h-11 items-center text-link underline" href={PROVENANCE_URL}>
             Full data record (source, file checks, license notes) ↗
           </a>
           <br />
