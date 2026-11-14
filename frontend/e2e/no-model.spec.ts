@@ -42,7 +42,7 @@ for (const vp of [
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-      await expect(page.getByRole("note").filter({ hasText: "Portfolio demo — historical sample data; estimated economics are illustrative." })).toBeVisible();
+      await expect(page.getByRole("note").filter({ hasText: "Portfolio demo — simulated historical sample data; estimated economics are illustrative." })).toBeVisible();
       const tags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
       const { violations } = await new AxeBuilder({ page }).withTags(tags).analyze();
       expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(" ; ")}`)).toEqual([]);

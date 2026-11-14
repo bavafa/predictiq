@@ -86,10 +86,15 @@ async function ready(search = "") {
 }
 
 describe("Model Performance, results", () => {
-  it("shows the header facts: version, evaluation date, test period and the target in words", async () => {
+  it("shows the header facts: version, model build date, test period and the target in words", async () => {
     await ready();
     expect(screen.getByTestId("fact-version")).toHaveTextContent("piq-test-1");
     expect(screen.getByTestId("fact-date")).toHaveTextContent("14 November 2026");
+    const facts = screen.getByTestId("mp-facts");
+    expect(facts).toHaveTextContent("Model built");
+    expect(facts).not.toHaveTextContent("Evaluation date");
+    expect(facts).toHaveTextContent("The date the saved results were produced is not recorded");
+    expect(facts).not.toHaveTextContent("Every number");
     expect(screen.getByTestId("fact-period")).toHaveTextContent("1 Nov 2015, 00:00 to 30 Dec 2015, 06:00");
     expect(screen.getByTestId("fact-target")).toHaveTextContent("recorded failure within the next 24 hours");
   });

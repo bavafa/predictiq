@@ -3,7 +3,7 @@ import { expect, type Page } from "@playwright/test";
 // Shared by the Stage 5 accessibility specs (target size, keyboard, axe, notice): the five pages, how to tell
 // each one has finished loading, and the two viewports the specs use.
 
-export const DISCLOSURE = "Portfolio demo — historical sample data; estimated economics are illustrative.";
+export const DISCLOSURE = "Portfolio demo — simulated historical sample data; estimated economics are illustrative.";
 
 export const VIEWPORTS = [
   { name: "desktop", width: 1280, height: 800 },

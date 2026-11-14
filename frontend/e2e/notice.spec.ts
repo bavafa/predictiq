@@ -4,7 +4,7 @@ import { DISCLOSURE, PAGES, VIEWPORTS, openPage } from "./page-support";
 
 // Story "Public release and limitations": every page carries the simulated-data and illustrative-costs notice.
 // The wording is the one fixed in docs/ux-spec.md ("Persistent disclosure at the top of every page, never
-// dismissible"): "Portfolio demo — historical sample data; estimated economics are illustrative."
+// dismissible"): "Portfolio demo — simulated historical sample data; estimated economics are illustrative."
 
 async function expectNotice(page: Page, viewportHeight: number) {
   const notice = page.getByRole("note").filter({ hasText: DISCLOSURE }).first();

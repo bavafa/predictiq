@@ -263,8 +263,9 @@ def synthetic_bundle(
     tel_hours = pd.date_range(hours[0] - LOOKBACK_HOURS * HOUR, hours[-1] - HOUR, freq="h")
     shape = (n_machines, n_hours)
     scores = {n: rng.beta(0.3, 6.0, shape).astype(np.float32) for n in MODEL_NAMES}
-    positives = 2590
     n_machine_hours = n_machines * n_hours
+    size = n_machine_hours / (100 * 1423)  # the default bundle (100 machines x 1,423 hours): 2,590 positives
+    positives = max(2, round(2590 * size))
 
     def cutoff_table(quality: float) -> list[dict[str, Any]]:
         """Fake cut-off rows with every field of the real table (counts add up; no alerts: null precision)."""
@@ -272,7 +273,7 @@ def synthetic_bundle(
         for c in range(101):
             fn = positives if c == 100 else min(positives - 1, round(positives * (c / 100) ** 2 * quality))
             tp = positives - fn
-            fp = 0 if c == 100 else round((1 - c / 100) ** 2 * 3000 * (2 - quality))
+            fp = 0 if c == 100 else round((1 - c / 100) ** 2 * 3000 * (2 - quality) * size)
             alerts = 0 if tp + fp == 0 else max(1, round((tp + fp) / 20))
             caught = round(107 * (1 - (c / 100) ** 3 * quality))
             false_alerts = alerts // 12
@@ -297,14 +298,14 @@ def synthetic_bundle(
             )
         return rows
 
-    def calibration_curve(scale: float) -> list[dict[str, Any]]:
+    def calibration_curve(scale: float, n_m: int) -> list[dict[str, Any]]:
         return [
             {
                 "bin": i + 1,
                 "mean_score": round((i + 1) ** 2 / 10000 * scale, 6),
-                "n": n_machine_hours // 10,
+                "n": n_m * n_hours // 10,
                 "observed_rate": round((i + 1) ** 2 / 9000 * scale, 6),
-                "positives": positives * (i + 1) // 55,
+                "positives": positives * n_m // n_machines * (i + 1) // 55,
             }
             for i in range(10)
         ]
@@ -316,7 +317,7 @@ def synthetic_bundle(
             "n_positive_hours": positives * n_m // n_machines,
             "pr_auc": pr_auc,
             "brier": brier,
-            "calibration_curve": calibration_curve(scale),
+            "calibration_curve": calibration_curve(scale, n_m),
         }
 
     qualities = {"main": (0.4, 0.95, 0.0012, 1.0), "baseline": (1.0, 0.8, 0.006, 3.0)}

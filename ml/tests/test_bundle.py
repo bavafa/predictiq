@@ -14,7 +14,7 @@ from ml import bundle as mb
 from ml import evaluate, replay, train
 from ml.artifacts import latest_version, write_manifest
 from ml.data import load_tables
-from ml.models import Calibrator
+from ml.models import MODEL_NAMES, Calibrator
 from ml.scoring import compute_test_scores
 from ml.tests.synthetic import make_year_tables
 
@@ -98,6 +98,32 @@ def test_synthetic_bundle_is_marked_and_loads_through_the_reader(tmp_path: Path)
     assert meta["synthetic"] is True
     b = reader.load_bundle(tmp_path)
     assert b.synthetic and b.n_machines == 12 and b.n_hours == 200
+
+
+SIZES = [(1, 3), (5, 60), (12, 200), (3, 800), (100, 1423), (120, 1500)]
+
+
+@pytest.mark.parametrize(("n_machines", "n_hours"), SIZES)
+def test_synthetic_counts_are_consistent_for_any_size(tmp_path: Path, n_machines: int, n_hours: int) -> None:
+    mb.synthetic_bundle(tmp_path, n_machines=n_machines, n_hours=n_hours)
+    ev = json.loads((tmp_path / "evaluation.json").read_text())
+    thr = json.loads((tmp_path / "threshold_analysis.json").read_text())
+    total = n_machines * n_hours
+    if (n_machines, n_hours) == (100, 1423):
+        assert ev["models"]["main"]["groups"]["all"]["n_positive_hours"] == 2590
+    for name in MODEL_NAMES:
+        groups = ev["models"][name]["groups"]
+        positives = groups["all"]["n_positive_hours"]
+        assert 0 < positives < total
+        for g in groups.values():
+            assert 0 <= g["n_positive_hours"] <= g["n_machine_hours"]
+            assert all(0 <= b["positives"] <= b["n"] <= g["n_machine_hours"] for b in g["calibration_curve"])
+        rows = thr["models"][name]["all"]
+        assert len(rows) == 101
+        for r in rows:
+            assert min(r["tp"], r["fp"], r["fn"], r["tn"]) >= 0
+            assert r["tp"] + r["fp"] + r["fn"] + r["tn"] == total
+            assert r["tp"] + r["fn"] == positives
 
 
 def test_data_credit_is_the_approved_line() -> None:

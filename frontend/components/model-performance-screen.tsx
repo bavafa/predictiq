@@ -97,13 +97,14 @@ function Body() {
         </h2>
         <dl className="mt-2 mb-0 grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-[max-content_1fr]">
           <Fact k="Model version" v={ready!.model_version} testId="fact-version" />
-          <Fact k="Evaluation date" v={ready!.model_created ? dateText(ready!.model_created) : DASH} testId="fact-date" />
+          <Fact k="Model built" v={ready!.model_created ? dateText(ready!.model_created) : DASH} testId="fact-date" />
           <Fact k="Held-out test period" v={`${period}, hours the models never saw while training`} testId="fact-period" />
           <Fact k="What is predicted" v={TARGET_WORDS} testId="fact-target" />
         </dl>
         <p className="mt-2 mb-0 text-sm text-ink-2">
-          Every number on this page comes from the saved evaluation of this model version, run once on simulated sample
-          data. Nothing here describes real machines. The replay time above is shown for reference only; nothing on this
+          The results below come from the saved evaluation of this model version, run once on simulated sample data.
+          The model version and build date come from the model&apos;s own record. The date the saved results were
+          produced is not recorded, so the build date is shown instead. Nothing here describes real machines. The replay time above is shown for reference only; nothing on this
           page changes with it.
         </p>
       </section>

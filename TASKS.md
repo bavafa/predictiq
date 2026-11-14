@@ -69,7 +69,7 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [x] Fix round 2 (14 Nov 2026): Fleet Overview guide step 3 now describes the cut-off and says the Planner comes later; replay-bar tests made deterministic; screenshot README matches the charts-as-tables shots.
 - [x] (14 Nov 2026, Stage 4 session 2) Stage 4: restore the Fleet Overview guide step "open Maintenance Planner, set a cost per machine model, watch machines move up" once the Planner is built (`components/fleet-screen.tsx`, and the guide test in `tests/fleet.test.tsx`).
 - [x] Stage 3 independent review: three rounds, all Medium findings fixed; passed with known issues.
-- [ ] Low (review): accessibility tests don't yet check every contrast pair or mobile target size.
+- [x] Low (review): accessibility tests don't yet check every contrast pair or mobile target size. Covered in Stage 5 session 2 (`docs/QA_REPORTS/stage5-testing.md`); human screen-reader and real-device testing remain not done.
 
 ## Stage 4: Maintenance planning (started 14 Nov 2026, branch `planner`)
 - [x] Session 1 (14 Nov 2026): planner service, `POST /plan` (decision 63), arithmetic / spec-table / determinism / bounds / saved-score tests (real bundle opt-in), largest `/plan` request through the adapter, typed `api.plan()` with `mv` retry.
@@ -86,5 +86,6 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 ## Stage 5: Launch (started 14 Nov 2026, branch `model-perf`, stacked on `deps-nov14`)
 - [x] Session 1 (14 Nov 2026): Model Performance page built per the experience spec (header facts, shared cut-off control, one "Main model vs simple baseline" table read from the saved cut-off table, four charts with table views, "why accuracy misleads", limitations, loading / error / not-available / no-model states), NotBuilt placeholder removed, About & Data text updated, Vitest, Playwright synthetic + opt-in real, screenshots in `docs/QA_REPORTS/stage5-screenshots/` (`node scripts/screenshots.mjs --real --stage5`). Decision 68 records where the saved files differ from the spec's wording.
 - [ ] Owner: confirm or override decision 68 (evaluation date taken from the model build date; alerts per day and accuracy figures derived from saved counts).
-- [ ] Session 2: full testing including the remaining accessibility coverage (contrast pairs, target sizes site-wide).
+- [x] Session 2 and fix 2b (14 Nov 2026): full testing (contrast pairs, target sizes, keyboard, axe on all pages, notice, release hygiene, fresh-copy script); review round 1 fixes (build-date label, synthetic counts, "simulated" notice, decision 70). Report in `docs/QA_REPORTS/stage5-testing.md`.
+- [ ] Owner: decide what to do about commit 874a686 (personal author email; no rewrite done).
 - [ ] Session 3: launch preparation (limitations, README, model card, launch checklist, plan for getting the bundle to production), protected preview, review.

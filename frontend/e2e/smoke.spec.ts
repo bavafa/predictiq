@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("shell, banner, and every route render honestly", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("note")).toContainText(
-    "Portfolio demo — historical sample data; estimated economics are illustrative.",
+    "Portfolio demo — simulated historical sample data; estimated economics are illustrative.",
   );
   await expect(page.getByText("Historical replay")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Fleet Overview");

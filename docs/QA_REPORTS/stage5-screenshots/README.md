@@ -11,7 +11,7 @@ Desktop is 1440 × 900, mobile is 390 × 844, both full page. The default cut-of
 
 | File | What it shows |
 |---|---|
-| `model-performance-desktop.png` | The page at the default cut-off: header facts (model version, evaluation date, held-out test period, the 24-hour target in words), the shared cut-off control, the test period and cut-off line, the "Main model vs simple baseline" table with its "Better is" column, the four charts, "Why accuracy misleads when failures are rare" and the limitations. |
+| `model-performance-desktop.png` | The page at the default cut-off: header facts (model version, model build date (with a note that the date the results were produced is not recorded), held-out test period, the 24-hour target in words), the shared cut-off control, the test period and cut-off line, the "Main model vs simple baseline" table with its "Better is" column, the four charts, "Why accuracy misleads when failures are rare" and the limitations. |
 | `model-performance-mobile.png` | The same page on a phone: the table keeps three columns (measure, main model, simple baseline) and the "better is" rule sits in a line under it; charts stack in one column. |
 | `model-performance-state-changed-cutoff-desktop.png` | The cut-off moved to 30%. Every cut-off row of the table changes for both models, the amber cut-off line moves on the two cut-off charts, and the accuracy table follows. The precision–recall area and the calibration gap (marked "covers all cut-offs") do not change. |
 | `model-performance-state-changed-cutoff-mobile.png` | The same change on a phone. |

@@ -157,7 +157,7 @@ A web demo estimating which machines may fail in the next 24 hours and ranking m
 **Problem:** reviewers must judge the model, not trust it.
 **What we'll build:** baseline and main results, a right/wrong table, a cut-off slider.
 **Acceptance criteria:**
-- Every number comes from the saved evaluation, with model version and date.
+- The results come from the saved evaluation, with model version and model build date (the evaluation date itself is not saved).
 - The page explains why plain accuracy misleads when failures are rare.
 
 ### Full testing (builder)
