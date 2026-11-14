@@ -1,22 +1,25 @@
 # Status
 
-_Updated 2026-11-14 11:36 AM ET, Stage 3 in review on branch `core-screens`._
+_Updated 2026-11-14 2:08 PM ET, Stage 4 in review on branch `planner`._
 
 ## Current stage
-**Stage 3, core screens and data service, on branch `core-screens` (PR #30). Built and independently reviewed: passed with known issues. Waiting for the owner to review and merge.**
-- **QA fix round (14 Nov 2026):** Fleet and Asset screens now show one settled set of answers (same hour, cut-off, model version), the page follows refreshed `/metadata` after a model-version retry, and Escape on the mobile menu returns focus to the Menu button.
-- **Merged by Meysam (Owner):**
-  - The data-and-model stage, on 14 Nov 2026 at 9:53 AM ET. He also approved the example planner costs (still illustrative units).
-  - The decision to make the repository public at launch, and only then. This lets Vercel's builds download the model data. Until launch, live checks use protected previews built on the build machine.
+**Stage 4, maintenance planning, on branch `planner`. Built; independent review in progress.**
+- **Merged by Meysam (Owner) on 14 Nov 2026 at 12:24 PM ET:**
+  - Stage 3.
+  - The 7-day repair history.
+  - Holding the dependency-update pull requests until after Stage 4.
 - **Built:**
-  - Fleet Overview and Asset Details on the real data service.
-  - The historical replay bar.
-  - The "no model data" state and loading and error states.
-  - About & Data, updated.
-  - A Playwright test stack using a synthetic model.
-  - 38 screenshots from the real model data, all simulated.
-- **Independent review:** three rounds. Round 1 found two Medium issues: numbers could briefly mismatch during changes, and a new model version didn't refresh the page facts. Round 2 found one Medium: the guide pointed to the unbuilt planner. All are fixed. What remains is a Low gap in the accessibility tests.
-- **Next:** owner review and merge; then Stage 4, the maintenance planner.
+  - The planner calculation and its data question.
+  - The Maintenance Planner screen. Costs come from decision 55: each machine model has its own failure cost and planned repair cost, all illustrative.
+  - The visitor guide's planner step, restored.
+  - Screenshots from the real model data.
+- **First review (calculation part):** two Medium findings, both fixed:
+  - planned costs per machine model, as approved;
+  - the request size limit is now enforced while reading.
+- **Next:**
+  - open the pull request;
+  - measure the planner's answer size on a protected preview;
+  - full review, fixes, re-check.
 - **Blockers:** none.
 
 ## Data and model, session 1 of 3 (branch `data-model`, 14 Nov 2026)
