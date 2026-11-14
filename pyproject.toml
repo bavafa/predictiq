@@ -23,6 +23,8 @@ ml = [
     "numpy>=2.5.4",
     "pandas>=3.1.1",
     "pandas-stubs>=3.1.0.261029",
+    "scikit-learn==1.9.1",
+    "xgboost==3.4.1",
 ]
 
 [tool.uv]
