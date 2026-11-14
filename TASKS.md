@@ -1,26 +1,33 @@
 # Tasks
 
-Current stage: **User-experience design.**
+Current stage: **Architecture.**
 
-## Done (approved by Meysam (Owner), 13 Nov 2026 8:41 PM ET)
-- [x] Gate 0 data check, approved. License accepted and credit line applied.
-- [x] Requirements and stories, approved.
-- [x] Independent review rounds for Gate 0 and the requirements.
+## Done (approved by Meysam (Owner))
+- [x] Gate 0 data check, license accepted, credit line applied (13 Nov 2026, 8:41 PM ET).
+- [x] Requirements and stories (13 Nov 2026, 8:41 PM ET).
+- [x] User-experience design gate (13 Nov 2026, 9:26 PM ET; decisions 11–31).
 
-## Current stage: user-experience design
-- [x] Experience spec: users, the 90-second visitor path, screens, interactions, states, accessibility, labeling rules (`docs/ux-spec.md`)
-- [x] Low-fidelity wireframes, desktop and mobile, for the five screens, rendered to images, plus key states (`docs/wireframes/`)
-- [x] Component list (`docs/design/components.md`)
-- [x] Colour and type tokens, with computed contrast (`docs/design/tokens.md`, `tokens.json`)
-- [x] Independent review of the design documents (result: fail, 3 high and 3 medium findings; `docs/QA_REPORTS/ux-design-codex-review.md`)
-- [x] One bounded fix round: all six findings addressed, 13 Nov 2026 (decisions 21–27)
-- [ ] Owner approval of the design gate (includes design decisions 11–20 and the open questions)
+## Current stage: architecture
+- [x] Read approved documents and the parked architecture draft; reuse only what fits. The draft's "watch" level, same-hour records, float cut-off and Render-first hosting were dropped.
+- [x] Check free-tier limits on official Vercel, Render and Hugging Face docs (13 Nov 2026).
+- [x] Write `docs/architecture.md`: data flow, three modes, label, features and leakage test, splits (proposed), event measures, replay start, data service contract, layout, testing and CI, hosting comparison and recommendation, security, reproducibility.
+- [x] Decisions 32–45 in `DECISIONS.md` (proposed).
+- [x] Independent review (`docs/QA_REPORTS/architecture-codex-review.md`): FAIL, with 1 High, 3 Medium and 1 Low finding.
+- [x] Fix round (13 Nov 2026), all five findings addressed in `docs/architecture.md` and decisions 34, 36, 40–45:
+  - [x] High: the test and replay windows end at 2015-12-30 06:00 (censored at the last observed failure); event counts per split recomputed.
+  - [x] Medium: Vercel Python status corrected from the official docs; ordinary Python function, not Services; hosting conditional on a deploy spike with pass/fail criteria and a named fallback.
+  - [x] Medium: Cache-Control headers per endpoint, `mv` model-version key; Vercel WAF rate-limit rule replaces the per-instance limiter; residual risk stated.
+  - [x] Medium: `evaluate.py --write` once, `--verify` read-only re-check.
+  - [x] Low: "(tested)" and "the bundle fits" removed; bundle format and compression assumption stated.
+- [ ] Verification of the fix round by the independent reviewer.
+- [ ] Owner approval of the architecture gate and open questions (see `STATUS.md`).
 
 ## Next stages
-- [ ] Architecture: not started; waits for design approval
-- [ ] Build in stories (project skeleton, then data and model, screens, planner, launch): not started; waits for approval
+- [ ] Project skeleton: repository layout, download script with hash check, empty app and data service, CI on pull requests.
+- [ ] Vercel deploy spike (decision gate for decision 41), on a new Hobby project. It passes only if: (1) `/api/v1/*` reaches FastAPI and everything else reaches Next.js in one project; (2) Python function plus bundle under 500 MB uncompressed, bytes recorded; (3) cold start over 10 requests, median under 3 s, worst under 10 s; (4) largest allowed response per endpoint under 256 KB; (5) a repeated GET is a cache HIT and the WAF rule returns 429; (6) owner confirms in writing that the demo is personal and non-commercial (Hobby terms). If 1–5 fail: fall back to Vercel frontend + Render free backend. If 6 fails: hosting goes back to the owner.
+- [ ] Data and model, screens, planner, launch: wait for approval.
 
-## Known issues from the design re-check (Medium, tracked; not fixed because the one fix round was used)
-- [ ] Planner per-model-cost example: the "Moved" marks don't come from one consistent earlier order. Use a consistent example.
-- [ ] Model comparison: state that a run of consecutive alert hours counts as one alert in "false alerts per 100 machine-days".
-- [ ] Planner wireframe: the model3 cost field's label must point to the input that is visible in both states.
+## Known issues from the architecture re-check (tracked; the one fix round was used)
+- [ ] Medium: the cache contract conflicts with itself. URLs are "immutable per model version", yet a stale version returns 404, and browsers keep a 200 for an hour. Decide whether old versions stay servable, and define cache behaviour at release.
+- [ ] Low: the event-lookback sentence mixes populations. 3 of the 110 test events lack a full lookback; the other 4 fall after the test window.
+- [ ] Low: the architecture document is about 2,580 words against a target of about two pages.

@@ -122,7 +122,7 @@ A web demo estimating which machines may fail in the next 24 hours and ranking m
 **Problem:** a risk list does not say what to fix first.
 **What we'll build:** a planner ranking machines by expected failure cost.
 **Acceptance criteria:**
-- Rankings change predictably with inputs.
+- Planner results change the same way every time: different failure costs per machine model reorder the list; crew slots change which machines are shortlisted; the alert cut-off changes which machines are listed. All money figures are labeled illustrative.
 - No screen claims savings.
 
 ### Cost and capacity inputs (maintenance manager)
