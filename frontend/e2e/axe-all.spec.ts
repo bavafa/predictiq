@@ -8,6 +8,54 @@ import { PAGES, VIEWPORTS, openPage } from "./page-support";
 // open dialogs / definitions. axe finds roughly a third of WCAG problems; it does not replace a human review.
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
+// The documented cases where axe's color-contrast reports a node as "incomplete" (cannot decide). Each is matched by
+// rule id + selector + reason. "Rendered text contrast" in contrast.spec.ts measures every visible text element, which is
+// what covers the text cases; the icon cases hold no text characters.
+const ACCEPTED_INCOMPLETE: { name: string; rule: string; selector: RegExp; reason: RegExp; coveredBy: string }[] = [
+  {
+    name: "chart axis, tick and label text (recharts <tspan> inside an <svg>)",
+    rule: "color-contrast",
+    selector: /(^|> )tspan(\[[^\]]*\])+$/,
+    reason: /^Element's background color could not be determined because (element contains an image node|it is overlapped by another element)$|^Element content is too short to determine if it is actual text content$/,
+    coveredBy: "rendered text contrast (SVG text, fill colour against the chart background)",
+  },
+  {
+    name: "chart legend text (recharts legend item text span)",
+    rule: "color-contrast",
+    selector: /recharts-legend-item-text > span$/,
+    reason: /^Element's background color could not be determined because element contains an image node$/,
+    coveredBy: "rendered text contrast",
+  },
+  {
+    name: "replay bar helper text (fourth child of the replay bar row)",
+    rule: "color-contrast",
+    selector: /^\.gap-x-2 > \.text-ink-2\.text-xs:nth-child\(4\)$/,
+    reason: /^Element's background color could not be determined because it's partially obscured by another element$/,
+    coveredBy: "rendered text contrast",
+  },
+  {
+    name: "planner plan-table cells: slot and moved",
+    rule: "color-contrast",
+    selector: /\[data-testid="plan-row"\](\[data-listing="[a-z_]+"\])? > \.whitespace-nowrap\[data-testid="(slot|moved)"\]$/,
+    reason: /^Element's background color could not be determined because it's partially obscured by another element$/,
+    coveredBy: "rendered text contrast",
+  },
+  {
+    name: "aria-hidden icon glyph (no text characters)",
+    rule: "color-contrast",
+    selector: /span\[aria-hidden="true"\]$/,
+    reason: /^Element content contains only non-text characters$/,
+    coveredBy: "nothing needed: no text; the glyph is decorative and its control has a text name",
+  },
+  {
+    name: "the crew-slot stepper symbols",
+    rule: "color-contrast",
+    selector: /^button\[aria-label="(Fewer|More) crew slots"\]$/,
+    reason: /^Element content contains only non-text characters$/,
+    coveredBy: "control boundary check in contrast.spec.ts (the symbol is a non-text mark with an accessible name)",
+  },
+];
+
 async function violations(page: Page) {
   const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   return violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(" ")).join(" ; ")}`);
@@ -135,17 +183,13 @@ for (const vp of VIEWPORTS) {
       expect(passed, "color-contrast is in the passes").toBeTruthy();
       expect(passed!.nodes.length, "text nodes checked by color-contrast").toBeGreaterThan(5);
       expect(res.inapplicable.some((r) => r.id === "color-contrast")).toBe(false);
-      // Nodes axe could not decide. Three kinds are accepted, because something else covers them:
-      //  - text inside an SVG chart and chart legend text (axe cannot find a background for <tspan> or the legend);
-      //  - text axe thinks is "partially obscured" by another element (table cells and the replay bar);
-      //  both are measured by "rendered text contrast" in contrast.spec.ts, which checks every visible text element;
-      //  - an aria-hidden icon glyph that contains no text characters (axe says "only non-text characters").
-      // Anything else axe cannot decide fails this test.
+      // Nodes axe could not decide. Only the documented cases in ACCEPTED_INCOMPLETE are accepted: each node must match
+      // one case on rule id (color-contrast), selector AND reason. A known selector with a new reason, or a new selector
+      // with a known reason, fails. Anything else axe cannot decide fails this test.
       const undecided = res.incomplete
         .filter((r) => r.id === "color-contrast")
-        .flatMap((r) => r.nodes.map((n) => ({ target: n.target.join(" "), why: n.any[0]?.message ?? "", html: n.html })))
-        .filter((n) => !/(^|[ >])(tspan|text)\b|recharts-surface|recharts-legend/.test(n.target))
-        .filter((n) => !/only non-text characters|partially obscured/.test(n.why))
+        .flatMap((r) => r.nodes.map((n) => ({ rule: r.id, target: n.target.join(" "), why: n.any[0]?.message ?? "", html: n.html })))
+        .filter((n) => !ACCEPTED_INCOMPLETE.some((c) => c.rule === n.rule && c.selector.test(n.target) && c.reason.test(n.why)))
         .map((n) => `${n.target.slice(-80)} :: ${n.why} :: ${n.html.slice(0, 120)}`);
       expect(undecided).toEqual([]);
     });

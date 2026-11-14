@@ -217,4 +217,4 @@ Still Lead defaults: crew slots start at 5; the risk-reduction assumption is **o
 Nothing was deployed, no Vercel setting was changed and the repository stays private until the launch steps in `docs/LAUNCH_CHECKLIST.md`. *Status: Lead default, owner to approve at launch gate.*
 
 ## Pending owner decisions
-- Launch gate (see `docs/LAUNCH_CHECKLIST.md`): go-ahead; the personal author email in commit `874a686` and the older internal paths in history (`docs/QA_REPORTS/stage5-history-scan.md`); a licence for this repository's own code; approval of decisions 70 and 71; the Vercel protection setting name to confirm.
+- Launch gate (see `docs/LAUNCH_CHECKLIST.md`): go-ahead; the personal author email in commit `874a686` and the older internal paths in history (`docs/QA_REPORTS/stage5-history-scan.md`); a licence for this repository's own code; approval of decisions 70 and 71. (Vercel protection is Standard Protection, `all_except_custom_domains`; no change is expected, see the checklist, step 6.)

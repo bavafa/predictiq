@@ -61,11 +61,13 @@ Status: **prepared, not started.** Nothing below has been run against production
 - **Rollback:** revert the pull request (the `ignoreCommand` returns, so no further `main` builds run). To take down a live production deployment, see step 9.
 
 ### 6. Deployment protection: public production, protected previews
-- **Who:** Meysam, in the Vercel dashboard (Project → Settings → Deployment Protection). Builder does not change Vercel settings.
-- **Target:** previews stay behind Vercel Authentication; the production site is reachable without login. This is the dashboard's **Standard Protection** (it protects preview and generated deployment URLs and leaves the production domain open). **To confirm:** the exact API value name (`ssoProtection.deploymentType`; candidates are `all_except_custom_domains` and `prod_deployment_urls_and_all_previews`) is not written down anywhere in this repository, and the two differ in whether the production *domain* is open. Pick the dashboard option whose description says the production domain is public, then verify with the check below rather than trusting the label.
-- **Check (logged out):** `curl -sS -o /dev/null -w "%{http_code}\n" https://<PROD_URL>/` prints `200`; the same request to a **preview** URL still prints `401`.
-- **Expected:** production 200 without login; previews 401.
-- **Rollback:** set the protection option back to its previous value (the dashboard shows it before saving; note it down first). The site is private again within seconds.
+- **Who:** Builder checks (read-only, logged out). No protection change is expected, so Meysam changes nothing in Vercel unless the fallback below applies.
+- **Facts (checked read-only by the orchestrator, 14 Nov 2026, about 5:15 PM ET):** the project's protection is Vercel Authentication with `deploymentType` `all_except_custom_domains`. Vercel's documentation (vercel.com/docs/deployment-protection, "Standard Protection: protects all deployments except production domains") calls this **Standard Protection**. The project's production domain is `predictiq-eight.vercel.app`. Logged out, it answers HTTP 404 `DEPLOYMENT_NOT_FOUND` with no sign-in redirect (no production deployment exists yet), while a preview URL answers 302 to Vercel's sign-in.
+- **Target:** no protection change at launch. Production on `predictiq-eight.vercel.app` should be public; previews stay protected.
+- **Check (logged out), after the production deployment:** `curl -sS -o /dev/null -w "%{http_code}\n" https://predictiq-eight.vercel.app/` prints `200`; the same request to a **preview** URL still prints `302` (redirect to Vercel's sign-in).
+- **Expected:** production 200 without login; previews 302 to sign-in.
+- **Fallback:** if production is still behind sign-in, **stop and ask Meysam**. Do not turn protection off.
+- **Rollback:** nothing was changed, so nothing to roll back. If Meysam changes a setting under the fallback, note the previous value first and restore it.
 
 ### 7. Production smoke checks
 - **Who:** Builder (logged out, plain `curl` and a headless browser). Do not run load tests: the rate-limit rule is 300 requests per 60 s per IP on `/api/*`.
@@ -84,7 +86,7 @@ Status: **prepared, not started.** Nothing below has been run against production
 - **Rollback:** any failed check: go to step 9 (rollback) and record the result.
 
 ### 8. Add the live link
-- **Who:** Builder drafts, Meysam merges. Change the README line "Live demo: (added at launch)" to the production address, and add the same link to the portfolio card. Keep the portfolio description from the brief word for word and keep "simulated" in it.
+- **Who:** Builder drafts, Meysam merges. Change the README line "Live demo: `https://predictiq-eight.vercel.app` (goes live at launch)" to a plain link, dropping "(goes live at launch)", and add the same link to the portfolio card. Keep the portfolio description from the brief word for word and keep "simulated" in it.
 - **Expected:** README on the public repository shows a working link; the link opens without login.
 - **Rollback:** revert the pull request.
 
@@ -111,7 +113,7 @@ No domain is added at any step, and no environment variable or secret is needed.
 | 7 | No mock estimates or placeholder results in the released app | Production build refuses a synthetic bundle and fails without a real one (`frontend/tests/fetch-bundle.test.ts`; the end-to-end script `scripts/verify_bundle_download.sh` is not yet run) | Done in code; **open until production is checked** (step 7) |
 | 8 | Unit, integration, E2E, accessibility and deployment smoke pass; limitations documented | `docs/QA_REPORTS/stage5-testing.md` (automated accessibility only: no human screen-reader or real-device test), About & Data limitations section, model card | Done except deployment smoke on production: **open** |
 | 9 | Independent review at gates; critical and high findings resolved or accepted | `docs/QA_REPORTS/*-codex-review-*`; Stage 5 round 3 "pass with known issues", round 4 findings Medium/Low only | Done for Stage 5 sessions 1 to 2; a review of this launch-preparation session is **open** |
-| 10 | README and portfolio case study: problem, dataset, design, architecture, ML evaluation, demo link, limitations | `README.md` (live link "(added at launch)"), `docs/MODEL_CARD.md` | README done; **portfolio case study and card are the owner's: open**; demo link open |
+| 10 | README and portfolio case study: problem, dataset, design, architecture, ML evaluation, demo link, limitations | `README.md` (live link "(goes live at launch)"), `docs/MODEL_CARD.md` | README done; **portfolio case study and card are the owner's: open**; demo link open |
 
 Also from the story "Public release and limitations": notice on every page (done, tested); data credit (applied as approved); limitations section (About & Data, Model Performance, model card); no secrets, personal information or private notes remain: the history scan found no secrets but **one personal author email in commit history and some internal paths in older commits** (see `docs/QA_REPORTS/stage5-history-scan.md`): owner decision **open**.
 

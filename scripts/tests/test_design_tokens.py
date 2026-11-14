@@ -122,6 +122,19 @@ NAMED_VALUE = re.compile(
     rf"stopColor|stop-color|floodColor)\s*[:=]\s*\{{?\s*[\"']?(?:{CSS_NAMES})\b",
 )
 
+# JavaScript / TSX style objects and attributes: backgroundColor: "teal", fill: "hotpink", style.stroke = ...
+# Any string value is a colour here unless it is a design-token variable or a non-colour keyword. Hex values
+# are judged against the token list by the hex pattern, so they are skipped here.
+JS_COLOUR_PROPS = (
+    "color|backgroundColor|background|borderColor|border(?:Top|Right|Bottom|Left)Color|outlineColor|fill|stroke|"
+    "stopColor|floodColor|caretColor|accentColor|textDecorationColor|lightingColor"
+)
+JS_STYLE_STRING = re.compile(rf"\b(?:{JS_COLOUR_PROPS})\s*(?::|=(?!=))\s*[{{(]?\s*([\"'`])([^\"'`\n]*)\1")
+JS_STRING_OK = re.compile(
+    r"^\s*(?:#[0-9a-fA-F]+|var\(--color-[a-z0-9-]+\)|none|transparent|currentColor|currentcolor|inherit|initial|unset|"
+    r"white|auto|)\s*$"
+)
+
 # (file, text) pairs allowed although they are not tokens. Each needs a reason, and must still be present.
 OFF_TOKEN_ALLOWED = {
     (
@@ -205,6 +218,10 @@ def _scan_source() -> list[tuple[str, str, str]]:
             for m in NAMED_VALUE.finditer(text):
                 if not m.group(0).lower().rstrip("\"'").endswith("white"):
                     found.append((rel, "CSS colour name", m.group(0)))
+            if f.suffix in {".ts", ".tsx"}:
+                for m in JS_STYLE_STRING.finditer(text):
+                    if not JS_STRING_OK.match(m.group(2)):
+                        found.append((rel, "JS style colour string", m.group(0)))
     return found
 
 
@@ -236,6 +253,13 @@ def test_no_off_token_colour_in_app_source() -> None:
         ('className="text-[color:var(--x)]"', "arbitrary colour"),
         ('className="bg-[rgb(1,2,3)]"', "arbitrary colour"),
         ('const s = { fill: "red" };', "CSS colour name"),
+        ('const s = { backgroundColor: "red" };', "JS style colour string"),
+        ("const s = { backgroundColor: 'hotpink' };", "JS style colour string"),
+        ('<rect style={{ borderTopColor: "teal" }} />', "JS style colour string"),
+        ('const s = { color: "var(--brand)" };', "JS style colour string"),
+        ('el.style.backgroundColor = "tomato";', "JS style colour string"),
+        ("const s = { stroke: `lightblue` };", "JS style colour string"),
+        ('<circle fill="hotpink" />', "JS style colour string"),
     ],
 )
 def test_scan_patterns_catch_off_token_colours(
@@ -255,7 +279,9 @@ def test_scan_ignores_tokens_and_plain_text(tmp_path: Path, monkeypatch: pytest.
     d.mkdir(parents=True)
     ok = (
         'const a = "#FFF"; const b = "#2563EB"; href="#main"; '
-        'className="text-white bg-card text-ink bg-transparent w-1/2"'
+        'className="text-white bg-card text-ink bg-transparent w-1/2" '
+        'const s = { backgroundColor: "var(--color-brand)", fill: "none", '
+        'stroke: "currentColor", color: "#2563EB" };'
     )
     (d / "x.tsx").write_text(ok)
     monkeypatch.setattr(sys.modules[__name__], "ROOT", tmp_path)

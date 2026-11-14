@@ -42,11 +42,60 @@ async function controlBoundaries(page: Page): Promise<Report> {
         rep.inactive++;
         continue;
       }
-      if (el instanceof HTMLInputElement && ["range", "checkbox", "radio"].includes(el.type)) {
-        rep.native++; // drawn by the browser; not sampled here
-        continue;
-      }
       const behind = q.behind(el);
+      if (el instanceof HTMLInputElement && ["range", "checkbox", "radio"].includes(el.type)) {
+        // Native controls are styled from tokens (globals.css), so each visible part is read from computed styles and held
+        // to 3:1: the accent colour; for a range its track and thumb (pseudo-elements); for a checkbox or radio its border
+        // (the normal boundary check below) and, when on, its fill. No blanket exemption.
+        rep.native++;
+        const part = (what: string, raw: string) => {
+          const c = q.parse(raw);
+          if (c[3] === 0) {
+            rep.failures.push(`${label(el)}: ${what} has no measurable colour (${raw})`);
+            return;
+          }
+          const r = q.ratio(q.over(c, behind), behind);
+          if (r < 3) rep.failures.push(`${label(el)}: ${what} ${q.hex(q.over(c, behind))} on ${q.hex(behind)} is ${r.toFixed(2)}:1`);
+        };
+        part("accent-color", cs.accentColor);
+        if (el.type === "range") {
+          // Chromium does not return computed styles for slider pseudo-elements (always transparent), so the track and
+          // thumb colours are read from the DECLARED rules in the loaded stylesheet and resolved through the token
+          // variables. This measures what the stylesheet says, not painted pixels (see stage5-testing.md).
+          const declared = (pseudo: string): string => {
+            const walk = (rules: CSSRuleList): string => {
+              let found = "";
+              for (const rule of Array.from(rules)) {
+                const r = rule as CSSStyleRule & { cssRules?: CSSRuleList };
+                if (r.selectorText && r.selectorText.includes(pseudo) && r.selectorText.includes('input[type="range"]')) {
+                  const v = r.style.getPropertyValue("background-color") || r.style.getPropertyValue("background");
+                  if (v) found = v;
+                } else if (r.cssRules) found = walk(r.cssRules) || found;
+              }
+              return found;
+            };
+            let value = "";
+            for (const sheet of Array.from(document.styleSheets)) {
+              try {
+                value = walk(sheet.cssRules) || value;
+              } catch {
+                /* cross-origin sheet: none here */
+              }
+            }
+            if (!value) return "rgba(0, 0, 0, 0)";
+            const probe = document.createElement("span");
+            probe.style.color = value;
+            document.documentElement.appendChild(probe);
+            const resolved = getComputedStyle(probe).color;
+            probe.remove();
+            return resolved;
+          };
+          part("track (declared)", declared("::-webkit-slider-runnable-track"));
+          part("thumb (declared)", declared("::-webkit-slider-thumb"));
+          continue;
+        }
+        if (el.checked) part("checked fill", cs.backgroundColor);
+      }
       const own = q.over(q.parse(cs.backgroundColor), behind);
       const sides = ["Top", "Right", "Bottom", "Left"] as const;
       const border = sides

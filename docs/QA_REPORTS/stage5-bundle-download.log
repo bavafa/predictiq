@@ -1,0 +1,73 @@
+version: piq-20261114-efc9c243
+node: v24.22.1
+manifest sha256: 0ad2916e96323e9b95a86d306924b5d66beb3c1f3185efc510a7bcbc4b2d57d2
+bundle.zip sha256: 0ad2916e96323e9b95a86d306924b5d66beb3c1f3185efc510a7bcbc4b2d57d2
+PASS: the local bundle.zip matches the committed manifest
+
+== 1. clean worktree of HEAD plus the current non-ignored working-tree files
+PASS: worktree has no artifacts/piq-20261114-efc9c243/bundle
+PASS: worktree has no node_modules (the prebuild uses Node built-ins only)
+PASS: tampered zip has exactly the real zip's length
+PASS: tampered zip differs from the real one
+local server on 127.0.0.1:40425 (pid 58365)
+
+== 2. production build, good zip: must unpack and match
+    fetch-bundle: downloading the bundle for piq-20261114-efc9c243 from http://127.0.0.1:40425/good/bundle.zip
+    fetch-bundle: SHA-256 matched; unpacked 10 files to artifacts/piq-20261114-efc9c243/bundle
+    synced <tmp>/tree/backend/app -> <tmp>/tree/frontend/_backend/app
+    synced bundle piq-20261114-efc9c243 -> <tmp>/tree/frontend/_backend/bundle
+PASS: prebuild exit code 0
+PASS: log says the SHA-256 matched
+PASS: 10 files copied to frontend/_backend/bundle (the function's bundle folder)
+PASS: every unpacked file is byte-identical to the local bundle
+PASS: combined content hash of the unpacked folder equals the local one (39171cfb4d315250)
+PASS: no staging folder left behind
+
+== 3. production build, WRONG HASH (same-length zip, one bit flipped): the SHA-256 check must be what refuses it
+    fetch-bundle: downloading the bundle for piq-20261114-efc9c243 from http://127.0.0.1:40425/tampered/bundle.zip
+    sync-backend: SHA-256 mismatch: the manifest says 0ad2916e96323e9b95a86d306924b5d66beb3c1f3185efc510a7bcbc4b2d57d2, the download is 87f9eac52d32cad25f952136fc02fb12b6da60abdcaa4301592544c24f982dc7. Nothing was unpacked.
+    sync-backend: the bundle is required for this build, so the build stops here. Nothing is deployed without model data.
+PASS: prebuild exit code 1
+PASS: log says SHA-256 mismatch
+PASS: nothing was unpacked
+
+== 4. production build, release missing (HTTP 404): must fail
+    fetch-bundle: downloading the bundle for piq-20261114-efc9c243 from http://127.0.0.1:40425/no-such/bundle.zip
+    sync-backend: download failed: HTTP 404 from http://127.0.0.1:40425/no-such/bundle.zip
+    sync-backend: the bundle is required for this build, so the build stops here. Nothing is deployed without model data.
+PASS: exit code 1 with HTTP 404
+
+== 5. production build, nothing listening: must fail
+    fetch-bundle: downloading the bundle for piq-20261114-efc9c243 from http://127.0.0.1:9/bundle.zip
+    sync-backend: download failed: fetch failed
+    sync-backend: the bundle is required for this build, so the build stops here. Nothing is deployed without model data.
+PASS: exit code 1
+
+== 6. production build, same member count, one name replaced by an unexpected one (hash and size patched): unexpected-file check must refuse
+    fetch-bundle: downloading the bundle for piq-20261114-efc9c243 from http://127.0.0.1:40425/tampered/renamed.zip
+    sync-backend: unexpected file in the zip: "run-me-xxxxxxxxxxxxxxxx"
+    sync-backend: the bundle is required for this build, so the build stops here. Nothing is deployed without model data.
+PASS: exit code 1, unexpected file refused after the hash matched
+PASS: nothing was unpacked
+
+== 7. production build, download larger than the manifest's zip_bytes: size cap must refuse
+    fetch-bundle: downloading the bundle for piq-20261114-efc9c243 from http://127.0.0.1:40425/tampered/big.zip
+    sync-backend: the download is larger than the allowed 8122585 bytes
+    sync-backend: the bundle is required for this build, so the build stops here. Nothing is deployed without model data.
+PASS: exit code 1, size cap refused the download
+PASS: nothing was unpacked
+
+== 8. production build, one member too many (hash and size patched): file-count check must refuse
+    fetch-bundle: downloading the bundle for piq-20261114-efc9c243 from http://127.0.0.1:40425/tampered/extra.zip
+    sync-backend: the zip holds more files than a bundle has
+    sync-backend: the bundle is required for this build, so the build stops here. Nothing is deployed without model data.
+PASS: exit code 1, file-count check refused
+PASS: nothing was unpacked
+
+== 9. preview build (no env), no bundle: must pass and say the data endpoints answer 503
+    synced <tmp>/tree/backend/app -> <tmp>/tree/frontend/_backend/app
+    no bundle found under artifacts/: the data endpoints will answer 503 (no data is faked)
+PASS: exit code 0, no bundle, 503 notice
+
+== summary
+ALL CHECKS PASSED
