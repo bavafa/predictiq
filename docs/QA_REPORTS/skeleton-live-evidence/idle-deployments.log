@@ -1,0 +1,21 @@
+# Cold start, method B: first request to each of the 10 earlier preview redeploys, each idle since about 11:51 PM 13 Nov (no traffic since), then one warm request. Started 01:12:03
+01:12:06 COLD https://predictiq-1uy3ne477-1shot.vercel.app status=200 TIME_TOTAL=1.449015
+01:12:08 WARM https://predictiq-1uy3ne477-1shot.vercel.app status=200 TIME_TOTAL=0.472782
+01:12:11 COLD https://predictiq-6ogsedhx9-1shot.vercel.app status=200 TIME_TOTAL=1.420706
+01:12:13 WARM https://predictiq-6ogsedhx9-1shot.vercel.app status=200 TIME_TOTAL=0.503628
+01:12:16 COLD https://predictiq-a7vlipptv-1shot.vercel.app status=200 TIME_TOTAL=1.609187
+01:12:18 WARM https://predictiq-a7vlipptv-1shot.vercel.app status=200 TIME_TOTAL=0.324428
+01:12:21 COLD https://predictiq-gszxhbeld-1shot.vercel.app status=200 TIME_TOTAL=1.480371
+01:12:23 WARM https://predictiq-gszxhbeld-1shot.vercel.app status=200 TIME_TOTAL=0.345475
+01:12:26 COLD https://predictiq-i1ppku2ny-1shot.vercel.app status=200 TIME_TOTAL=1.331842
+01:12:28 WARM https://predictiq-i1ppku2ny-1shot.vercel.app status=200 TIME_TOTAL=0.456738
+01:12:31 COLD https://predictiq-kzqkaik3b-1shot.vercel.app status=200 TIME_TOTAL=1.660746
+01:12:33 WARM https://predictiq-kzqkaik3b-1shot.vercel.app status=200 TIME_TOTAL=0.585200
+01:12:36 COLD https://predictiq-nxn2s3xk8-1shot.vercel.app status=200 TIME_TOTAL=1.516977
+01:12:38 WARM https://predictiq-nxn2s3xk8-1shot.vercel.app status=200 TIME_TOTAL=0.359973
+01:12:41 COLD https://predictiq-pl25zf4a5-1shot.vercel.app status=200 TIME_TOTAL=1.579094
+01:12:42 WARM https://predictiq-pl25zf4a5-1shot.vercel.app status=200 TIME_TOTAL=0.414007
+01:12:45 COLD https://predictiq-pqubys3eo-1shot.vercel.app status=200 TIME_TOTAL=1.423143
+01:12:47 WARM https://predictiq-pqubys3eo-1shot.vercel.app status=200 TIME_TOTAL=0.317609
+01:12:50 COLD https://predictiq-rd1de29zn-1shot.vercel.app status=200 TIME_TOTAL=1.516244
+01:12:52 WARM https://predictiq-rd1de29zn-1shot.vercel.app status=200 TIME_TOTAL=0.365443

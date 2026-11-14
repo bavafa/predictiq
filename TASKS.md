@@ -24,7 +24,7 @@ Current stage: **Build, story 1: project skeleton.**
 
 ## Next stages
 - [ ] Project skeleton: repository layout, download script with hash check, empty app and data service, CI on pull requests.
-- [ ] Vercel deploy spike (decision gate for decision 41), on a new Hobby project. It passes only if: (1) `/api/v1/*` reaches FastAPI and everything else reaches Next.js in one project; (2) Python function plus bundle under 500 MB uncompressed, bytes recorded; (3) cold start over 10 requests, median under 3 s, worst under 10 s; (4) largest allowed response per endpoint under 256 KB; (5) a repeated GET is a cache HIT and the WAF rule returns 429; (6) owner confirms in writing that the demo is personal and non-commercial (Hobby terms). If 1–5 fail: fall back to Vercel frontend + Render free backend. If 6 fails: hosting goes back to the owner.
+- [x] Vercel deploy spike (decision gate for decision 41), passed 14 Nov 2026, on a new Hobby project. It passes only if: (1) `/api/v1/*` reaches FastAPI and everything else reaches Next.js in one project; (2) Python function plus bundle under 500 MB uncompressed, bytes recorded; (3) cold start over 10 requests, median under 3 s, worst under 10 s; (4) largest allowed response per endpoint under 256 KB; (5) a repeated GET is a cache HIT and the WAF rule returns 429; (6) owner confirms in writing that the demo is personal and non-commercial (Hobby terms). If 1–5 fail: fall back to Vercel frontend + Render free backend. If 6 fails: hosting goes back to the owner.
 - [ ] Data and model, screens, planner, launch: wait for approval.
 
 ## Known issues from the architecture re-check (tracked; the one fix round was used)
@@ -38,7 +38,7 @@ Current stage: **Build, story 1: project skeleton.**
 - [x] App shell: navigation, disclosure banner, "Historical replay" badge, honest "not built yet" states
 - [x] Hash-checked download script and no-network test; `ignoreCommand` skipping `main` builds
 - [x] Screenshots in `docs/QA_REPORTS/skeleton-screenshots/`
-- [ ] Trial deploy on Vercel as a protected preview, measuring the six checks. Preview deploys (success, 13 Nov 2026). Data service bundling fixed and checked by a local build. Live checks BLOCKED: no sanctioned access to the protected preview (connector not authorised for this project; command-line tool not signed in). Needs Meysam.
+- [x] Trial deploy on Vercel as a protected preview, measuring the six checks: all met (14 Nov 2026; see the live checks report).
   - [ ] Low (review): adapter test can pass without a real bundle; menu test does not cover a real route change; adapter description out of date.
 - [x] Independent review (`docs/QA_REPORTS/skeleton-codex-review.md`): PASS WITH KNOWN ISSUES
 - [x] Fix round (13 Nov 2026): gitleaks 403 (`pull-requests: read`); axe accessibility checks in e2e (5 routes × desktop/mobile + open menu); actions pinned to commit SHAs; mobile menu is a modal dialog with inert background; stale notes updated; `.github/dependabot.yml` added

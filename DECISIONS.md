@@ -120,5 +120,25 @@ Full detail in `docs/architecture.md`.
 
 **52. Hosting decision 41 stays open.** The trial deploy builds and deploys on Vercel, but the live checks could not be measured because the protected preview cannot yet be reached by a sanctioned route. Under "no evidence means not met" it neither passes nor falls back to Render. Only the non-commercial check is met (decision 47). *Status: Lead record, 2026-11-13 11:10 PM ET; needs Meysam to grant access, then re-measure.*
 
+## 2026-11-14
+
+**53. Hosting decision 41 passes: website and data service both on one Vercel Hobby project.** All six trial checks were met on the protected preview:
+- one project serves both parts;
+- the data service is about 6.5 MB;
+- cold start median is 1.50 s and worst 1.66 s (n=10);
+- the largest response is 10,879 bytes;
+- the cache serves HITs and MISSes as designed, and the rate-limit rule returns 429;
+- non-commercial use is confirmed.
+
+The Render fallback is not needed. This supersedes decision 52. *Status: Lead record from measured evidence, 2026-11-14 1:15 AM ET; the owner can review it with the skeleton story.*
+
+**54. Vercel settings changed in the trial (all approved).**
+- One free firewall rate-limit rule on this project: paths starting with /api/, at most 300 requests per 60 seconds per address, otherwise 429. It was approved by Meysam (Owner) on 13 Nov 2026. For the 429 test it was lowered to 20 for about 30 seconds and then set back.
+- The Vercel command-line tool, signed in as the owner, created one "protection bypass for automation" secret for this project only, so that live checks could reach the protected preview. The secret is kept out of the repository and reports, and it can be revoked in the project's settings.
+- Deployment protection stayed on.
+- Ten extra preview copies of this branch were made for timing and left in place.
+
+Nothing went to production, and no domains or environment variables were added. *Status: Lead record, 2026-11-14 1:15 AM ET.*
+
 ## Pending owner decisions
 - Illustrative cost defaults (can wait until the planner is built).

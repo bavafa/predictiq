@@ -1,2 +1,6 @@
 run=1 idle_s=720 COLD 00:17:26 /api/v1/health status=200 cache=MISS age=0 cc="no-store" TIME_TOTAL=1.452374 TTFB=1.452250 SIZE=36 id=iad1::iad1::qv6jk-1794633445658-fa1f61abf766
 run=1 WARM 00:17:28 /api/v1/health status=200 cache=MISS age=0 cc="no-store" TIME_TOTAL=0.355930 TTFB=0.355756 SIZE=36 id=iad1::iad1::q4tcp-1794633448426-4ffb18a835de
+run=2 idle_s=720 COLD 00:36:08 /api/v1/health status=200 cache=MISS age=0 cc="no-store" TIME_TOTAL=0.357410 TTFB=0.357334 SIZE=36 id=iad1::iad1::7mlvk-1794634568230-e3e10f6dda35
+run=2 WARM 00:36:10 /api/v1/health status=200 cache=MISS age=0 cc="no-store" TIME_TOTAL=0.395144 TTFB=0.395074 SIZE=36 id=iad1::iad1::vrwdw-1794634570336-d3922f0dfe1b
+run=3 idle_s=720 COLD 01:06:44 /api/v1/health status=200 cache=MISS age=0 cc="no-store" TIME_TOTAL=1.438624 TTFB=1.438457 SIZE=36 id=iad1::iad1::zlz6r-1794636403348-22b38ddc7bec
+run=3 WARM 01:06:46 /api/v1/health status=200 cache=MISS age=0 cc="no-store" TIME_TOTAL=0.671881 TTFB=0.671777 SIZE=36 id=iad1::iad1::hgfnv-1794636406479-bd3aa6558646

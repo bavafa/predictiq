@@ -11,8 +11,8 @@ _Updated 2026-11-13, after the skeleton review fix round._
 **CI:** green on GitHub for commit 554e106 (runs 43551738720 pull request and 43551731238 push: frontend, e2e, python and security all succeeded). Actions are bumped to Node 24 releases and pinned by commit SHA.
 **Re-verification:** PASS WITH KNOWN ISSUES (one new Low: after a mobile menu link is chosen, focus is not moved). Fixed: focus now moves to `<main>`, with a Vitest test; lint, typecheck, test, build and e2e pass.
 **Next:** trial deploy on Vercel as a protected preview (spike, decision 41), which is the first real test of the Root Directory `frontend` + `api/index.py` + rewrite layout; independent review; then the data-and-model stage.
-**Blockers:** the preview deploys (Vercel reports success, 13 Nov 2026 11:03 PM ET) but is behind Vercel's sign-in, which stays on. None of our sanctioned ways in works yet: the Vercel connector is only authorised for another project, and the Vercel command-line tool on the build machine is not signed in. So no live check could be measured. Meysam must either extend the connector's access to this project or sign the command-line tool in on the build machine.
-**Known limitations:** Vercel layout checked only by a local build, not live; `make` not installed on the build machine, so the Makefile was not executed; `npm audit` shows 7 moderate dev-tool issues (minimatch via typescript-eslint, fix needs a breaking upgrade), none high; no replay controls by design.
+**Blockers:** none for this story. Owner to review and merge.
+**Known limitations:** rate-limit counting is per address, and the build machine's traffic leaves from several addresses, so the 429 was shown with a temporarily lowered limit; `make` not installed on the build machine, so the Makefile was not executed; `npm audit` shows 7 moderate dev-tool issues (minimatch via typescript-eslint, fix needs a breaking upgrade), none high; no replay controls by design.
 **How to run:** see `README.md` (`make setup`, `make dev`, `make test`).
 
 ## Done
@@ -60,3 +60,4 @@ _Updated 2026-11-13, after the skeleton review fix round._
 Independent review: first pass FAIL (1 High: the test window included hours with incomplete labels). After one fix round the re-check is PASS WITH KNOWN ISSUES. The High finding and 2 of 3 Mediums are resolved. The hosting finding is partly resolved; it stays conditional on the deploy spike. Two new small documentation issues and the document's length are tracked in the task list.
 - 13 Nov 2026: Vercel Python function now bundles the backend (prebuild copy to frontend/_backend, includeFiles, Next.js app/ excluded); verify-fn.sh prints VERIFY_FN_OK.
 - 13 Nov 2026, 11:03 PM ET: preview of this branch deployed on Vercel (success); mobile menu now moves focus to the page after a link is used; independent review of the deploy evidence: hosting gate still open (only the non-commercial check is met).
+- 14 Nov 2026, 1:15 AM ET: live checks on the protected preview all met (details in the live checks report); one free rate-limit rule added; Vercel-only hosting confirmed.
