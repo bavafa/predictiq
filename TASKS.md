@@ -34,11 +34,12 @@ Current stage: **Build, story 1: project skeleton.**
 
 ## Build stage, story 1: project skeleton (started 13 Nov 2026, 10:05 PM ET)
 - [x] Scaffold: website, data service as a Vercel Python function (layout in `docs/DEPLOY.md`, untested on Vercel), machine-learning package skeleton, Makefile stubs (14 Nov 2026; `make` itself is not installed on the build machine, so the recipes were run by hand)
-- [x] Lint, type checks, tests (pytest, Vitest, one Playwright smoke test) and continuous integration (workflow written; not yet run on GitHub)
+- [x] Lint, type checks, tests (pytest, Vitest, one Playwright smoke test) and continuous integration (green on GitHub)
 - [x] App shell: navigation, disclosure banner, "Historical replay" badge, honest "not built yet" states
 - [x] Hash-checked download script and no-network test; `ignoreCommand` skipping `main` builds
 - [x] Screenshots in `docs/QA_REPORTS/skeleton-screenshots/`
-- [ ] Trial deploy on Vercel as a protected preview, measuring the six checks
+- [ ] Trial deploy on Vercel as a protected preview, measuring the six checks. BLOCKED: Vercel project creation refused (403); Vercel CLI not logged in. Needs Meysam.
 - [x] Independent review (`docs/QA_REPORTS/skeleton-codex-review.md`): PASS WITH KNOWN ISSUES
 - [x] Fix round (13 Nov 2026): gitleaks 403 (`pull-requests: read`); axe accessibility checks in e2e (5 routes × desktop/mobile + open menu); actions pinned to commit SHAs; mobile menu is a modal dialog with inert background; stale notes updated; `.github/dependabot.yml` added
-- [ ] CI green on GitHub after the fix round
+- [x] CI green on GitHub after the fix round (commit 554e106, all 4 jobs on push and pull request)
+- [ ] Low (tracked): move focus sensibly after choosing a mobile menu link
