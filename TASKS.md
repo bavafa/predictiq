@@ -1,6 +1,6 @@
 # Tasks
 
-Current stage: **Stage 3, core screens and data service (session 1 of 3 done).**
+Current stage: **Stage 3, core screens and data service (all 3 sessions done; awaiting review).**
 
 ## Done (approved by Meysam (Owner))
 - [x] Gate 0 data check, license accepted, credit line applied (13 Nov 2026, 8:41 PM ET).
@@ -57,7 +57,11 @@ Current stage: **Stage 3, core screens and data service (session 1 of 3 done).**
 ## Stage 3: Core screens and data service (started 14 Nov 2026, branch `core-screens`)
 - [x] Session 1 (foundations): data service contract rules verified and tested, answers-against-saved-scores tests (synthetic in CI, real bundle opt-in), typed web client with `mv` retry, no-model-data / error / loading / waking states, shared address state, historical replay control, end-to-end tests on a real stack (synthetic bundle; opt-in real bundle).
 - [x] Session 2 (14 Nov 2026): Fleet Overview body (cards, charts, table, filters, cut-off control), Vitest, Playwright synthetic and opt-in real-bundle checks, screenshots in `docs/QA_REPORTS/stage3-screenshots/`.
-- [ ] Decide the wireframe's "Latest error" column for the fleet table (needs a `/fleet` field, or drop it).
-- [ ] Session 3: Asset Details body (sensor charts, explanation, events, machine selector and its states).
+- [x] Wireframe's "Latest error" column: added `latest_error` to `/fleet` rows (bundle has the records; tested against saved data; size cap kept) and the table column. The ux-spec text does not list table columns, so the owner may drop it.
+- [x] Session 3 (14 Nov 2026): Asset Details body (sensor charts, explanation, events, machine picker and its states), About & Data text and `/metadata` facts, screenshots re-taken, e2e for Asset Details and the replay control on it.
+- [ ] Low: "Back to fleet" on Asset Details keeps the replay time and cut-off but not the Fleet table filters or scroll position (components list asks for both).
+- [ ] Low: recent maintenance shows 7 days (what `/assets/{id}` sends); the wireframe says 90 days. Widen the contract or change the wireframe.
+- [ ] Low: arrow-key stepping through chart points (components list) is not built on either screen; summaries and "View as table" carry the values.
+- [ ] Low: independent review of Stage 3 (not yet run).
 - [x] Cut-off control built (`components/cutoff-control.tsx`) and used on Fleet Overview; reuse on Planner and Model Performance in their stages.
-- [ ] Update the About & Data status text (still says "skeleton only").
+- [x] Update the About & Data status text.

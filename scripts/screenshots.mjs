@@ -10,6 +10,9 @@
 //                                                     (loading, empty filter result, error, cut-off changed,
 //                                                     replay start / end, charts as tables), written to
 //                                                     docs/QA_REPORTS/stage3-screenshots/
+//   node scripts/screenshots.mjs --real --stage3     the complete Stage 3 set into docs/QA_REPORTS/stage3-screenshots/:
+//                                                     Fleet Overview (as --fleet), Asset Details (desktop, mobile and
+//                                                     key states) and About & Data (desktop, mobile, metadata failed)
 //   --out <dir>   write somewhere else
 //
 // Env: PLAYWRIGHT_CORE (default /home/box/.local/lib/node_modules/playwright-core)
@@ -23,7 +26,8 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 const real = args.includes("--real");
-const fleetOnly = args.includes("--fleet");
+const stage3 = args.includes("--stage3");
+const fleetOnly = args.includes("--fleet") || stage3;
 const outArg = args.indexOf("--out");
 const outDir = outArg >= 0 ? resolve(args[outArg + 1]) : join(root, "docs", "QA_REPORTS", fleetOnly ? "stage3-screenshots" : "skeleton-screenshots");
 const require = createRequire(import.meta.url);
@@ -232,6 +236,151 @@ async function captureFleet() {
   }
 }
 
+const problem500 = { status: 500, contentType: "application/problem+json", body: JSON.stringify({ title: "Internal error", status: 500 }) };
+
+/** A machine and hour on the real bundle with a recorded failure, an error and a repair in the last 7 days (Alert if possible). */
+async function pickBusyMachine(meta) {
+  const mv = meta.model_version;
+  const from = Date.parse(meta.replay_window.start.slice(0, 16) + ":00Z");
+  const to = Date.parse(meta.replay_window.end.slice(0, 16) + ":00Z");
+  const iso = (ms) => new Date(ms).toISOString().slice(0, 16);
+  let fallback = null;
+  for (let ms = from + 24 * 3600e3; ms <= to; ms += 37 * 3600e3) {
+    for (let m = 1; m <= 100; m += 1) {
+      const a = await (await fetch(`${API}/api/v1/assets/${m}?at=${iso(ms)}&cutoff=${meta.default_cutoff_percent}&mv=${mv}`)).json();
+      if (a.failures.length > 0 && a.errors.length > 0 && a.repairs.length > 0) {
+        if (a.status === "alert") return { machine: m, at: iso(ms) };
+        fallback ??= { machine: m, at: iso(ms) };
+      }
+    }
+  }
+  if (!fallback) throw new Error("no machine with a failure, an error and a repair in the replay window");
+  return fallback;
+}
+
+async function captureAsset() {
+  const meta = await (await fetch(`${API}/api/v1/metadata`)).json();
+  const hour = (t) => t.slice(0, 16);
+  const first = hour(meta.replay_window.start);
+  const last = hour(meta.replay_window.end);
+  const { machine, at } = await pickBusyMachine(meta);
+  console.log(`asset screenshots: machine ${machine} at ${at}`);
+  const base = `/asset-details?machine=${machine}&at=${at}`;
+  const ready = async (page) => {
+    await page.getByTestId("asset-score").waitFor();
+    await page.getByTestId("explanation-table").waitFor();
+    await page.getByTestId("sensor-volt").waitFor();
+    await page.waitForTimeout(400);
+  };
+
+  for (const [label, viewport] of sizes) {
+    const [ctx, page] = await newPage(viewport);
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await ready(page);
+    await save(page, `asset-details-${label}`);
+
+    await page.goto(WEB + base + "&cutoff=20", { waitUntil: "networkidle" });
+    await ready(page);
+    await save(page, `asset-details-state-cutoff-changed-${label}`);
+
+    await page.goto(WEB + "/asset-details", { waitUntil: "networkidle" });
+    await page.getByTestId("no-machine").waitFor();
+    await save(page, `asset-details-state-no-machine-${label}`);
+
+    await page.goto(WEB + "/asset-details?machine=250", { waitUntil: "networkidle" });
+    await page.getByTestId("machine-not-found").waitFor();
+    await save(page, `asset-details-state-not-found-${label}`);
+
+    await page.goto(WEB + `/asset-details?machine=${machine}&at=${first}`, { waitUntil: "networkidle" });
+    await ready(page);
+    await save(page, `asset-details-state-replay-start-${label}`);
+    await page.goto(WEB + `/asset-details?machine=${machine}&at=${last}`, { waitUntil: "networkidle" });
+    await ready(page);
+    await save(page, `asset-details-state-replay-end-${label}`);
+
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await ready(page);
+    await page.getByRole("radio", { name: "7 days" }).click();
+    await page.getByTestId("sensor-volt-summary").getByText(/168 hourly readings/).waitFor();
+    await page.waitForTimeout(400);
+    await save(page, `asset-details-state-7-days-${label}`);
+    await page.getByRole("radio", { name: "24 h" }).click();
+    await page.getByTestId("sensor-volt-summary").getByText(/24 hourly readings/).waitFor();
+    await page.getByTestId("past-estimates").getByRole("button", { name: "View as table" }).click();
+    if (label === "desktop") await page.getByTestId("sensor-volt").getByRole("button", { name: "View as table" }).click();
+    await save(page, `asset-details-state-charts-as-tables-${label}`);
+
+    if (label === "mobile") {
+      await page.goto(WEB + base, { waitUntil: "networkidle" });
+      await ready(page);
+      await page.getByRole("tab", { name: "Rotation" }).click();
+      await page.getByTestId("sensor-rotate").waitFor();
+      await save(page, "asset-details-state-rotation-tab-mobile");
+    }
+    await ctx.close();
+  }
+
+  {
+    const [ctx, page] = await newPage(sizes[0][1]);
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await ready(page);
+    await page.getByTestId("explanation-row").first().getByRole("button", { name: /What .* means/ }).click();
+    await save(page, "asset-details-state-input-definition-desktop");
+    await ctx.close();
+  }
+  {
+    // loading: the machine's answers are held back
+    const [ctx, page] = await newPage(sizes[0][1]);
+    await page.route("**/api/v1/assets/**", async (route) => {
+      await new Promise((r) => setTimeout(r, 4000));
+      await route.fallback().catch(() => {});
+    });
+    await page.goto(WEB + base, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("skeleton").first().waitFor();
+    await page.waitForTimeout(600);
+    await save(page, "asset-details-state-loading-desktop");
+    await ctx.close();
+  }
+  {
+    // partial: the sensor history fails, the rest of the page stays
+    const [ctx, page] = await newPage(sizes[0][1]);
+    await page.route("**/api/v1/assets/*/telemetry**", (route) => route.fulfill(problem500));
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await page.getByTestId("sensor-error").waitFor();
+    await page.getByTestId("asset-score").waitFor();
+    await page.waitForTimeout(300);
+    await save(page, "asset-details-state-partial-desktop");
+    await ctx.close();
+  }
+  {
+    // panel error: the explanation fails
+    const [ctx, page] = await newPage(sizes[0][1]);
+    await page.route("**/api/v1/assets/*/explanation**", (route) => route.fulfill(problem500));
+    await page.goto(WEB + base, { waitUntil: "networkidle" });
+    await page.getByTestId("explanation-error").waitFor();
+    await page.waitForTimeout(300);
+    await save(page, "asset-details-state-panel-error-desktop");
+    await ctx.close();
+  }
+}
+
+async function captureAbout() {
+  for (const [label, viewport] of sizes) {
+    const [ctx, page] = await newPage(viewport);
+    await page.goto(WEB + "/about-data", { waitUntil: "networkidle" });
+    await page.getByTestId("model-facts").getByText(/piq-/).waitFor();
+    await page.waitForTimeout(250);
+    await save(page, `about-data-${label}`);
+    await ctx.close();
+  }
+  const [ctx, page] = await newPage(sizes[1][1]);
+  await page.route("**/api/v1/metadata", (route) => route.fulfill(problem500));
+  await page.goto(WEB + "/about-data", { waitUntil: "networkidle" });
+  await page.getByText(/couldn.t load right now/).waitFor();
+  await save(page, "about-data-state-metadata-failed-mobile");
+  await ctx.close();
+}
+
 try {
   await waitFor(`${API}/api/v1/health`);
   await waitFor(WEB);
@@ -239,6 +388,10 @@ try {
   if (fleetOnly) {
     if (!real) throw new Error("--fleet needs --real (the Fleet Overview has nothing to show without model data)");
     await captureFleet();
+    if (stage3) {
+      await captureAsset();
+      await captureAbout();
+    }
   } else {
     await capturePages();
   }

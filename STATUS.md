@@ -1,6 +1,6 @@
 # Status
 
-_Updated 2026-11-14, Stage 3 (core screens) session 1 of 3 done on branch `core-screens`._
+_Updated 2026-11-14, Stage 3 (core screens) session 3 of 3 done on branch `core-screens`._
 
 ## Current stage
 **Data-and-model stage built and reviewed, on branch `data-model`; waiting for the owner to review and merge.** The project skeleton was merged by Meysam (Owner) on 14 Nov 2026 at 8:08 AM ET.
@@ -63,6 +63,23 @@ _Updated 2026-11-14, Stage 3 (core screens) session 1 of 3 done on branch `core-
 - Arrow-key stepping through chart points is not built; the text summary and "View as table" carry the same values.
 - The cut-off control sits on Fleet Overview only for now (Planner and Model Performance will reuse the component).
 **Next:** session 3 (Asset Details body).
+**Blockers:** none.
+
+## Core screens, session 3 of 3: Asset Details, About & Data, latest error (branch `core-screens`, 14 Nov 2026)
+**Done:**
+- **Asset Details** at `/asset-details` on `/assets/{id}`, `/telemetry` and `/explanation`. The machine comes from `?machine=` or the picker (a native list of "Machine n · model", which also does type-ahead); the replay time and cut-off carry over. It shows machine model and age, the predicted chance and status at the replay hour and cut-off, the score factors (top 8 plus "all other inputs combined", each with a plain name, a raises/lowers word, a bar and a signed push in log-odds, an ⓘ definition, and the line "These are patterns the model found in the data, not causes. They are not repair advice." always visible), four sensor charts (24 h / 7 days; markers differ by shape: ◆ recorded failure, ■ repair, ▲ error), past estimates beside recorded failures (labelled simulated, cut-off dashed), and lists of errors, repairs and recorded failures. Every list and chart stops before the replay hour, and the page filters again so a record at or after it can never show. Every chart has a text summary and "View as table"; on a phone the sensors become tabs (arrow keys move between them).
+- **States:** no machine chosen, machine not found (1 to 100 message, selector, link to Fleet), loading (grey blocks), one panel failed with Try again (sensor history, machine record, explanation, each alone), no model data, replay start and end (the replay bar), and "Only n hours of history" at the start.
+- **Fleet "Latest error" column:** the wireframe has it, the experience spec's text does not list table columns, but the bundle has the error records, so I added it. `/fleet` rows gain `latest_error` (newest error type and hour, strictly before `at`, from all records, or null; two errors in one hour: the one recorded last). Tested against the saved records on the synthetic bundle and, opt-in, the real one. Largest `/fleet` answer is 15,452 bytes, far under the 256 KB cap. The table shows it ("None yet" when null).
+- **About & Data** rewritten to the current state: two trained models, saved scores for a held-out later period, Fleet Overview and Asset Details work, Planner and Model Performance not built yet, nothing live. Model version, build date, default cut-off and replay window are read from `/metadata`; "—" with a short note if it can't be read.
+- **Replay control** covered on this screen by e2e: "Historical replay" wording, never "live", clean stop at the end (nothing later, never wraps, Play and Step forward unavailable but focusable), Jump to start, and the start state.
+- **Screenshots:** the full set (Fleet Overview, Asset Details, About & Data) re-taken from the real bundle into `docs/QA_REPORTS/stage3-screenshots/`, with a plain-English `README.md`. `node scripts/screenshots.mjs --real --stage3` makes them.
+**Results (real output, this machine):** frontend lint and typecheck clean; Vitest 103 passed; build passes; Playwright synthetic 45 passed (+2 opt-in skipped) and 7 with no bundle; Playwright real bundle 47 passed (includes `asset-real.spec.ts`: the screen's score, status, model and list sizes equal the API at three machine/hour/cut-off cases); pytest 154 passed (backend and ml; the 9 opt-in real-bundle tests were also run for the backend and pass).
+**Worth knowing:**
+- The e2e data service now starts with `--timeout-keep-alive 75`. Without it, parallel runs sometimes hung for minutes: Next's local proxy and uvicorn both used 5 seconds for idle connections. It only affects the local test stack; Vercel has no such proxy.
+- The service sends 7 days of errors and repairs, so those lists say "7 days" (the wireframe says 90 days for maintenance; not available from the contract).
+- "Back to fleet" returns with the replay time and cut-off but not the table filters or scroll position.
+- Arrow-key stepping through chart points is not built (same as Fleet); summaries and tables carry the values.
+**Next:** Stage 4 (Maintenance Planner), Stage 5 (Model Performance, launch).
 **Blockers:** none.
 
 ## Skeleton story (branch `skeleton`)
