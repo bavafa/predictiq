@@ -73,6 +73,26 @@ def test_routes_are_exactly_the_contract() -> None:
     assert client.get("/api/v1/not-in-the-contract").status_code == 404
 
 
+def test_no_served_route_can_bypass_the_openapi_contract_check() -> None:
+    # test_routes_are_exactly_the_contract derives the served routes from the OpenAPI schema.
+    # That check is only exact if every served route appears in the schema, so forbid the
+    # constructs that can serve a path without it: include_in_schema=False, mounted apps,
+    # raw Starlette routes and websockets. The only allowed add_api_route calls are the two
+    # contract routes in data.py (they are in the schema, so the contract test covers them).
+    allowed_add_api_route = {"backend/app/api/data.py": 2}
+    forbidden = ("include_in_schema", ".mount(", "add_route(", "websocket", "add_websocket_route")
+    files = sorted((ROOT / "backend" / "app").rglob("*.py")) + [ROOT / "frontend" / "api" / "index.py"]
+    assert len(files) > 1
+    problems: list[str] = []
+    for f in files:
+        rel = f.relative_to(ROOT).as_posix()
+        text = f.read_text(encoding="utf-8")
+        problems += [f"{rel}: {token}" for token in forbidden if token in text.lower()]
+        if text.count("add_api_route(") != allowed_add_api_route.get(rel, 0):
+            problems.append(f"{rel}: unexpected add_api_route( count")
+    assert problems == []
+
+
 def test_unknown_path_404_with_problem_json_and_no_store() -> None:
     r = client.get("/api/v1/nope")
     assert r.status_code == 404
