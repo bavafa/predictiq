@@ -36,6 +36,11 @@ ALLOWED = {
     "contrib_values.npy",
     "contrib_other.npy",
     "telemetry.npy",
+    # optional component planner files (ml/component_bundle.py COMPONENT_FILES)
+    "components.json",
+    "component_wear_scores.npy",
+    "component_days_since.npy",
+    "component_warning_scores.npy",
 }
 MAX_UNPACKED = 200 * 1024 * 1024  # refuse a zip that would unpack to more than this
 

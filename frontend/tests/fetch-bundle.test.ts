@@ -263,9 +263,9 @@ describe("ensureBundle", () => {
     expect(ok).toHaveBeenCalled();
   });
 
-  it("allows exactly ten distinct file names", () => {
-    expect(ALLOWED).toHaveLength(10);
-    expect(new Set(ALLOWED).size).toBe(10);
+  it("allows exactly fourteen distinct file names (ten machine files, four component files)", () => {
+    expect(ALLOWED).toHaveLength(14);
+    expect(new Set(ALLOWED).size).toBe(14);
   });
 });
 
