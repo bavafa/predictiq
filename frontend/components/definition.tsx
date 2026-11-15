@@ -4,7 +4,7 @@ import { useId, useLayoutEffect, useRef, useState } from "react";
 
 /**
  * An ⓘ button that shows a plain definition in a small floating note (it does not move the page).
- * Hover shows it for as long as the pointer is over the button or the note. Click, Enter or Space pins it open,
+ * Hover shows it for as long as the pointer is over the button. The note itself ignores the pointer, so it never blocks the buttons under it. Click, Enter or Space pins it open,
  * and the same key or click closes it. Escape closes it. Keyboard focus alone does not open it.
  */
 export function Definition({ text, name }: { text: string; name: string }) {
@@ -49,7 +49,7 @@ export function Definition({ text, name }: { text: string; name: string }) {
           id={id}
           role="note"
           style={shift ? { transform: `translateX(-${Math.ceil(shift)}px)` } : undefined}
-          className="absolute top-full left-0 z-20 w-64 max-w-[calc(100vw-1rem)] rounded-md border border-input-edge bg-subtle px-2 py-1 text-xs leading-4 font-normal shadow-sm"
+          className="pointer-events-none absolute top-full left-0 z-20 w-64 max-w-[calc(100vw-1rem)] rounded-md border border-input-edge bg-subtle px-2 py-1 text-xs leading-4 font-normal shadow-sm"
         >
           {text}
         </span>
