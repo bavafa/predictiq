@@ -1,44 +1,16 @@
 # Status
 
-_Updated 2026-11-14 6:35 PM ET, Stage 5 ready for Meysam's gate decision (PR #33, base main)._
+_Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
 ## Current stage
-**Stage 5, launch preparation: built, checked and reviewed. Waiting for Meysam's GATE M4 decision and launch go-ahead.** PR #32 was merged at 3:49 PM ET. Dependabot #25 to #28 are closed; #24 stays open (decision 69). The repo is still private, protection is still on, and nothing has been deployed to production.
-- Built: the Model Performance page; full testing (contrast, target size, keyboard, axe, notice, release hygiene, fresh copy), which closes the Stage 3 accessibility coverage gap within its documented automated scope; launch preparation (limitations, README, model card, CLAUDE.md, production bundle download with hash check, launch checklist, history scan).
-- Evidence:
-  - fresh-copy check passed on a clean clone, including the real-bundle and real-data checks;
-  - the bundle-download proof passed all nine cases;
-  - live checks on the protected preview `dpl_7zzg8naq7yXKrrYFNXRyD2AZfM6M` all passed;
-  - review rounds 1 to 8, with a final verdict of PASS WITH KNOWN ISSUES.
-- Needs Meysam: the launch go-ahead; the history items (a personal author email in 874a686, and older internal path names); a licence for the code; decisions 70 and 71.
+**Launched.** The site is public at https://predictiq-demo.vercel.app (`predictiq-eight.vercel.app` redirects to it). The repository `bavafa/predictiq` is public (a fresh repository with history kept and one author email rewritten, decision 72; the old one is the private `bavafa/predictiq-archive`). No licence (decision 73). Production serves model `piq-20261114-efc9c243` (simulated data, `synthetic: false`).
+- **Launch checks (all passed):** history scan (no secrets; six accepted items); bundle download without a login with matching SHA-256 (`0ad2916e...2d57d2`); production `main` build; five pages 200 with the simulated-data notice; health and metadata; `/fleet` 200 with `mv` and 400 without; `/plan` 200 and 413 for an oversize body; previews still redirect to sign-in (302); the Firewall rule "API rate limit, 300 per 60 s per IP" is active.
+- **Settings:** `main` requires the CI jobs e2e, frontend, python and security, with no force-push or deletion (admins can bypass); secret scanning and push protection are on; Vercel is linked to the new repository, production branch `main`.
+- **Not checked:** cache headers show `public, max-age=0` (metadata) and `public, max-age=3600` (data) at the edge, without `s-maxage` (Vercel strips it; `x-vercel-cache: HIT` seen); function size in the Vercel dashboard; the notice in a real browser; human screen-reader and real-device testing.
+- **Open:** Dependabot #1 (TypeScript 7, fails CI, leave open); the release-hygiene test's expected-failure note about the old personal email is stale and should be updated; the portfolio card and case study (owner).
 
-## Handoff to Meysam (Claude Code), 14 Nov 2026, about 6:40 PM ET
-**Exact state**
-- Branch `model-perf`, PR #33 (https://github.com/bavafa/predictiq/pull/33), base `main`. All Stage 5 work is committed and pushed. `main` is at eafd576 (PR #32 merged).
-- The repo is **private**. Vercel protection is **on** (Standard Protection, `all_except_custom_domains`). There is no production deployment. `main` builds are still cancelled by `ignoreCommand`.
-- Nothing is running: no builder, review or check process is left over from this session.
-- Dependabot #24 (TypeScript 7) stays open. #25 to #28 are closed as superseded by #32.
-- Read `CLAUDE.md` first. It has the session rules and the exact gate report format.
-
-**Next steps (in order; each needs Meysam's go-ahead where marked)**
-1. Decide GATE M4 and merge PR #33 (Meysam).
-2. Owner decisions before launch (`docs/LAUNCH_CHECKLIST.md` step 0):
-   - the personal author email in commit 874a686 and the older internal path names in history (accept, or publish from a fresh repository; no force-push to `main`);
-   - a licence for the code;
-   - decisions 70 and 71.
-3. Launch, only after Meysam's written go-ahead, following `docs/LAUNCH_CHECKLIST.md` steps 1 to 8:
-   - 1: history scan;
-   - 2: merge;
-   - 3: make the repository public;
-   - 4: check the public bundle download;
-   - 5: PR removing the `main` `ignoreCommand`, which starts the production build;
-   - 6: confirm production is public and previews stay protected;
-   - 7: production smoke checks;
-   - 8: add the live link.
-   - Step 9 is rollback.
-4. After launch, update STATUS.md, TASKS.md and DECISIONS.md, and write the final report.
-
-- 4:40 PM ET process check: an Opus `claude -p` process (pid 921100) was running at the same time. It belongs to a different project on the build machine (NeuroGate), not PredictIQ, and had no PredictIQ files open, so it was left alone. Only one PredictIQ builder (Sonnet) ran at a time. No Opus was used for PredictIQ.
+## Launch record
+The pre-launch handoff (steps, owner questions) is superseded: the launch steps in `docs/LAUNCH_CHECKLIST.md` were run on 14 Nov 2026 and decisions 72 to 74 in `DECISIONS.md` record the outcome. For rollback see step 9 of the checklist.
 
 ## Stage 5, sessions 1-2 and fix 2b: testing summary (14 Nov 2026)
 **Done:** full testing added (contrast pairs, 44 px target sizes, keyboard, axe on every page, the notice on every page, release hygiene, fresh-copy script). Round 1 review fixes: the page says "Model built" (the evaluation date is not saved), synthetic test counts scale with bundle size, and the top notice now says "simulated historical sample data" (decisions 68, 70). Report: `docs/QA_REPORTS/stage5-testing.md`.
