@@ -189,3 +189,8 @@ Independent review: first pass FAIL (1 High: the test window included hours with
 ## Component planner, step 1 (branch `component-labels`, 15 Nov 2026)
 **Done:** `ml/component_labels.py` builds component-day labels (7 and 14 days, scored daily at 06:00), component-hour labels (48 hours) and the wear-view inputs (days since replacement, machine model, machine age, past failures of that part). Same splits, embargo days and unseen machines as the 24-hour model; records stamped at the scoring time are unknown. Rows whose label window reaches the next period are also dropped (the 1-day embargo is too short for 7, 14 or 48 hours). Tests in `ml/tests/test_component_labels.py`. No models trained. All data is simulated.
 **Next:** step 2 (train, calibrate, evaluate once, Codex review).
+
+## Component planner, step 2 (branch `component-models`, 15 Nov 2026)
+**Done:** `ml/component_models.py` (train, validation only), `ml/component_evaluate.py` (test, written once), tests. Version `comp-20261115-228daea1` (artifacts folder, git-ignored). Wear view (7 and 14 days) beat the plain rule on validation for 7 of 8 part-and-horizon pairs (rule shipped for comp3 at 14 days); test result is in `docs/MODEL_CARD.md`, section "Component models". The 48-hour warning caught 107 of 107 part failures with a full window on test. All data simulated.
+**Gate (spec):** wear view beats the rule, but only modestly at 14 days for comp1, comp2, comp3; it is a ranking, not an alert (its validation cut-off alerts on 74% of comp2 days at 14 days). Decision needed before the bundle and UI steps.
+**Not done:** independent Codex review (not installed); no `--verify` for this version; no bundle, API or UI.
