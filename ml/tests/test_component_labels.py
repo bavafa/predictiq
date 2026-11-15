@@ -22,7 +22,11 @@ FAR = pd.Timestamp("2016-01-01")
 
 
 def label_at(
-    events: list[tuple[int, str, pd.Timestamp]], comp: str, horizon: pd.Timedelta, t=T, coverage=FAR
+    events: list[tuple[int, str, pd.Timestamp]],
+    comp: str,
+    horizon: pd.Timedelta,
+    t: pd.Timestamp = T,
+    coverage: pd.Timestamp = FAR,
 ) -> int:
     ev = pd.DataFrame(events, columns=["machineID", "comp", "datetime"])
     lab = label_components(ev, [1], pd.DatetimeIndex([t]), horizon, coverage)
