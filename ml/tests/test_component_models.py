@@ -38,3 +38,12 @@ def test_rule_is_the_train_rate_per_model_and_bucket_with_fallbacks() -> None:
 def test_training_build_has_no_test_rows() -> None:
     f = build_component_frame(tiny(), [2], "day14", True, ("train", "validation"))
     assert set(f["split"]) == {"train", "validation"}
+
+
+def test_warning_matrix_has_every_column_once() -> None:
+    from ml.component_models import WARNING_EXTRA, warning_matrix
+    from ml.features import FEATURE_COLUMNS
+
+    df = pd.DataFrame({c: [1.0, 2.0] for c in [*FEATURE_COLUMNS, *WARNING_EXTRA]})
+    assert warning_matrix(df).shape == (2, len(FEATURE_COLUMNS) + len(WARNING_EXTRA))
+    assert len(set(FEATURE_COLUMNS) & set(WARNING_EXTRA)) == 0

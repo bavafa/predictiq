@@ -177,7 +177,9 @@ def warning_inputs(
 ) -> dict[str, pd.DataFrame]:
     """Per component: component-hour rows with FEATURE_COLUMNS and this part's own wear inputs."""
     comp_rows = build_component_frame(tables, unseen, WARNING_LEVEL, True, split_names)
-    feats = build_frame(tables, unseen, split_names).drop(columns=["label", "split", "unseen"])
+    feats = build_frame(tables, unseen, split_names).drop(
+        columns=["label", "split", "unseen", "machine_model", "age"]
+    )
     out = {}
     for c in COMPONENTS:
         sub = comp_rows[comp_rows["comp"] == c]
