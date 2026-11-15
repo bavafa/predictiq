@@ -14,8 +14,8 @@ nothing (the 1-day embargo already does it); for 7, 14 and 48 hours it removes t
 validation. Test rows are limited only by the end of coverage.
 
 Wear-view inputs (no telemetry, no errors), as of t with records stamped at t treated as unknown:
-days since this part was last replaced (NaN if never), machine model (1-4), machine age, and the number of
-earlier failures of this part on this machine.
+days since this part was last replaced or failed (NaN if never), machine model (1-4), machine age, and the
+number of earlier failures of this part on this machine.
 """
 
 from __future__ import annotations
@@ -64,7 +64,10 @@ def label_components(
     upper = (times + horizon).to_numpy()
     by_key = {k: g["datetime"].to_numpy() for k, g in events.groupby(["machineID", "comp"])}
     parts = []
-    for m in sorted(int(x) for x in machine_ids):
+    ids = sorted({int(x) for x in machine_ids})
+    if not ids:
+        return pd.DataFrame({"machineID": [], "comp": [], "datetime": [], "label": []})
+    for m in ids:
         for comp in COMPONENTS:
             ev = np.sort(by_key.get((m, comp), np.array([], dtype="datetime64[ns]")))
             n = np.searchsorted(ev, upper, side="right") - np.searchsorted(ev, t, side="right")
@@ -77,13 +80,18 @@ def label_components(
 
 
 def wear_inputs(tables: Tables, machine_ids: np.ndarray, times: pd.DatetimeIndex) -> pd.DataFrame:
-    """Wear-view inputs for every (machine, component, time); same row order as `label_components`."""
-    ids = np.sort(machine_ids)
+    """Wear-view inputs for every (machine, component, time), in the same key order as `label_components`.
+
+    Labels drop times whose window passes the end of coverage and inputs do not, so join by key."""
+    ids = np.unique(machine_ids)
     grid = pd.DataFrame(
         {"machineID": np.repeat(ids, len(times)), "datetime": np.tile(times.to_numpy(), len(ids))}
     )
     by_time = grid.sort_values("datetime", kind="stable")
-    since = _maint_features(tables.maint, by_time)  # strictly earlier replacements only
+    # A failure counts as a replacement (18 failures on 2015-01-02 have no maintenance record; decision 78).
+    fails = tables.failures.rename(columns={"failure": "comp"})[["datetime", "machineID", "comp"]]
+    replaced = pd.concat([tables.maint[["datetime", "machineID", "comp"]], fails], ignore_index=True)
+    since = _maint_features(replaced, by_time)  # strictly earlier records only
     mach = tables.machines.set_index("machineID")
     model = grid["machineID"].map(mach["model"].str.removeprefix("model").astype(int)).to_numpy()
     age = grid["machineID"].map(mach["age"]).to_numpy()
