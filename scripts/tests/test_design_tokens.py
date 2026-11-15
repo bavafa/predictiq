@@ -278,10 +278,10 @@ def test_scan_ignores_tokens_and_plain_text(tmp_path: Path, monkeypatch: pytest.
     d = tmp_path / "frontend/app"
     d.mkdir(parents=True)
     ok = (
-        'const a = "#FFF"; const b = "#2563EB"; href="#main"; '
+        'const a = "#FFF"; const b = "#E84A37"; href="#main"; '
         'className="text-white bg-card text-ink bg-transparent w-1/2" '
         'const s = { backgroundColor: "var(--color-brand)", fill: "none", '
-        'stroke: "currentColor", color: "#2563EB" };'
+        'stroke: "currentColor", color: "#E84A37" };'
     )
     (d / "x.tsx").write_text(ok)
     monkeypatch.setattr(sys.modules[__name__], "ROOT", tmp_path)

@@ -121,7 +121,7 @@ export function sensorSummary(t: Telemetry, key: SensorKey, label: string, unit 
   const u = unit ? ` ${unit}` : "";
   if (values.length === 0) return `No ${label.toLowerCase()} readings in this range.`;
   const last = values[values.length - 1]!;
-  return `${label}: latest ${last.toFixed(1)}${u}, lowest ${Math.min(...values).toFixed(1)}${u}, highest ${Math.max(...values).toFixed(1)}${u} (units assumed) over ${values.length} hourly readings.`;
+  return `${label}: latest ${last.toFixed(1)}${u}, lowest ${Math.min(...values).toFixed(1)}${u}, highest ${Math.max(...values).toFixed(1)}${u} over ${values.length} hourly readings.`;
 }
 
 /**
