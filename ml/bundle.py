@@ -22,6 +22,12 @@ import pandas as pd
 import xgboost as xgb
 
 from ml.artifacts import sha256_file
+from ml.component_bundle import (
+    COMPONENT_FILES,
+    build_component_arrays,
+    synthetic_components,
+    write_components,
+)
 from ml.data import COMPONENTS, ERROR_TYPES, SENSORS, Tables
 from ml.dataset import build_frame
 from ml.features import FEATURE_COLUMNS
@@ -75,6 +81,8 @@ def write_bundle(
     telemetry: F32,
 ) -> None:
     out.mkdir(parents=True, exist_ok=True)
+    for old in COMPONENT_FILES:  # a rebuild without components must not leave an old set behind
+        (out / old).unlink(missing_ok=True)
     _dump(out / "meta.json", meta)
     _dump(out / "evaluation.json", evaluation)
     _dump(out / "threshold_analysis.json", threshold)
@@ -156,8 +164,11 @@ def contributions(version_dir: Path, x: npt.NDArray[np.float64]) -> tuple[Any, A
     return order.astype(np.uint8), top, rest, float(bias[0])
 
 
-def build_real(version_dir: Path, tables: Tables, out: Path) -> dict[str, Any]:
-    """Build the bundle folder for one model version from its saved models and freshly built features."""
+def build_real(
+    version_dir: Path, tables: Tables, out: Path, component_dir: Path | None = None
+) -> dict[str, Any]:
+    """Build the bundle folder for one model version from its saved models and freshly built features.
+    With `component_dir` (a comp-... folder) the component score files are added."""
     meta_in = json.loads((version_dir / "metadata.json").read_text())
     evaluation = json.loads((version_dir / "evaluation.json").read_text())
     unseen: list[int] = [int(m) for m in meta_in["unseen_machines"]]
@@ -249,11 +260,19 @@ def build_real(version_dir: Path, tables: Tables, out: Path) -> dict[str, Any]:
         other=rest.reshape(shape).astype(np.float32),
         telemetry=_telemetry_array(tables, tel_hours),
     )
+    if component_dir is not None:
+        arrays, comp_meta = build_component_arrays(component_dir, tables, hours)
+        write_components(out, arrays, comp_meta)
     return meta
 
 
 def synthetic_bundle(
-    out: Path, seed: int = 0, n_machines: int = 100, n_hours: int = 1423, replay_start_offset: int = 0
+    out: Path,
+    seed: int = 0,
+    n_machines: int = 100,
+    n_hours: int = 1423,
+    replay_start_offset: int = 0,
+    with_components: bool = False,
 ) -> dict[str, Any]:
     """A fake bundle of the real shapes for tests. `synthetic: true` in meta.json; the prebuild refuses it.
     `replay_start_offset` moves where playback begins (hours after the first test hour), so the replay
@@ -417,17 +436,26 @@ def synthetic_bundle(
         other=rng.normal(0, 0.1, shape).astype(np.float32),
         telemetry=rng.normal(100, 10, (n_machines, len(tel_hours), len(SENSORS))).astype(np.float32),
     )
+    if with_components:
+        arrays, comp_meta = synthetic_components(np.random.default_rng(seed + 1), n_machines, hours)
+        write_components(out, arrays, comp_meta)
     return meta
 
 
+def bundle_files(folder: Path) -> tuple[str, ...]:
+    """The schema 1 files, plus the component files when the folder has them all."""
+    extra = COMPONENT_FILES if all((folder / n).is_file() for n in COMPONENT_FILES) else ()
+    return (*BUNDLE_FILES, *extra)
+
+
 def uncompressed_bytes(folder: Path) -> int:
-    return sum((folder / n).stat().st_size for n in BUNDLE_FILES)
+    return sum((folder / n).stat().st_size for n in bundle_files(folder))
 
 
 def pack(folder: Path, zip_path: Path) -> dict[str, Any]:
     """Zip the bundle files (fixed order and timestamps, so the same bundle gives the same zip)."""
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-        for name in sorted(BUNDLE_FILES):
+        for name in sorted(bundle_files(folder)):
             info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o644 << 16
