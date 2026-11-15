@@ -25,6 +25,24 @@ export type Metadata = {
   data_credit?: string | null;
   splits?: Record<string, string[]> | null;
   machines?: { machine_id: number; model: MachineModel; age: number; unseen: boolean }[];
+  /** Present only when the bundle has component scores (decisions 77 and 79). */
+  component_planner?: ComponentPlannerInfo | null;
+};
+
+export type PartId = "comp1" | "comp2" | "comp3" | "comp4";
+
+export type ComponentPlannerInfo = {
+  component_model_version: string;
+  names: Record<PartId, string>;
+  names_note: string;
+  horizons_days: number[];
+  default_horizon_days: number;
+  shutdown_windows: Record<string, { weekday: number; start_hour: number; hours: number }>;
+  windows_note: string;
+  default_failure_cost: Record<PartId, number>;
+  default_planned_cost: Record<PartId, number>;
+  warning_cutoff_percent: Record<PartId, number>;
+  honesty: string;
 };
 
 /** Metadata of a deployment that has model data: everything the replay needs is present. */
@@ -181,4 +199,111 @@ export type PlanResponse = {
   rows: PlanRow[];
   /** Plain-words formulas for "How this is calculated". */
   formulas: Record<string, string>;
+};
+
+/** Body of POST /plan with level "component". There is no alert cut-off for the wear view (decision 79). */
+export type ComponentPlanRequest = {
+  level: "component";
+  at: string;
+  /** 7 or 14. */
+  horizon_days: number;
+  failure_cost: number;
+  failure_cost_by_part?: Partial<Record<PartId, number>>;
+  planned_cost: number;
+  planned_cost_by_part?: Partial<Record<PartId, number>>;
+  /** Slots per shutdown window, 0 to 100. */
+  crew_slots: number;
+  risk_reduction_percent?: number | null;
+};
+
+export type ComponentListing = "shortlisted" | "over_capacity" | "no_exposure";
+export type ComponentAction = "act_before_window" | "replace_in_window" | "over_capacity" | "watch";
+
+export type ComponentPlanRow = {
+  rank: number;
+  machine_id: number;
+  model: MachineModel;
+  age: number;
+  part: PartId;
+  part_name: string;
+  wear_chance: number;
+  warning_chance_48h: number;
+  warning_active: boolean;
+  signal: "warning" | "wear";
+  days_since_replacement: number;
+  window_start: string;
+  days_to_window: number;
+  chance_before_window: number;
+  failure_cost: number;
+  planned_cost: number;
+  expected_exposure: number;
+  listing: ComponentListing;
+  slot: number | null;
+  action: ComponentAction;
+  net_benefit: number | null;
+};
+
+export type ComponentPlanResponse = {
+  level: "component";
+  model_version: string;
+  component_model_version: string;
+  at: string;
+  label: "illustrative";
+  unit: string;
+  horizon_days: number;
+  honesty: string;
+  assumptions: {
+    horizon_days: number;
+    failure_cost: number;
+    failure_cost_by_part: Partial<Record<PartId, number>>;
+    planned_cost: number;
+    planned_cost_by_part: Partial<Record<PartId, number>>;
+    crew_slots_per_window: number;
+    risk_reduction_percent: number | null;
+  };
+  summary: {
+    parts_ranked: number;
+    rows_returned: number;
+    warning_parts: number;
+    crew_slots_per_window: number;
+    slots_used: number;
+    shortlist_exposure: number;
+    planned_spend: number;
+    net_benefit: number | null;
+    net_benefit_label: string | null;
+    windows: { models: string[]; start: string; shortlisted: number }[];
+  };
+  rows: ComponentPlanRow[];
+  names: Record<PartId, string>;
+  names_note: string;
+  windows_note: string;
+  notes: string[];
+  formulas: Record<string, string>;
+};
+
+export type ComponentPart = {
+  part: PartId;
+  part_name: string;
+  wear_chance: number;
+  chance_before_window: number;
+  warning_chance_48h: number;
+  warning_active: boolean;
+  warning_cutoff_percent: number;
+  days_since_replacement: number;
+};
+
+export type MachineComponents = {
+  model_version: string;
+  component_model_version: string;
+  machine_id: number;
+  model: MachineModel;
+  age: number;
+  at: string;
+  horizon_days: number;
+  window_start: string;
+  days_to_window: number;
+  honesty: string;
+  names_note: string;
+  windows_note: string;
+  parts: ComponentPart[];
 };

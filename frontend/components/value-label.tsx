@@ -6,6 +6,7 @@ const KINDS = {
   Historical: "border-solid border-ink-2",
   Predicted: "border-dashed border-ink-2",
   Illustrative: "border-dotted border-ink-2",
+  Assumed: "border-double border-ink-2",
 } as const;
 
 export function ValueLabel({ kind, className }: { kind: keyof typeof KINDS; className?: string }) {

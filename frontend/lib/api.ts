@@ -10,6 +10,9 @@ import type {
   Fleet,
   FleetQuery,
   FleetTrend,
+  ComponentPlanRequest,
+  ComponentPlanResponse,
+  MachineComponents,
   Metadata,
   PlanRequest,
   PlanResponse,
@@ -193,9 +196,18 @@ export function createApiClient(fetchImpl: FetchLike = (input, init) => fetch(in
       body: JSON.stringify(body),
     });
 
+  /** POST /plan with level "component": same retry and error rules as the machine plan. */
+  const componentPlan = (body: ComponentPlanRequest, o: RequestOptions = {}) =>
+    get<ComponentPlanResponse>("/plan", {}, o, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
   return {
     metadata,
     plan,
+    componentPlan,
     onMetadataRefreshed,
     modelVersion,
     fleet: (q: FleetQuery, o: RequestOptions = {}) => get<Fleet>("/fleet", q, o),
@@ -204,6 +216,8 @@ export function createApiClient(fetchImpl: FetchLike = (input, init) => fetch(in
       get<Asset>(`/assets/${machine}`, q, o),
     telemetry: (machine: number, q: { at: string; range?: Range }, o: RequestOptions = {}) =>
       get<Telemetry>(`/assets/${machine}/telemetry`, q, o),
+    components: (machine: number, q: { at: string; horizon_days?: number }, o: RequestOptions = {}) =>
+      get<MachineComponents>(`/assets/${machine}/components`, q, o),
     explanation: (machine: number, q: { at: string }, o: RequestOptions = {}) =>
       get<Explanation>(`/assets/${machine}/explanation`, q, o),
     modelMetrics: (o: RequestOptions = {}) => get<Record<string, unknown>>("/model/metrics", {}, o),
