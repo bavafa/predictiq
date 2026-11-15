@@ -1,28 +1,56 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 
-/** An ⓘ button that opens a plain definition. Escape closes it. */
+/**
+ * An ⓘ button that shows a plain definition in a small floating note (it does not move the page).
+ * Hover shows it for as long as the pointer is over the button. The note itself ignores the pointer, so it never blocks the buttons under it. Click, Enter or Space pins it open,
+ * and the same key or click closes it. Escape closes it. Keyboard focus alone does not open it.
+ */
 export function Definition({ text, name }: { text: string; name: string }) {
-  const [open, setOpen] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const [hover, setHover] = useState(false);
+  const open = pinned || hover;
   const id = useId();
+  const note = useRef<HTMLSpanElement>(null);
+  const [shift, setShift] = useState(0);
+
+  // Keep the note inside the window: slide it left when it would run past the right edge.
+  useLayoutEffect(() => {
+    if (!open || !note.current) return;
+    const el = note.current;
+    el.style.transform = "";
+    const over = el.getBoundingClientRect().right - (document.documentElement.clientWidth - 8);
+    setShift(over > 0 ? over : 0);
+  }, [open]);
+
+  const close = () => {
+    setPinned(false);
+    setHover(false);
+  };
   return (
-    <span className="inline-flex flex-col align-top">
+    <span className="relative inline-flex align-top" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       <button
         type="button"
         aria-expanded={open}
         aria-controls={id}
         aria-label={`What "${name}" means`}
         className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-base"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => (pinned ? close() : setPinned(true))}
         onKeyDown={(e) => {
-          if (e.key === "Escape") setOpen(false);
+          if (e.key === "Escape") close();
         }}
       >
         <span aria-hidden="true">ⓘ</span>
       </button>
       {open && (
-        <span id={id} role="note" className="mb-2 max-w-sm rounded-md border border-input-edge bg-subtle px-2 py-1 text-xs leading-4 font-normal">
+        <span
+          ref={note}
+          id={id}
+          role="note"
+          style={shift ? { transform: `translateX(-${Math.ceil(shift)}px)` } : undefined}
+          className="pointer-events-none absolute top-full left-0 z-20 w-64 max-w-[calc(100vw-1rem)] rounded-md border border-input-edge bg-subtle px-2 py-1 text-xs leading-4 font-normal shadow-sm"
+        >
           {text}
         </span>
       )}

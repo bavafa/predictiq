@@ -20,6 +20,13 @@ const ACCEPTED_INCOMPLETE: { name: string; rule: string; selector: RegExp; reaso
     coveredBy: "rendered text contrast (SVG text, fill colour against the chart background)",
   },
   {
+    name: "chart summary line (a one- or two-line paragraph below the fold, which axe cannot sample)",
+    rule: "color-contrast",
+    selector: /^#_r_[a-z0-9]+_-s$/,
+    reason: /^Element's background color could not be determined because it is overlapped by another element$/,
+    coveredBy: "rendered text contrast (every visible text element is measured against its real background)",
+  },
+  {
     name: "chart legend text (recharts legend item text span)",
     rule: "color-contrast",
     selector: /recharts-legend-item-text > span$/,
