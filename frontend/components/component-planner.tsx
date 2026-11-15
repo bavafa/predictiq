@@ -369,7 +369,7 @@ function PartsTable({ plan, unit }: { plan: ComponentPlanResponse; unit: string 
   const showNet = plan.assumptions.risk_reduction_percent !== null;
   return (
     <>
-      <div className="mt-3 hidden overflow-x-auto md:block">
+      <div className="mt-3 hidden overflow-x-auto xl:block">
         <table className="w-full border-collapse text-left" data-testid="parts-table">
           <caption className="sr-only">
             Parts ranked by expected exposure, highest first, top {plan.rows.length} of {plan.summary.parts_ranked}. Money columns are illustrative, in {unit}.
@@ -440,7 +440,7 @@ function PartsTable({ plan, unit }: { plan: ComponentPlanResponse; unit: string 
         <p className="mt-2 mb-0 text-xs text-ink-2">Money columns are in {unit}.</p>
       </div>
 
-      <ul className="m-0 mt-3 list-none p-0 md:hidden" aria-label="Parts ranked by expected exposure" data-testid="part-cards">
+      <ul className="m-0 mt-3 list-none p-0 xl:hidden" aria-label="Parts ranked by expected exposure" data-testid="part-cards">
         {plan.rows.map((r) => (
           <li key={`${r.machine_id}-${r.part}`} data-testid="part-card" data-machine={r.machine_id} data-part={r.part} className="border-b border-line py-3">
             <div className="flex items-start justify-between gap-3">

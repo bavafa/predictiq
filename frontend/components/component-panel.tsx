@@ -59,7 +59,7 @@ function PanelBody({ id, at, modelVersion, info }: { id: number; at: string; mod
           <p className="mt-0 mb-2 text-sm" data-testid="component-window">
             Next shutdown window for {data.model}: <strong>{windowText(data.window_start)}</strong> ({untilText(data.days_to_window)}) <ValueLabel kind="Assumed" />
           </p>
-          <ul className="m-0 list-none p-0 md:hidden" aria-label="The four parts of this machine" data-testid="component-cards">
+          <ul className="m-0 list-none p-0 xl:hidden" aria-label="The four parts of this machine" data-testid="component-cards">
             {data.parts.map((p) => (
               <li key={p.part} data-testid="component-card" data-part={p.part} className="border-b border-line py-3">
                 <p className="m-0 text-sm font-semibold">
@@ -78,7 +78,7 @@ function PanelBody({ id, at, modelVersion, info }: { id: number; at: string; mod
               </li>
             ))}
           </ul>
-          <div className="hidden overflow-x-auto md:block" tabIndex={0} role="region" aria-label="Parts table (scrolls sideways if it is too wide)">
+          <div className="hidden overflow-x-auto xl:block" tabIndex={0} role="region" aria-label="Parts table (scrolls sideways if it is too wide)">
             <table className="w-full border-collapse text-left" data-testid="component-table">
               <caption className="sr-only">
                 The four parts of this machine: days since replaced, wear estimate over {data.horizon_days} days, chance before the next window and the 48-hour warning.
