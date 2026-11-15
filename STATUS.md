@@ -1,16 +1,13 @@
 # Status
 
-_Updated 2026-11-14 6:35 PM ET, Stage 5 ready for Meysam's gate decision (PR #33, base main)._
+_Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
 ## Current stage
-**Stage 5, launch preparation: built, checked and reviewed. Waiting for Meysam's GATE M4 decision and launch go-ahead.** PR #32 was merged at 3:49 PM ET. Dependabot #25 to #28 are closed; #24 stays open (decision 69). The repo is still private, protection is still on, and nothing has been deployed to production.
-- Built: the Model Performance page; full testing (contrast, target size, keyboard, axe, notice, release hygiene, fresh copy), which closes the Stage 3 accessibility coverage gap within its documented automated scope; launch preparation (limitations, README, model card, CLAUDE.md, production bundle download with hash check, launch checklist, history scan).
-- Evidence:
-  - fresh-copy check passed on a clean clone, including the real-bundle and real-data checks;
-  - the bundle-download proof passed all nine cases;
-  - live checks on the protected preview `dpl_7zzg8naq7yXKrrYFNXRyD2AZfM6M` all passed;
-  - review rounds 1 to 8, with a final verdict of PASS WITH KNOWN ISSUES.
-- Needs Meysam: the launch go-ahead; the history items (a personal author email in 874a686, and older internal path names); a licence for the code; decisions 70 and 71.
+**Launched.** The site is public at https://predictiq-demo.vercel.app (`predictiq-eight.vercel.app` redirects to it). The repository `bavafa/predictiq` is public (a fresh repository with history kept and one author email rewritten, decision 72; the old one is the private `bavafa/predictiq-archive`). No licence (decision 73). Production serves model `piq-20261114-efc9c243` (simulated data, `synthetic: false`).
+- **Launch checks (all passed):** history scan (no secrets; six accepted items); bundle download without a login with matching SHA-256 (`0ad2916e...2d57d2`); production `main` build; five pages 200 with the simulated-data notice; health and metadata; `/fleet` 200 with `mv` and 400 without; `/plan` 200 and 413 for an oversize body; previews still redirect to sign-in (302); the Firewall rule "API rate limit, 300 per 60 s per IP" is active.
+- **Settings:** `main` requires the CI jobs e2e, frontend, python and security, with no force-push or deletion (admins can bypass); secret scanning and push protection are on; Vercel is linked to the new repository, production branch `main`.
+- **Not checked:** cache headers show `public, max-age=0` (metadata) and `public, max-age=3600` (data) at the edge, without `s-maxage` (Vercel strips it; `x-vercel-cache: HIT` seen); function size in the Vercel dashboard; the notice in a real browser; human screen-reader and real-device testing.
+- **Open:** Dependabot #1 (TypeScript 7, fails CI, leave open); the release-hygiene test's expected-failure note about the old personal email is stale and should be updated; the portfolio card and case study (owner).
 
 ## Handoff to Meysam (Claude Code), 14 Nov 2026, about 6:40 PM ET
 **Exact state**
