@@ -83,7 +83,27 @@ export function useData(): DataContextValue {
 // --- the web address as an external store -------------------------------------------------------------------
 
 const listeners = new Set<() => void>();
+const notify = () => listeners.forEach((l) => l());
+
+/** The Next.js router changes the address with history.pushState / replaceState AFTER it has rendered the new
+ *  page, and the browser sends no event for those two calls. Without this, a link click (Fleet to Asset Details,
+ *  Planner to Asset Details) left this store holding the old address until a reload. Installed once; harmless
+ *  to call again. */
+let historyPatched = false;
+function watchHistory() {
+  if (historyPatched) return;
+  historyPatched = true;
+  for (const method of ["pushState", "replaceState"] as const) {
+    const original = window.history[method].bind(window.history);
+    window.history[method] = (...args: Parameters<History["pushState"]>) => {
+      original(...args);
+      notify();
+    };
+  }
+}
+
 function subscribe(callback: () => void) {
+  watchHistory();
   listeners.add(callback);
   window.addEventListener("popstate", callback);
   return () => {
@@ -145,8 +165,7 @@ export function DataProvider({ children, client = api }: { children: ReactNode; 
     (changes: UrlChanges) => {
       if (!ready) return;
       const next = applyChanges(window.location.search, changes, ready);
-      window.history.replaceState(null, "", `${window.location.pathname}${next}${window.location.hash}`);
-      listeners.forEach((l) => l());
+      window.history.replaceState(null, "", `${window.location.pathname}${next}${window.location.hash}`); // notifies the listeners
     },
     [ready],
   );
