@@ -102,7 +102,8 @@ def test_node_and_python_bundle_fetchers_allow_the_same_files() -> None:
     block = re.search(r"export const ALLOWED = \[(.*?)\];", js, re.S)
     assert block is not None
     assert set(re.findall(r'"([^"]+)"', block.group(1))) == set(ALLOWED)
-    from ml.bundle import BUNDLE_FILES, COMPONENT_FILES
+    from ml.bundle import BUNDLE_FILES
+    from ml.component_bundle import COMPONENT_FILES
 
     assert set(ALLOWED) == {*BUNDLE_FILES, *COMPONENT_FILES}
 
