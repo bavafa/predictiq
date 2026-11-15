@@ -10,7 +10,7 @@ import { NoModelData, PanelError, Skeleton } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { Definition } from "@/components/definition";
 import { ValueLabel } from "@/components/value-label";
-import { CAVEAT_LINE, directionWord, inputName, recentFirst, rowHour, sameAnswer, signed } from "@/lib/asset";
+import { CAVEAT_LINE, effectWord, inputName, recentFirst, rowHour, sameAnswer, signed } from "@/lib/asset";
 import { percent } from "@/lib/fleet";
 import { parseHour, readableHour } from "@/lib/time";
 import type { ApiError } from "@/lib/api";
@@ -199,7 +199,7 @@ function AssetBody({ id, total, modelVersion }: { id: number; total: number; mod
           </h2>
           <ValueLabel kind="Historical" />
         </div>
-        <p className="mt-1 mb-3 text-sm text-ink-2">Units not stated by the source. One sensor per chart. Readings are from before the replay time.</p>
+        <p className="mt-1 mb-3 text-sm text-ink-2">One reading per hour, from before the replay time. The source gives no units, so the axes just say reading. Markers: ◆ recorded failure · ■ repair · ▲ error.</p>
         {shown?.telemetry.error ? (
           <PanelError testId="sensor-error" message="Couldn't load the sensor history for this machine." onRetry={telemetry.retry} />
         ) : !shown?.telemetry.data ? (
@@ -300,7 +300,7 @@ function ExplanationPanel({ error, retry, data, dim }: { error: ApiError | null;
           What pushed this estimate up or down
           <Definition
             name="the pushes"
-            text="Each input's push is how much it moved the model's estimate for this hour, in log-odds of a failure within 24 hours (a scale where 0 means no push). Plus raises the estimate, minus lowers it. Bigger numbers pushed harder."
+            text="Each input pushed this machine's estimate up or down for this hour. A longer bar means a bigger push. The exact numbers are in log-odds, the scale the model works in (0 means no push); show them with the button under the heading."
           />
         </h2>
         <ValueLabel kind="Predicted" />
@@ -320,24 +320,30 @@ function ExplanationPanel({ error, retry, data, dim }: { error: ApiError | null;
 }
 
 function ExplanationTable({ e, dim }: { e: Explanation; dim: boolean }) {
+  const [exact, setExact] = useState(false);
   const rows = [
     ...e.contributions.map((c) => ({ key: c.feature, ...inputName(c.feature), push: c.contribution })),
     { key: "others", name: "All other inputs combined", meaning: "The sum of the pushes of every input not listed above.", push: e.all_others },
   ];
   const max = Math.max(1e-9, ...rows.map((r) => Math.abs(r.push)));
+  const th = "border-b border-line bg-subtle px-3 py-2 text-left text-xs font-semibold text-ink-2";
   return (
     <div className={dim ? "opacity-60" : undefined} aria-busy={dim}>
+      <div className="mb-2">
+        <Button aria-pressed={exact} onClick={() => setExact((v) => !v)}>
+          {exact ? "Hide exact numbers" : "Show exact numbers"}
+        </Button>
+      </div>
       <table className="w-full border-collapse text-sm" data-testid="explanation-table">
         <caption className="sr-only">
-          The eight inputs that pushed this machine&rsquo;s estimate the most, and all others combined. Pushes are in log-odds; plus raises the
-          estimate, minus lowers it. Patterns, not causes.
+          The eight inputs that pushed this machine&rsquo;s estimate the most, and all others combined. Each row says whether the input raises or
+          lowers the chance of a failure. Patterns, not causes.
         </caption>
         <thead>
           <tr>
-            <th scope="col" className="border-b border-line bg-subtle px-3 py-2 text-left text-xs font-semibold text-ink-2">Input</th>
-            <th scope="col" className="border-b border-line bg-subtle px-3 py-2 text-left text-xs font-semibold text-ink-2">Direction</th>
-            <th scope="col" className="hidden border-b border-line bg-subtle px-3 py-2 text-left text-xs font-semibold text-ink-2 sm:table-cell">Size</th>
-            <th scope="col" className="border-b border-line bg-subtle px-3 py-2 text-right text-xs font-semibold text-ink-2">Push (log-odds; + raises, − lowers)</th>
+            <th scope="col" className={th}>Input</th>
+            <th scope="col" className={th}>Effect on the chance (longer bar = bigger push)</th>
+            {exact && <th scope="col" className={`${th} text-right`}>Exact push (log-odds)</th>}
           </tr>
         </thead>
         <tbody>
@@ -347,16 +353,17 @@ function ExplanationTable({ e, dim }: { e: Explanation; dim: boolean }) {
                 {r.name}
                 <Definition name={r.name} text={r.meaning} />
               </th>
-              <td className="px-3 py-1 whitespace-nowrap">
-                <span aria-hidden="true">{r.push > 0 ? "▲" : r.push < 0 ? "▼" : "–"}</span> {directionWord(r.push)}
-              </td>
-              <td className="hidden px-3 py-1 sm:table-cell" aria-hidden="true">
+              <td className="px-3 py-1">
+                <span className="whitespace-nowrap">
+                  <span aria-hidden="true">{r.push > 0 ? "▲" : r.push < 0 ? "▼" : "–"}</span> {effectWord(r.push)}
+                </span>
                 <span
-                  className={r.push < 0 ? "block h-3 border-2 border-dashed border-ink-2 bg-card" : "block h-3 bg-ink-2"}
+                  aria-hidden="true"
+                  className="mt-1 hidden h-2 bg-ink-2 sm:block"
                   style={{ width: `${Math.max(2, (Math.abs(r.push) / max) * 100)}%` }}
                 />
               </td>
-              <td className="tabular px-3 py-1 text-right">{signed(r.push)}</td>
+              {exact && <td className="tabular px-3 py-1 text-right">{signed(r.push)}</td>}
             </tr>
           ))}
         </tbody>

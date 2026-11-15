@@ -24,7 +24,7 @@ export function ChartCard({
   note?: string;
   title: string;
   summary: string;
-  caption: string;
+  caption?: string;
   actions?: ReactNode;
   chart: ReactNode;
   table: ReactNode;
@@ -46,7 +46,8 @@ export function ChartCard({
         </div>
       </div>
       <figcaption className="mt-1 text-sm leading-5 text-ink-2">
-        <ValueLabel kind={kind} /> {caption}
+        <ValueLabel kind={kind} />
+        {caption ? ` ${caption}` : null}
       </figcaption>
       <p id={`${id}-s`} data-testid={`${testId}-summary`} className="mt-2 mb-0 text-sm leading-5 font-semibold">
         {summary}

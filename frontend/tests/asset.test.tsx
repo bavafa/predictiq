@@ -136,15 +136,18 @@ describe("Asset Details: a machine", () => {
     expect(document.body.textContent?.toLowerCase()).not.toMatch(/\blive\b|real-time|savings/);
   });
 
-  it("lists the top 8 inputs and all others, with direction words and signed pushes", async () => {
+  it("lists the top 8 inputs and all others in plain words, and shows the exact pushes on request", async () => {
+    const user = userEvent.setup();
     renderWithData(<AssetDetailsPage />, server());
     await screen.findByTestId("explanation-table");
     const rows = screen.getAllByTestId("explanation-row");
     expect(rows).toHaveLength(9);
     expect(rows[0]).toHaveTextContent("Average vibration, past 24 hours");
-    expect(rows[0]).toHaveTextContent("raises");
+    expect(rows[0]).toHaveTextContent("Raises the chance");
+    expect(rows[3]).toHaveTextContent("Lowers the chance");
+    expect(rows[0]).not.toHaveTextContent("+2.00");
+    await user.click(screen.getByRole("button", { name: "Show exact numbers" }));
     expect(rows[0]).toHaveTextContent("+2.00");
-    expect(rows[3]).toHaveTextContent("lowers");
     expect(rows[3]).toHaveTextContent("−0.50");
     expect(rows[8]).toHaveTextContent("All other inputs combined");
   });
@@ -158,6 +161,22 @@ describe("Asset Details: a machine", () => {
     expect(screen.getByRole("note")).toHaveTextContent("average vibration reading over the 24 hours before the scored hour");
     await userEvent.keyboard("{Escape}");
     expect(button).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("shows an input's definition on hover, hides it on mouse-out, and keeps it when clicked", async () => {
+    const user = userEvent.setup();
+    renderWithData(<AssetDetailsPage />, server());
+    await screen.findByTestId("explanation-table");
+    const button = screen.getByRole("button", { name: 'What "Average vibration, past 24 hours" means' });
+    await user.hover(button);
+    expect(screen.getByRole("note")).toBeInTheDocument();
+    await user.unhover(button);
+    expect(screen.queryByRole("note")).toBeNull();
+    await user.click(button); // pins it open
+    await user.unhover(button);
+    expect(screen.getByRole("note")).toBeInTheDocument();
+    await user.click(button); // closes it
+    expect(screen.queryByRole("note")).toBeNull();
   });
 
   it("never lists a record at or after the replay hour", async () => {
@@ -188,7 +207,7 @@ describe("Asset Details: a machine", () => {
   it("draws four sensor charts with text summaries and a table alternative", async () => {
     renderWithData(<AssetDetailsPage />, server());
     for (const key of ["volt", "rotate", "pressure", "vibration"]) {
-      expect(await screen.findByTestId(`sensor-${key}-summary`)).toHaveTextContent("Units not stated by the source");
+      expect(await screen.findByTestId(`sensor-${key}-summary`)).toHaveTextContent("hourly readings");
     }
     const card = screen.getByTestId("sensor-volt");
     await userEvent.click(within(card).getByRole("button", { name: "View as table" }));

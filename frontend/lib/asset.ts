@@ -72,7 +72,7 @@ export function signed(value: number): string {
   return `${value > 0 ? "+" : "−"}${rounded.toFixed(2)}`;
 }
 
-export const directionWord = (value: number) => (value > 0 ? "raises" : value < 0 ? "lowers" : "no push");
+export const effectWord = (value: number) => (value > 0 ? "Raises the chance" : value < 0 ? "Lowers the chance" : "No effect");
 
 /** Hours since the epoch for "2015-11-14T06:00:00" (extra seconds ignored); null when unreadable. */
 export function parseHourLoose(text: string): number | null {
@@ -119,7 +119,7 @@ export function sensorSummary(t: Telemetry, key: SensorKey, label: string): stri
   const values = t.rows.map((r) => r[key]).filter((v): v is number => v !== null);
   if (values.length === 0) return `No ${label.toLowerCase()} readings in this range.`;
   const last = values[values.length - 1]!;
-  return `${label}: latest reading ${last.toFixed(1)}; lowest ${Math.min(...values).toFixed(1)}, highest ${Math.max(...values).toFixed(1)} over ${values.length} hourly readings. Units not stated by the source.`;
+  return `${label}: latest ${last.toFixed(1)}, lowest ${Math.min(...values).toFixed(1)}, highest ${Math.max(...values).toFixed(1)} over ${values.length} hourly readings.`;
 }
 
 /**

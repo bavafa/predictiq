@@ -79,8 +79,7 @@ function SensorChart({ telemetry, asset, sensor, range }: { telemetry: Telemetry
       testId={`sensor-${sensor.key}`}
       kind="Historical"
       title={sensor.label}
-      caption={`One reading per hour, up to the replay time. Units not stated by the source. Markers: ◆ recorded failure · ■ repair · ▲ error.`}
-      summary={`${sensorSummary(telemetry, sensor.key, sensor.label)} ${asset ? `Markers on this chart: ${markCounts(marks)}.` : "Markers are not available because the machine record did not load."}`}
+      summary={`${sensorSummary(telemetry, sensor.key, sensor.label)}${asset ? (marks.length ? ` Markers: ${markCounts(marks)}.` : "") : " Markers are not available because the machine record did not load."}`}
       note={data.length < wanted ? `Only ${data.length} ${data.length === 1 ? "hour" : "hours"} of history before this point.` : undefined}
       chart={
         <div className="h-56 w-full">
@@ -88,7 +87,7 @@ function SensorChart({ telemetry, asset, sensor, range }: { telemetry: Telemetry
             <LineChart data={data} margin={{ top: 12, right: 12, bottom: 28, left: 4 }} accessibilityLayer={false}>
               <CartesianGrid stroke={GRID} vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: INK2 }} minTickGap={48} label={{ value: "Time (historical)", position: "insideBottom", offset: -18, fontSize: 12, fill: INK2 }} />
-              <YAxis width={52} domain={[lo - pad, hi + pad]} tickFormatter={(v: number) => v.toFixed(0)} tick={{ fontSize: 11, fill: INK2 }} label={{ value: "Reading", angle: -90, position: "insideLeft", fontSize: 12, fill: INK2 }} />
+              <YAxis width={52} domain={[lo - pad, hi + pad]} tickFormatter={(v: number) => v.toFixed(0)} tick={{ fontSize: 11, fill: INK2 }} label={{ value: "Reading (no unit given)", angle: -90, position: "insideLeft", fontSize: 12, fill: INK2 }} />
               <Line type="monotone" dataKey="value" stroke={SENSOR} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
               {marks.map((m, i) => {
                 const d = byHour.get(m.hour)!;
