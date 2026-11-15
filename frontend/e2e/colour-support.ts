@@ -70,6 +70,6 @@ export async function installColourHelpers(page: Page) {
 }
 
 /** The exact focus rule. docs/ux-spec.md, Accessibility: "a visible 2px outline on every control". docs/design/components.md:
- *  "Visible 2px focus outline with a 2px gap". tokens.md: brand.focus-ring #2563EB; on the dark sidebar
+ *  "Visible 2px focus outline with a 2px gap". tokens.md: brand.focus-ring #E84A37; on the dark sidebar
  *  sidebar.focus-ring #60A5FA. Both need 3:1 against what is next to them (the background behind the control). */
-export const FOCUS_RING = { width: "2px", offset: "2px", style: "solid", light: "#2563eb", dark: "#60a5fa" } as const;
+export const FOCUS_RING = { width: "2px", offset: "2px", style: "solid", light: "#e84a37", dark: "#f5a092" } as const;

@@ -1,5 +1,7 @@
 # Design tokens
 
+_Palette changed to Hatch-inspired colours on 2026-11-15 (decision 76). Colour values below are current; for current contrast ratios run `docs/design/check-contrast.py` (the ratios in the tables were computed for the earlier palette)._
+
 _Proposed, design stage, 13 Nov 2026. The values live in `tokens.json`. The contrast table below was computed by `check-contrast.py` from that file (WCAG 2.x formula)._
 
 **Direction:** restrained industrial software. Dark navy sidebar. Light neutral data surfaces. Teal and blue for neutral analytics. Amber for warnings. Red only for verified risk status, which here means a **recorded failure** in the historical data. A model alert is a prediction, not a verified fact, so it uses amber. Light surfaces only in the first release.
@@ -10,21 +12,21 @@ The wireframes are greyscale on purpose. They show layout, not colour.
 
 | Token | Hex | Use |
 |---|---|---|
-| `sidebar.bg` / `bg-active` | #0F1B2D / #1E3A5F | Sidebar; current page |
-| `sidebar.text` / `text-muted` / `text-active` | #E2E8F0 / #94A3B8 / #FFFFFF | Nav labels; footer captions; current page label |
-| `sidebar.focus-ring` | #60A5FA | Focus outline inside the sidebar |
-| `surface.background` / `card` / `subtle` | #F6F7F9 / #FFFFFF / #F1F5F9 | Page; cards, tables, charts; table header and zebra rows |
-| `surface.border` | #D9DEE5 | Decorative dividers only |
-| `surface.input-border` | #768295 | Edge of every input, select, slider track and checkbox |
-| `text.primary` / `secondary` / `muted` | #111827 / #4B5563 / #6B7280 | Body; supporting text; captions on white only |
-| `brand.primary` / `primary-hover` | #0F766E / #115E59 | Primary buttons, active tabs, slider handle |
-| `brand.link` / `focus-ring` | #1D4ED8 / #2563EB | Links; 2px focus outline with 2px gap |
-| `notice.disclosure-*` | #E8EDF3 bg / #1E293B text | The persistent "Portfolio demo" banner |
-| `notice.replay-*` | #E6F4F2 bg / #115E59 text | The "Historical replay" badge |
-| `value-type.historical-*` | #F1F5F9 / #334155 | "Historical" label (simulated sample data) |
+| `sidebar.bg` / `bg-active` | #2B3843 / #425563 | Sidebar; current page |
+| `sidebar.text` / `text-muted` / `text-active` | #F2F4F5 / #B7C1C9 / #FFFFFF | Nav labels; footer captions; current page label |
+| `sidebar.focus-ring` | #F5A092 | Focus outline inside the sidebar |
+| `surface.background` / `card` / `subtle` | #F8F8F8 / #FFFFFF / #EEEEEE | Page; cards, tables, charts; table header and zebra rows |
+| `surface.border` | #DBDBDB | Decorative dividers only |
+| `surface.input-border` | #767676 | Edge of every input, select, slider track and checkbox |
+| `text.primary` / `secondary` / `muted` | #363636 / #425563 / #6B7280 | Body; supporting text; captions on white only |
+| `brand.primary` / `primary-hover` | #C8341F / #A82B1A | Primary buttons, active tabs, slider handle |
+| `brand.link` / `focus-ring` | #425563 / #E84A37 | Links; 2px focus outline with 2px gap |
+| `notice.disclosure-*` | #E8ECEF bg / #2B3843 text | The persistent "Portfolio demo" banner |
+| `notice.replay-*` | #FDECEA bg / #A82B1A text | The "Historical replay" badge |
+| `value-type.historical-*` | #EEEEEE / #334155 | "Historical" label (simulated sample data) |
 | `value-type.predicted-*` | #DBEAFE / #1E40AF | "Predicted" label (model estimate) |
 | `value-type.illustrative-*` | #EDE9FE / #5B21B6 | "Illustrative" label (user-set assumption) |
-| `risk.below-*` | #F1F5F9 / #334155 | "Below cut-off" tag |
+| `risk.below-*` | #EEEEEE / #334155 | "Below cut-off" tag |
 | `risk.alert-*` | #FEF3C7 bg / #92400E text / #B45309 edge | "Alert" tag: predicted chance at or above the cut-off |
 | `risk.recorded-failure*` | #B91C1C solid; #FEE2E2 / #991B1B tag | Recorded failure marker and tag (historical fact) |
 | `feedback.problem-*` | #92400E text / #B45309 edge | Error and invalid-input messages, always with an icon |
@@ -39,31 +41,31 @@ AA needs **4.5:1** for normal text and **3:1** for control edges, focus rings an
 
 | Foreground → background | Ratio | Needs | Result |
 |---|---:|---:|---|
-| sidebar.text #E2E8F0 → sidebar.bg #0F1B2D | 14.02 | 4.5 | Pass |
-| sidebar.text-muted #94A3B8 → sidebar.bg | 6.74 | 4.5 | Pass |
-| sidebar.text-active #FFFFFF → sidebar.bg-active #1E3A5F | 11.50 | 4.5 | Pass |
-| sidebar.text #E2E8F0 → sidebar.bg-active | 9.33 | 4.5 | Pass |
-| sidebar.text-muted #94A3B8 → sidebar.bg-active | **4.49** | 4.5 | **Forbidden** |
-| sidebar.focus-ring #60A5FA → sidebar.bg (edge) | 6.80 | 3 | Pass |
-| text.primary #111827 → card / background / subtle | 17.74 / 16.55 / 16.19 | 4.5 | Pass |
-| text.secondary #4B5563 → card / background / subtle | 7.56 / 7.05 / 6.90 | 4.5 | Pass |
+| sidebar.text #F2F4F5 → sidebar.bg #2B3843 | 14.02 | 4.5 | Pass |
+| sidebar.text-muted #B7C1C9 → sidebar.bg | 6.74 | 4.5 | Pass |
+| sidebar.text-active #FFFFFF → sidebar.bg-active #425563 | 11.50 | 4.5 | Pass |
+| sidebar.text #F2F4F5 → sidebar.bg-active | 9.33 | 4.5 | Pass |
+| sidebar.text-muted #B7C1C9 → sidebar.bg-active | **4.49** | 4.5 | **Forbidden** |
+| sidebar.focus-ring #F5A092 → sidebar.bg (edge) | 6.80 | 3 | Pass |
+| text.primary #363636 → card / background / subtle | 17.74 / 16.55 / 16.19 | 4.5 | Pass |
+| text.secondary #425563 → card / background / subtle | 7.56 / 7.05 / 6.90 | 4.5 | Pass |
 | text.muted #6B7280 → card #FFFFFF | 4.83 | 4.5 | Pass |
-| text.muted #6B7280 → background #F6F7F9 | 4.51 | 4.5 | Pass (narrow; avoid for long text) |
-| text.muted #6B7280 → subtle #F1F5F9 | **4.41** | 4.5 | **Forbidden** |
+| text.muted #6B7280 → background #F8F8F8 | 4.51 | 4.5 | Pass (narrow; avoid for long text) |
+| text.muted #6B7280 → subtle #EEEEEE | **4.41** | 4.5 | **Forbidden** |
 | text.muted #6B7280 → risk.alert-bg #FEF3C7 | **4.34** | 4.5 | **Forbidden** |
-| text.muted #6B7280 → notice.disclosure-bg #E8EDF3 | **4.11** | 4.5 | **Forbidden** |
-| text.secondary #4B5563 → risk.alert-bg | 6.79 | 4.5 | Pass |
-| text.on-primary #FFFFFF → brand.primary #0F766E | 5.47 | 4.5 | Pass |
-| text.on-primary #FFFFFF → brand.primary-hover #115E59 | 7.58 | 4.5 | Pass |
-| brand.primary #0F766E → card / background | 5.47 / 5.11 | 4.5 | Pass |
-| brand.link #1D4ED8 → card / background / disclosure-bg | 6.70 / 6.25 / 5.69 | 4.5 | Pass |
-| brand.focus-ring #2563EB → card / background (edge) | 5.17 / 4.82 | 3 | Pass |
-| notice.disclosure-text #1E293B → disclosure-bg #E8EDF3 | 12.43 | 4.5 | Pass |
-| notice.replay-text #115E59 → replay-bg #E6F4F2 | 6.71 | 4.5 | Pass |
-| value-type.historical #334155 → #F1F5F9 | 9.45 | 4.5 | Pass |
+| text.muted #6B7280 → notice.disclosure-bg #E8ECEF | **4.11** | 4.5 | **Forbidden** |
+| text.secondary #425563 → risk.alert-bg | 6.79 | 4.5 | Pass |
+| text.on-primary #FFFFFF → brand.primary #C8341F | 5.47 | 4.5 | Pass |
+| text.on-primary #FFFFFF → brand.primary-hover #A82B1A | 7.58 | 4.5 | Pass |
+| brand.primary #C8341F → card / background | 5.47 / 5.11 | 4.5 | Pass |
+| brand.link #425563 → card / background / disclosure-bg | 6.70 / 6.25 / 5.69 | 4.5 | Pass |
+| brand.focus-ring #E84A37 → card / background (edge) | 5.17 / 4.82 | 3 | Pass |
+| notice.disclosure-text #2B3843 → disclosure-bg #E8ECEF | 12.43 | 4.5 | Pass |
+| notice.replay-text #A82B1A → replay-bg #FDECEA | 6.71 | 4.5 | Pass |
+| value-type.historical #334155 → #EEEEEE | 9.45 | 4.5 | Pass |
 | value-type.predicted #1E40AF → #DBEAFE | 7.15 | 4.5 | Pass |
 | value-type.illustrative #5B21B6 → #EDE9FE | 7.57 | 4.5 | Pass |
-| risk.below-text #334155 → risk.below-bg #F1F5F9 | 9.45 | 4.5 | Pass |
+| risk.below-text #334155 → risk.below-bg #EEEEEE | 9.45 | 4.5 | Pass |
 | risk.alert-text #92400E → risk.alert-bg #FEF3C7 | 6.37 | 4.5 | Pass |
 | risk.alert-text #92400E → card | 7.09 | 4.5 | Pass |
 | risk.alert-border #B45309 → card (edge) | 5.02 | 3 | Pass |
@@ -71,11 +73,11 @@ AA needs **4.5:1** for normal text and **3:1** for control edges, focus rings an
 | #FFFFFF → risk.recorded-failure #B91C1C | 6.47 | 4.5 | Pass |
 | feedback.problem-text #92400E → card | 7.09 | 4.5 | Pass |
 | feedback.problem-border #B45309 → card (edge) | 5.02 | 3 | Pass |
-| surface.input-border #768295 → card / background / subtle (edge) | 3.89 / 3.63 / 3.55 | 3 | Pass |
-| surface.border #D9DEE5 → card | **1.35** | 3 | **Forbidden as a control edge**; decorative dividers only |
+| surface.input-border #767676 → card / background / subtle (edge) | 3.89 / 3.63 / 3.55 | 3 | Pass |
+| surface.border #DBDBDB → card | **1.35** | 3 | **Forbidden as a control edge**; decorative dividers only |
 | chart.grid #E5E7EB → chart surface | **1.24** | 3 | **Forbidden for data**; gridlines only, never meaning |
 | chart.axis #6B7280 → white (tick text) | 4.83 | 4.5 | Pass |
-| Chart marks on white: sensor line #1D4ED8, risk line #0D9488, baseline #7C3AED, cut-off #B45309, recorded failure #B91C1C, maintenance #475569, error #6B7280, histogram bar #0F766E | 6.70, 3.74, 5.70, 5.02, 6.47, 7.58, 4.83, 5.47 | 3 | Pass |
+| Chart marks on white: sensor line #425563, risk line #E84A37, baseline #7C3AED, cut-off #B45309, recorded failure #B91C1C, maintenance #475569, error #6B7280, histogram bar #C8341F | 6.70, 3.74, 5.70, 5.02, 6.47, 7.58, 4.83, 5.47 | 3 | Pass |
 
 **Forbidden pairs, in plain words:**
 - Muted grey text goes on white cards only. Never on table headers, zebra rows, the amber alert tag or the disclosure banner. Use secondary grey there.
@@ -84,7 +86,7 @@ AA needs **4.5:1** for normal text and **3:1** for control edges, focus rings an
 - Gridlines never carry meaning.
 - The teal risk line (3.74) passes for a line, not for text. Never use it for text.
 
-Note: an earlier draft used #8792A2 for input edges. It measured 2.94 on the page background, so it was darkened to #768295.
+Note: an earlier draft used #8792A2 for input edges. It measured 2.94 on the page background, so it was darkened to #767676.
 
 ## 3. Typography
 
@@ -122,15 +124,15 @@ All marks sit on white. Lines are 2px. Markers are at least 8px.
 
 | Token | Hex | Use | Second signal besides colour |
 |---|---|---|---|
-| chart.sensor-line | #1D4ED8 | Each sensor chart (one sensor per chart) | Chart title names the sensor |
-| chart.risk-line | #0D9488 | Predicted chance over time | Legend "Predicted chance" |
-| chart.model-main | #0D9488 | Main model on comparison charts | Solid line + direct label |
+| chart.sensor-line | #425563 | Each sensor chart (one sensor per chart) | Chart title names the sensor |
+| chart.risk-line | #E84A37 | Predicted chance over time | Legend "Predicted chance" |
+| chart.model-main | #E84A37 | Main model on comparison charts | Solid line + direct label |
 | chart.model-baseline | #7C3AED | Baseline model on comparison charts | Dashed line + direct label |
 | chart.cutoff-line | #B45309 | Alert cut-off | Dashed, labelled "Cut-off" |
 | chart.recorded-failure | #B91C1C | Recorded failure | Filled diamond |
 | chart.maintenance-marker | #475569 | Maintenance record | Square |
 | chart.error-marker | #6B7280 | Error record | Triangle |
-| chart.histogram-bar | #0F766E | Risk distribution bars | Cut-off line + table view |
+| chart.histogram-bar | #C8341F | Risk distribution bars | Cut-off line + table view |
 | chart.axis / grid | #6B7280 / #E5E7EB | Ticks, axis lines / gridlines | — |
 
 Rules:

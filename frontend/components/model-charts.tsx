@@ -26,11 +26,11 @@ import {
 } from "@/lib/model-performance";
 
 // Chart colours from docs/design/tokens.md: main model teal (solid, circles), baseline violet (dashed, squares).
-const MAIN = "#0d9488";
+const MAIN = "#e84a37";
 const BASELINE = "#7c3aed";
 const CUTOFF = "#b45309";
 const SLATE = "#475569";
-const INK2 = "#4b5563";
+const INK2 = "#425563";
 const GRID = "#e5e7eb";
 
 // Legend text is body-text colour (text.secondary, 7:1 on white). Recharts would colour it with the series colour, and the

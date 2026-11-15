@@ -9,8 +9,8 @@ import { binLabel, binOfCutoff } from "@/lib/fleet";
 import { shortHour, parseHour } from "@/lib/time";
 import type { Fleet, FleetTrend, Range } from "@/lib/types";
 
-const INK = "#111827";
-const INK2 = "#4b5563";
+const INK = "#363636";
+const INK2 = "#425563";
 const BAR = "#475569";
 const LINE_EDGE = "#e5e7eb";
 

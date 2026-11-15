@@ -12,6 +12,7 @@ import { Definition } from "@/components/definition";
 import { ValueLabel } from "@/components/value-label";
 import { CAVEAT_LINE, effectWord, inputName, recentFirst, rowHour, sameAnswer, signed } from "@/lib/asset";
 import { percent } from "@/lib/fleet";
+import { machineName } from "@/lib/machine-types";
 import { parseHour, readableHour } from "@/lib/time";
 import type { ApiError } from "@/lib/api";
 import type { Asset, Explanation, MachineModel, Range, Telemetry } from "@/lib/types";
@@ -51,18 +52,18 @@ function MachineSelect({ selected, total }: { selected: number | null; total: nu
   const machines = meta.status === "ready" ? (meta.meta.machines ?? []) : [];
   const options = machines.length > 0 ? machines : Array.from({ length: total }, (_, i) => ({ machine_id: i + 1, model: "" as MachineModel | "" }));
   return (
-    <label htmlFor={id} className="flex items-center gap-2 text-sm font-semibold">
+    <label htmlFor={id} className="flex min-w-0 items-center gap-2 text-sm font-semibold">
       Machine
       <select
         id={id}
         value={selected === null ? "" : String(selected)}
         onChange={(e) => update({ machine: e.target.value === "" ? null : Number(e.target.value) })}
-        className="min-h-11 rounded-md border border-input-edge bg-card px-2 text-sm font-normal"
+        className="min-h-11 max-w-56 min-w-0 rounded-md border border-input-edge bg-card px-2 text-sm font-normal"
       >
         {selected === null && <option value="">Choose a machine</option>}
         {options.map((m) => (
           <option key={m.machine_id} value={m.machine_id}>
-            Machine {m.machine_id}
+            {machineName(m.machine_id)}
             {m.model ? ` · ${m.model}` : ""}
           </option>
         ))}
@@ -238,7 +239,7 @@ function FactsPanel({ query, data, id }: { query: Q; data: Asset | null; id: num
   return (
     <section className={card} aria-labelledby="facts-title" data-testid="facts">
       <h2 id="facts-title" className={h2}>
-        Machine {id}
+        {machineName(id)}
       </h2>
       {query.error ? (
         <PanelError testId="asset-error-facts" message="Couldn't load this machine's details." onRetry={query.retry} />

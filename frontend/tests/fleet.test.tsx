@@ -102,7 +102,7 @@ describe("Fleet Overview", () => {
     setAddress("?at=2015-11-02T00:00&cutoff=40");
     renderWithData(<FleetOverviewPage />, server());
     await screen.findByTestId("card-shown");
-    const link = within(tableRows()[0]!).getByRole("link", { name: "Machine 1" });
+    const link = within(tableRows()[0]!).getByRole("link", { name: "Exhaust fan 1" });
     const url = new URL(link.getAttribute("href")!, "http://x");
     expect(url.pathname).toBe("/asset-details");
     expect(url.searchParams.get("machine")).toBe("1");

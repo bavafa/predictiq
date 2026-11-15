@@ -38,7 +38,7 @@ Git blob SHAs below match the GitHub API listing of the pinned commit, so the fi
 
 | File | Columns | Notes |
 |---|---|---|
-| telemetry | `datetime`, `machineID` (int), `volt`, `rotate`, `pressure`, `vibration` (float) | Hourly, 2015-01-01 06:00 to 2016-01-01 06:00; 100 machines; no nulls; no duplicate machine-hour rows. Observed ranges: volt 97.3–255.1, rotate 138.4–695.0, pressure 51.2–186.0, vibration 14.9–76.8. Units are not stated by the source. |
+| telemetry | `datetime`, `machineID` (int), `volt`, `rotate`, `pressure`, `vibration` (float) | Hourly, 2015-01-01 06:00 to 2016-01-01 06:00; 100 machines; no nulls; no duplicate machine-hour rows. Observed ranges: volt 97.3–255.1, rotate 138.4–695.0, pressure 51.2–186.0, vibration 14.9–76.8. Units are not stated by the source. The app shows assumed units and illustrative machine types (decision 75). |
 | errors | `datetime`, `machineID`, `errorID` (error1–error5) | 2015-01-01 06:00 to 2016-01-01 05:00; 100 machines. |
 | maint | `datetime`, `machineID`, `comp` (comp1–comp4) | 2014-06-01 to 2016-01-01; starts **before** telemetry. Includes replacements made at failure time. |
 | failures | `datetime`, `machineID`, `failure` (comp1–comp4) | 761 rows across 98 machines; one row per failed component, so several rows can share a machine and timestamp (event de-duplication needed in M1). Counts: comp2 259, comp1 192, comp4 179, comp3 131. |
