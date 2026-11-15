@@ -12,7 +12,7 @@
 | 2 | Medium | The 48-hour frame was never built in a test | Fixed: frame test runs for day7, day14 and hour48 |
 | 3 | Medium | Unseen-machine test could pass with no unseen rows | Fixed: asserts unseen rows exist in test and machine 2 is absent from train and validation |
 | 4 | Medium | Real-data test checked no counts; NaN assertion misleading | Fixed: pins positives and rows per level and split; NaN only forbidden for model, age, past failures |
-| 5 | Low | 18 failures stamped 2015-01-02 03:00 have no replacement record, so days since replacement keeps counting from an older replacement | **Open: owner decision** (count a failure as a replacement, or document the input as replacement-only) |
+| 5 | Low | 18 failures stamped 2015-01-02 03:00 have no replacement record, so days since replacement keeps counting from an older replacement | Fixed: owner chose a failure counts as a replacement (decision 78); test added |
 | 6 | Low | Duplicate or empty machine lists | Fixed: duplicates removed, empty list returns an empty frame |
 | 7 | Low | Docstring overstated row-order guarantee | Fixed: says to join by key |
 

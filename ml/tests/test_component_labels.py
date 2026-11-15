@@ -162,3 +162,14 @@ def test_real_counts_recorded(level: str) -> None:
     assert got == REAL_COUNTS[level]
     if level == "day14":  # a never-replaced part may be NaN by design; the rest must be complete
         assert f[["machine_model", "age", "past_failures"]].notna().all().all()
+
+
+def test_a_failure_with_no_replacement_record_counts_as_a_replacement() -> None:
+    t = tiny()  # machine 1 comp1: replaced T-3d, failed T-10d and T+2d; comp3 has no records
+    extra = pd.DataFrame([(T - 2 * D, 1, "comp3")], columns=["datetime", "machineID", "failure"])
+    t = Tables(t.telemetry, t.errors, t.maint, pd.concat([t.failures, extra], ignore_index=True), t.machines)
+    x = wear_inputs(t, np.array([1]), pd.DatetimeIndex([T])).set_index(["machineID", "comp"])
+    assert x.loc[(1, "comp3"), "days_since_replacement"] == 2.0
+    assert (
+        x.loc[(1, "comp1"), "days_since_replacement"] == 3.0
+    )  # the replacement at T-3d is later than the failure at T-10d
