@@ -93,7 +93,7 @@ def test_prebuild_copies_a_real_bundle_and_works_without_one(tmp_path: Path) -> 
 
 
 def test_node_and_python_bundle_fetchers_allow_the_same_files() -> None:
-    """fetch-bundle.mjs (production build) and scripts/fetch_bundle.py allow the same names, and they cover every file a bundle can hold."""
+    """fetch-bundle.mjs (production build) and scripts/fetch_bundle.py allow the same names: every file a bundle can hold."""
     import re
 
     from scripts.fetch_bundle import ALLOWED
