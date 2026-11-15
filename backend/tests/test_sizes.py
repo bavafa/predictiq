@@ -75,6 +75,18 @@ def test_largest_requests_through_the_adapter_with_a_synthetic_bundle(
     check(probe(frontend), capsys, "synthetic bundle")
 
 
+def test_largest_component_requests_through_the_adapter(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from ml.bundle import synthetic_bundle
+
+    folder = tmp_path / "with-components"
+    synthetic_bundle(folder, with_components=True)
+    sizes = probe(lay_out(tmp_path / "layout", folder))
+    assert "POST plan (component level, maximum inputs)" in sizes and "assets/{id}/components" in sizes
+    check(sizes, capsys, "synthetic bundle with component scores")
+
+
 def test_largest_requests_through_the_adapter_with_the_real_bundle(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

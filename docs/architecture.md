@@ -91,6 +91,8 @@ Vercel's docs say the cache key is the request URL and ignore query strings only
 | `GET /assets/{id}/telemetry?at&range=24h\|7d` | ≤168 hourly rows |
 | `GET /assets/{id}/explanation?at` | Top 8 contributions plus "all others", with the patterns-not-causes caveat |
 | `POST /plan?mv` | Planner list, shortlist and totals (decisions 16, 21, 23). Body and rules: decision 63. Stores nothing, `no-store` |
+| `POST /plan?mv` with `level: "component"` | Component planner (decisions 77, 79): parts ranked by chance before the next assumed weekly shutdown window x part cost, crew slots per window, `horizon_days` 7 or 14 (default 14), at most 100 rows. No alert cut-off for the wear view. Needs the optional component files in the bundle, otherwise 503. `no-store` |
+| `GET /assets/{id}/components?mv&at&horizon_days` | One machine's four parts: wear chance, chance before its next window, 48-hour warning, days since replacement. Same cache rule as the other data endpoints |
 | `GET /model/metrics` | `evaluation.json` for both models |
 | `GET /model/threshold-analysis` | Both models at every whole-percent cut-off from 0 to 100 |
 
