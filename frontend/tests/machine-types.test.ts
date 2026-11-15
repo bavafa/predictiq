@@ -4,7 +4,7 @@ import { MACHINE_TYPES, machineName, machineType } from "@/lib/machine-types";
 describe("machine types (illustrative)", () => {
   it("names a machine by its type and number", () => {
     expect(machineName(13)).toBe("Centrifugal pump 13"); // model1
-    expect(machineName(11)).toBe("Reciprocating compressor 11"); // model2
+    expect(machineName(11)).toBe("Air compressor 11"); // model2
     expect(machineName(1)).toBe("Exhaust fan 1"); // model3, age 18
     expect(machineName(100)).toBe("CNC spindle 100"); // model4, age 5
   });

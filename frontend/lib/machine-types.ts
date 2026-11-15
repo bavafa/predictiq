@@ -5,7 +5,7 @@ const CODES = "FSMMMMFFSMCMPMFPPFFCCPPPDMMSSFPDFSPSPDSCSPFSFSCSPSDFMCFPSPFSSDDFF
 
 const TYPE: Record<string, string> = {
   P: "Centrifugal pump",
-  C: "Reciprocating compressor",
+  C: "Air compressor",
   M: "Industrial mixer",
   F: "Exhaust fan",
   S: "CNC spindle",
