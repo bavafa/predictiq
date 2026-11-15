@@ -1,6 +1,6 @@
 # Spec: component-level planner with a 7 to 14 day view
 
-_Draft for owner approval, 2026-11-15 (America/Toronto). Nothing here is built. All data is simulated (Microsoft sample dataset); every number below is from that simulated data._
+_Approved by Meysam (Owner) on 2026-11-15 with the decisions below (decision 77). Nothing here is built yet. All data is simulated (Microsoft sample dataset); every number below is from that simulated data._
 
 ## Goal
 
@@ -81,7 +81,7 @@ _Numbers in this example are placeholders, not results._
 
 - The page states, near the horizon switch: "In this simulated data, warning signs appear about 2 days before a failure. The 7 to 14 day view is a wear estimate from part age and history, not an early warning."
 - The shutdown windows and component costs are labelled assumed / illustrative.
-- The component names stay comp1 to comp4. We do not invent part names unless the owner asks, and if so they get the same "illustrative" label as the machine types.
+- Component names are illustrative (owner decision), chosen to match each part's sensor signature, and labelled like the machine types: "assumed, not stated by the source". Proposed: comp1 = **Motor winding** (voltage), comp2 = **Bearing** (rotation), comp3 = **Seal / valve** (pressure; fails only on pumps and compressors), comp4 = **Coupling** (vibration; rises with machine age). The raw id (comp1 to comp4) stays in tooltips and the data.
 - If the wear view does not beat the plain rule on validation, the page says so and uses the rule.
 
 ## Size and order of work
@@ -96,10 +96,10 @@ _Numbers in this example are placeholders, not results._
 
 That is 4 to 6 sessions, one stacked PR per step. Steps 1 and 2 end with a gate: if the wear view is no better than the plain rule, we stop and decide before building the UI.
 
-## Decisions for the owner
+## Decisions (owner, 2026-11-15)
 
-1. Approve the two-layer design (wear view plus 48-hour warning), given that the data shows no early warning beyond about 2 days.
-2. Default horizon: 14 days (recommended, since a weekly window plus lead time fits it), or 7 days.
-3. Shutdown windows: one assumed weekly window per machine model (recommended), or one plant-wide window.
-4. Keep the part names comp1 to comp4 (recommended), or give them illustrative names, for example comp2 = "bearing".
-5. Model version: this is a new model version beside the current one, under architecture and model-card rules, with a Codex review.
+1. Two-layer design (wear view plus 48-hour warning): **approved**.
+2. Default horizon: **14 days** (7 days stays available on the switch).
+3. Shutdown windows: **one assumed weekly window per machine model**.
+4. Component names: **illustrative names** (proposed above; the owner can still change the words).
+5. New model version beside the current one, under architecture and model-card rules, with a Codex review: as proposed.
