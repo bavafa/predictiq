@@ -2,6 +2,9 @@
 
 _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
+## 2026-11-15: machine types, units, palette (branch machine-types, PR pending merge)
+Illustrative machine types replace "Machine N" everywhere (decision 75); charts show V, rpm, psi, mm/s (vibration displayed / 10); Hatch-inspired palette (decision 76). Checks: tsc, eslint clean; Vitest 184 passed; pytest scripts/tests 118 passed; Playwright 212 passed, 5 skipped, 6 failed (keyboard.spec.ts:242 replay controls; also fail on unmodified main locally, not investigated). Previewed locally on the synthetic bundle only.
+
 ## Current stage
 **Launched.** The site is public at https://predictiq-demo.vercel.app (`predictiq-eight.vercel.app` redirects to it). The repository `bavafa/predictiq` is public (a fresh repository with history kept and one author email rewritten, decision 72; the old one is the private `bavafa/predictiq-archive`). No licence (decision 73). Production serves model `piq-20261114-efc9c243` (simulated data, `synthetic: false`).
 - **Launch checks (all passed):** history scan (no secrets; six accepted items); bundle download without a login with matching SHA-256 (`0ad2916e...2d57d2`); production `main` build; five pages 200 with the simulated-data notice; health and metadata; `/fleet` 200 with `mv` and 400 without; `/plan` 200 and 413 for an oversize body; previews still redirect to sign-in (302); the Firewall rule "API rate limit, 300 per 60 s per IP" is active.
