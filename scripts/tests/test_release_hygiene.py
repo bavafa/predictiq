@@ -20,7 +20,7 @@ ALLOWLIST (one place, on purpose; every entry says why)
     A path in a README, a script, a workflow, the app or any other doc would tell a reader to depend on a machine they
     do not have, so it is not allowed there.
   * SELF_PATHS: this file and the helper docs that must name the patterns they search for.
-  * EMAIL_ALLOWED: the GitHub no-reply form NNN+name@users.noreply.github.com, noreply@github.com, and
+  * EMAIL_ALLOWED: the GitHub no-reply form NNN+name@users.noreply.github.com (bots add [bot]), noreply@github.com, and
     example.com / example.org / example.net / .invalid addresses used in documentation.
 Anything else is reported, not allowed. To allow something new, add it here with a reason, in a reviewed change.
 """
@@ -33,8 +33,6 @@ import shutil
 import subprocess
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[2]
 GIT = shutil.which("git") or "git"
 
@@ -42,7 +40,9 @@ GIT = shutil.which("git") or "git"
 INTERNAL_PATH_ALLOWED_PREFIXES = ("docs/QA_REPORTS/",)
 SELF_PATHS = {"scripts/tests/test_release_hygiene.py"}
 EMAIL_ALLOWED = [
-    re.compile(r"^[0-9]+\+[A-Za-z0-9-]+@users\.noreply\.github\.com$"),
+    re.compile(
+        r"^[0-9]+\+[A-Za-z0-9-]+(\[bot\])?@users\.noreply\.github\.com$"
+    ),  # also GitHub bots such as Dependabot
     re.compile(r"^noreply@github\.com$"),
     re.compile(r"@example\.(com|org|net)$"),
     re.compile(r"@[A-Za-z0-9.-]+\.invalid$"),
@@ -248,14 +248,6 @@ def test_the_scanner_catches_what_it_should() -> None:
 
 
 # --- 5. history -------------------------------------------------------------------------------------------------------------
-@pytest.mark.xfail(
-    strict=False,
-    reason=(
-        "owner decision before going public (see docs/LAUNCH_CHECKLIST.md): one early commit in the history has a personal "
-        "address as its AUTHOR (the committer is the no-reply address). Files are clean. Removing it needs a history "
-        "rewrite, which this test suite does not do. The test passes (XPASS) in a shallow clone that does not contain it."
-    ),
-)
 def test_commit_author_and_committer_emails_are_noreply() -> None:
     log = subprocess.run(  # noqa: S603
         [GIT, "log", "--format=%H %ae %ce"], cwd=ROOT, check=True, capture_output=True, text=True
