@@ -119,6 +119,11 @@ export default function AboutDataPage() {
                 <strong>Illustrative costs.</strong> Costs and crew slots in the Maintenance Planner are assumptions you set.
                 They are not real costs, and the list promises no savings or financial result.
               </li>
+              <li>
+                <strong>Parts plan.</strong> Part names (Motor winding, Bearing, Seal / valve, Coupling) are illustrative: the data only has
+                comp1 to comp4. The weekly shutdown windows are assumed. In this simulated data, warning signs appear about 2 days before a
+                failure. The 7 to 14 day view is a wear estimate from part age and history, not an early warning.
+              </li>
             </ul>
           </div>
           <div>

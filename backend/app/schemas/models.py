@@ -44,6 +44,22 @@ class PlannerDefaults(_Strict):
     crew_slots: int
 
 
+class ComponentPlannerInfo(_Strict):
+    """Component planner facts the screen shows. Names, windows and costs are assumed or illustrative."""
+
+    component_model_version: str
+    names: dict[str, str]
+    names_note: str
+    horizons_days: list[int]
+    default_horizon_days: int
+    shutdown_windows: dict[str, dict[str, int]]
+    windows_note: str
+    default_failure_cost: dict[str, int]
+    default_planned_cost: dict[str, int]
+    warning_cutoff_percent: dict[str, int]
+    honesty: str
+
+
 class Metadata(_Strict):
     app_name: str
     version: str
@@ -64,6 +80,7 @@ class Metadata(_Strict):
     data_credit: str | None = None
     machines: list[MachineInfo] = []
     unseen_machines: list[int] = []
+    component_planner: ComponentPlannerInfo | None = None
 
 
 class Problem(_Strict):

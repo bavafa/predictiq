@@ -41,7 +41,7 @@ export const INVALID_NOTE = "Showing results for your last valid inputs.";
 export const FORMULA_LINE =
   "Expected exposure = predicted chance of failure in 24 h × cost if a failure happens (the machine model's own cost, if set).";
 
-const inputClass = "min-h-11 w-full rounded-md border bg-card px-2 text-sm";
+export const inputClass = "min-h-11 w-full rounded-md border bg-card px-2 text-sm";
 
 export function PlannerScreen() {
   const { meta, view } = useData();
@@ -54,7 +54,7 @@ function hourText(text: string): string {
   return h === null ? text : readableHour(h);
 }
 
-function PlannerBody() {
+export function PlannerBody() {
   const { client, meta, view, search } = useData();
   const ready = meta.status === "ready" ? meta.meta : null;
   const v = view!;
@@ -319,7 +319,7 @@ function Assumptions({
   );
 }
 
-function FieldError({ id, children }: { id: string; children: ReactNode }) {
+export function FieldError({ id, children }: { id: string; children: ReactNode }) {
   return (
     <p id={id} role="alert" className="mt-1 mb-0 text-xs leading-5 font-semibold text-alert-text">
       <span aria-hidden="true">⚠ </span>
@@ -363,7 +363,7 @@ function ApplyAll({
   );
 }
 
-function TextField({
+export function TextField({
   label,
   value,
   onChange,
@@ -405,7 +405,7 @@ function TextField({
 }
 
 /** Off by default. A native range input, 0 to 90 in 5-point steps; keys apply at once, a drag applies on release. */
-function ReductionControl({
+export function ReductionControl({
   on,
   value,
   onOn,
@@ -623,7 +623,7 @@ function slotText(r: PlanRow): string {
   return "○ Below cut-off";
 }
 
-function Th({ children, label, right }: { children: ReactNode; label?: ReactNode; right?: boolean }) {
+export function Th({ children, label, right }: { children: ReactNode; label?: ReactNode; right?: boolean }) {
   return (
     <th scope="col" className={cn("border-b border-line bg-subtle px-1.5 py-2 align-top text-xs font-semibold text-ink-2", right ? "text-right" : "text-left")}>
       {children}

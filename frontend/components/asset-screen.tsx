@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useId, useMemo, useState } from "react";
 
 import { PastEstimatesChart, SensorCharts } from "@/components/asset-charts";
+import { ComponentPanel } from "@/components/component-panel";
 import { useData } from "@/components/data-provider";
 import { StatusTag } from "@/components/fleet-table";
 import { NoModelData, PanelError, Skeleton } from "@/components/states";
@@ -192,6 +193,8 @@ function AssetBody({ id, total, modelVersion }: { id: number; total: number; mod
       </div>
 
       <ExplanationPanel error={shown?.explanation.error ?? null} retry={explanation.retry} data={shown?.explanation.data ?? null} dim={busy} />
+
+      <ComponentPanel id={id} at={at} modelVersion={modelVersion} />
 
       <section aria-labelledby="sensors-title" className={card}>
         <div className="flex flex-wrap items-center gap-2">

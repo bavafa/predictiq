@@ -23,7 +23,7 @@ def main(argv: list[str]) -> int:
     out = Path(argv[1])
     if out.exists():
         shutil.rmtree(out)
-    meta = synthetic_bundle(out, replay_start_offset=REPLAY_START_OFFSET_HOURS)
+    meta = synthetic_bundle(out, replay_start_offset=REPLAY_START_OFFSET_HOURS, with_components=True)
     start = meta["replay"]["start"]
     print(f"synthetic bundle {meta['model_version']} written to {out} (replay starts {start})")
     return 0

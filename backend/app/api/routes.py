@@ -4,7 +4,15 @@ from app import config
 from app.api.data import router as data_router
 from app.api.plan import router as plan_router
 from app.bundle import Bundle, BundleError, get_bundle
-from app.schemas import Dataset, Health, MachineInfo, Metadata, PlannerDefaults, ReplayWindow
+from app.schemas import (
+    ComponentPlannerInfo,
+    Dataset,
+    Health,
+    MachineInfo,
+    Metadata,
+    PlannerDefaults,
+    ReplayWindow,
+)
 
 router = APIRouter()
 router.include_router(data_router)
@@ -82,4 +90,24 @@ def metadata(response: Response) -> Metadata:
             for m in meta["machines"]
         ],
         unseen_machines=sorted(unseen),
+        component_planner=_component_info(bundle),
+    )
+
+
+def _component_info(bundle: Bundle) -> ComponentPlannerInfo | None:
+    c = bundle.components
+    if c is None:
+        return None
+    return ComponentPlannerInfo(
+        component_model_version=c.version,
+        names=config.COMPONENT_NAMES,
+        names_note=config.COMPONENT_NAMES_NOTE,
+        horizons_days=c.horizons,
+        default_horizon_days=config.COMPONENT_DEFAULT_HORIZON,
+        shutdown_windows=config.SHUTDOWN_WINDOWS,
+        windows_note=config.SHUTDOWN_WINDOWS_NOTE,
+        default_failure_cost=config.COMPONENT_PLANNER_DEFAULTS["failure_cost"],
+        default_planned_cost=config.COMPONENT_PLANNER_DEFAULTS["planned_cost"],
+        warning_cutoff_percent={k: int(v) for k, v in c.meta["warning_cutoff_percent"].items()},
+        honesty=config.COMPONENT_HONESTY,
     )

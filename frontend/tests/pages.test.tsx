@@ -38,6 +38,7 @@ describe("About & Data", () => {
       /Replay, not live/,
       /patterns, not causes/,
       /not real costs/,
+      /Parts plan.*illustrative.*not an early warning/,
       /live sensor feeds/,
       /real-world result/,
     ]) {
