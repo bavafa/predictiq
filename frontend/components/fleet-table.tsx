@@ -132,7 +132,7 @@ export function FleetTable({
               <tr key={r.machine_id} data-testid="fleet-row" data-status={r.status} data-machine={r.machine_id} className="border-b border-line">
                 <td className="tabular px-3 py-2 text-right text-sm">{r.rank}</td>
                 <td className="px-3 py-2 text-sm">
-                  <Link href={href(r.machine_id)} className="inline-flex min-h-11 items-center text-link underline">
+                  <Link href={href(r.machine_id)} className="inline-flex min-h-11 max-w-40 items-center text-link underline">
                     {machineName(r.machine_id)}
                   </Link>
                 </td>

@@ -675,7 +675,7 @@ function RankedList({ plan, unit }: { plan: PlanResponse; unit: string }) {
               <tr key={r.machine_id} data-testid="plan-row" data-machine={r.machine_id} data-listing={r.listing} className="border-b border-line">
                 <td className="tabular px-2 py-2 text-right text-sm">{r.rank}</td>
                 <td className="px-2 py-2 text-sm">
-                  <Link href={href(r.machine_id)} className="inline-flex min-h-11 items-center text-link underline">
+                  <Link href={href(r.machine_id)} className="inline-flex min-h-11 max-w-40 items-center text-link underline">
                     {machineName(r.machine_id)}
                   </Link>
                 </td>

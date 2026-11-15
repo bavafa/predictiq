@@ -52,13 +52,13 @@ function MachineSelect({ selected, total }: { selected: number | null; total: nu
   const machines = meta.status === "ready" ? (meta.meta.machines ?? []) : [];
   const options = machines.length > 0 ? machines : Array.from({ length: total }, (_, i) => ({ machine_id: i + 1, model: "" as MachineModel | "" }));
   return (
-    <label htmlFor={id} className="flex items-center gap-2 text-sm font-semibold">
+    <label htmlFor={id} className="flex min-w-0 items-center gap-2 text-sm font-semibold">
       Machine
       <select
         id={id}
         value={selected === null ? "" : String(selected)}
         onChange={(e) => update({ machine: e.target.value === "" ? null : Number(e.target.value) })}
-        className="min-h-11 rounded-md border border-input-edge bg-card px-2 text-sm font-normal"
+        className="min-h-11 max-w-56 min-w-0 rounded-md border border-input-edge bg-card px-2 text-sm font-normal"
       >
         {selected === null && <option value="">Choose a machine</option>}
         {options.map((m) => (
