@@ -30,22 +30,10 @@ def test_rewrite_routes_api_v1_to_the_python_function() -> None:
     assert (FRONTEND / "api" / "index.py").is_file()
 
 
-def _skips_build(branch: str | None) -> bool:
-    cfg = json.loads((FRONTEND / "vercel.json").read_text(encoding="utf-8"))
-    env = {k: v for k, v in os.environ.items() if k != "VERCEL_GIT_COMMIT_REF"}
-    if branch is not None:
-        env["VERCEL_GIT_COMMIT_REF"] = branch
-    # Vercel: exit code 0 = skip (ignore) the build, 1 = build.
-    r = subprocess.run(["/bin/sh", "-c", cfg["ignoreCommand"]], env=env, check=False)  # noqa: S603
-    assert r.returncode in (0, 1)
-    return r.returncode == 0
-
-
-def test_ignore_command_skips_main_only() -> None:
-    assert _skips_build("main") is True
-    assert _skips_build("skeleton") is False
-    assert _skips_build("feature/main") is False
-    assert _skips_build(None) is False  # CLI deploys without a branch still build
+def test_no_ignore_command_so_main_builds_as_production() -> None:
+    """Launch: the `main` build skip is gone, so Vercel builds `main` as the production deployment."""
+    text = (FRONTEND / "vercel.json").read_text(encoding="utf-8")
+    assert "ignoreCommand" not in json.loads(text)
 
 
 def test_requirements_txt_pins_match_pyproject() -> None:

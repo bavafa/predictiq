@@ -216,5 +216,13 @@ Still Lead defaults: crew slots start at 5; the risk-reduction assumption is **o
 - **Proof:** `frontend/tests/fetch-bundle.test.ts`, `backend/tests/test_deploy_layout.py`, and `scripts/verify_bundle_download.sh` (localhost server, clean worktree; written but **not yet run**, because the session that wrote it was not allowed to run it; its log goes in `docs/QA_REPORTS/stage5-bundle-download.log`).
 Nothing was deployed, no Vercel setting was changed and the repository stays private until the launch steps in `docs/LAUNCH_CHECKLIST.md`. *Status: Lead default, owner to approve at launch gate.*
 
+## 2026-11-14, launch decisions (owner, evening ET)
+
+**72. Fresh public repository.** To keep a personal author email out of public history, the old repository was renamed `bavafa/predictiq-archive` (private) and a new `bavafa/predictiq` was created from `main` with history kept and only that commit's author email rewritten to the no-reply address. The older internal path names and public Microsoft addresses found by the history scan stay in history (accepted). Open PRs, other branches and PR history stay in the archive. *Status: approved by Meysam.*
+
+**73. No licence for the repository's own code** (all rights reserved; one file can be added later). *Status: approved by Meysam.*
+
+**74. Production domain `predictiq-demo.vercel.app`**, replacing `predictiq-eight.vercel.app`, which now redirects to it (307). The Vercel project was re-linked to the new repository; protection is unchanged (Standard Protection). The `ignoreCommand` was removed so `main` builds as production. Branch protection on `main` requires the four CI jobs (e2e, frontend, python, security) and blocks force-pushes and deletion (GitHub offers it only on public repositories on this plan). *Status: approved by Meysam.*
+
 ## Pending owner decisions
 - Launch gate (see `docs/LAUNCH_CHECKLIST.md`): go-ahead; the personal author email in commit `874a686` and the older internal paths in history (`docs/QA_REPORTS/stage5-history-scan.md`); a licence for this repository's own code; approval of decisions 70 and 71. (Vercel protection is Standard Protection, `all_except_custom_domains`; no change is expected, see the checklist, step 6.)
