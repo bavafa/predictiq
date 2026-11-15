@@ -16,6 +16,7 @@ from fastapi import Request
 from app import config
 from app.bundle import Bundle
 from app.problems import ProblemError
+from app.services.component_planner import ComponentInputs
 from app.services.planner import PlanInputs
 
 _AT = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:00(:00)?")
@@ -102,6 +103,7 @@ REDUCTION_MAX = 90
 REDUCTION_STEP = 5
 MAX_BODY_BYTES = 4096
 PLAN_FIELDS = (
+    "level",
     "at",
     "cutoff_percent",
     "failure_cost",
@@ -111,6 +113,19 @@ PLAN_FIELDS = (
     "crew_slots",
     "risk_reduction_percent",
     "include_below_cutoff",
+)
+
+
+COMPONENT_PLAN_FIELDS = (
+    "level",
+    "at",
+    "horizon_days",
+    "failure_cost",
+    "failure_cost_by_part",
+    "planned_cost",
+    "planned_cost_by_part",
+    "crew_slots",
+    "risk_reduction_percent",
 )
 
 
@@ -176,6 +191,74 @@ def _by_model(body: dict[str, object], name: str) -> dict[str, int]:
             raise _bad(f"Invalid field: {name} keys must be model1 to model4")
         out[key] = _whole(value, f"{name}.{key}", 0, COST_MAX)
     return out
+
+
+def _by_part(body: dict[str, object], name: str) -> dict[str, int]:
+    out: dict[str, int] = {}
+    raw = body.get(name, {})
+    if not isinstance(raw, dict):
+        raise _bad(f"Invalid field: {name} must be an object keyed by part")
+    for key, value in raw.items():
+        if key not in config.COMPONENTS:
+            raise _bad(f"Invalid field: {name} keys must be comp1 to comp4")
+        out[key] = _whole(value, f"{name}.{key}", 0, COST_MAX)
+    return out
+
+
+def plan_level(body: dict[str, object]) -> Literal["machine", "component"]:
+    level = body.get("level", "machine")
+    if level not in ("machine", "component"):
+        raise _bad("Invalid field: level must be machine or component")
+    return level
+
+
+@dataclass(frozen=True)
+class ComponentPlanRequest:
+    at_index: int
+    at: datetime
+    inputs: ComponentInputs
+
+
+def parse_horizon(value: object, name: str = "horizon_days") -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value not in config.COMPONENT_HORIZONS:
+        raise _bad(f"Invalid field: {name} must be 7 or 14")
+    return value
+
+
+def parse_component_plan_body(bundle: Bundle, body: dict[str, object]) -> ComponentPlanRequest:
+    """Same strictness as the machine plan. There is no alert cut-off for the wear view (decision 79)."""
+    if any(k not in COMPONENT_PLAN_FIELDS for k in body):
+        raise _bad("Unknown field in the request. Allowed fields: " + ", ".join(COMPONENT_PLAN_FIELDS))
+    for required in ("at", "failure_cost", "planned_cost", "crew_slots"):
+        if required not in body:
+            raise _bad(f"Missing field: {required}")
+    at = body["at"]
+    if not isinstance(at, str):
+        raise _bad("Invalid field: at must be a whole hour, YYYY-MM-DDTHH:00")
+    idx, t = parse_at(bundle, at)
+    horizon = (
+        config.COMPONENT_DEFAULT_HORIZON
+        if "horizon_days" not in body
+        else parse_horizon(body["horizon_days"])
+    )
+    reduction: int | None = None
+    if body.get("risk_reduction_percent") is not None:
+        reduction = _whole(body["risk_reduction_percent"], "risk_reduction_percent", 0, REDUCTION_MAX)
+        if reduction % REDUCTION_STEP:
+            raise _bad("Invalid field: risk_reduction_percent must be off (null) or 0 to 90 in steps of 5")
+    return ComponentPlanRequest(
+        at_index=idx,
+        at=t,
+        inputs=ComponentInputs(
+            horizon_days=horizon,
+            failure_cost=_whole(body["failure_cost"], "failure_cost", 0, COST_MAX),
+            failure_cost_by_part=_by_part(body, "failure_cost_by_part"),
+            planned_cost=_whole(body["planned_cost"], "planned_cost", 0, COST_MAX),
+            planned_cost_by_part=_by_part(body, "planned_cost_by_part"),
+            crew_slots=_whole(body["crew_slots"], "crew_slots", 0, SLOTS_MAX),
+            risk_reduction_percent=reduction,
+        ),
+    )
 
 
 @dataclass(frozen=True)
