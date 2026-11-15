@@ -9,33 +9,8 @@ _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is
 - **Not checked:** cache headers show `public, max-age=0` (metadata) and `public, max-age=3600` (data) at the edge, without `s-maxage` (Vercel strips it; `x-vercel-cache: HIT` seen); function size in the Vercel dashboard; the notice in a real browser; human screen-reader and real-device testing.
 - **Open:** Dependabot #1 (TypeScript 7, fails CI, leave open); the release-hygiene test's expected-failure note about the old personal email is stale and should be updated; the portfolio card and case study (owner).
 
-## Handoff to Meysam (Claude Code), 14 Nov 2026, about 6:40 PM ET
-**Exact state**
-- Branch `model-perf`, PR #33 (https://github.com/bavafa/predictiq/pull/33), base `main`. All Stage 5 work is committed and pushed. `main` is at eafd576 (PR #32 merged).
-- The repo is **private**. Vercel protection is **on** (Standard Protection, `all_except_custom_domains`). There is no production deployment. `main` builds are still cancelled by `ignoreCommand`.
-- Nothing is running: no builder, review or check process is left over from this session.
-- Dependabot #24 (TypeScript 7) stays open. #25 to #28 are closed as superseded by #32.
-- Read `CLAUDE.md` first. It has the session rules and the exact gate report format.
-
-**Next steps (in order; each needs Meysam's go-ahead where marked)**
-1. Decide GATE M4 and merge PR #33 (Meysam).
-2. Owner decisions before launch (`docs/LAUNCH_CHECKLIST.md` step 0):
-   - the personal author email in commit 874a686 and the older internal path names in history (accept, or publish from a fresh repository; no force-push to `main`);
-   - a licence for the code;
-   - decisions 70 and 71.
-3. Launch, only after Meysam's written go-ahead, following `docs/LAUNCH_CHECKLIST.md` steps 1 to 8:
-   - 1: history scan;
-   - 2: merge;
-   - 3: make the repository public;
-   - 4: check the public bundle download;
-   - 5: PR removing the `main` `ignoreCommand`, which starts the production build;
-   - 6: confirm production is public and previews stay protected;
-   - 7: production smoke checks;
-   - 8: add the live link.
-   - Step 9 is rollback.
-4. After launch, update STATUS.md, TASKS.md and DECISIONS.md, and write the final report.
-
-- 4:40 PM ET process check: an Opus `claude -p` process (pid 921100) was running at the same time. It belongs to a different project on the build machine (NeuroGate), not PredictIQ, and had no PredictIQ files open, so it was left alone. Only one PredictIQ builder (Sonnet) ran at a time. No Opus was used for PredictIQ.
+## Launch record
+The pre-launch handoff (steps, owner questions) is superseded: the launch steps in `docs/LAUNCH_CHECKLIST.md` were run on 14 Nov 2026 and decisions 72 to 74 in `DECISIONS.md` record the outcome. For rollback see step 9 of the checklist.
 
 ## Stage 5, sessions 1-2 and fix 2b: testing summary (14 Nov 2026)
 **Done:** full testing added (contrast pairs, 44 px target sizes, keyboard, axe on every page, the notice on every page, release hygiene, fresh-copy script). Round 1 review fixes: the page says "Model built" (the evaluation date is not saved), synthetic test counts scale with bundle size, and the top notice now says "simulated historical sample data" (decisions 68, 70). Report: `docs/QA_REPORTS/stage5-testing.md`.
