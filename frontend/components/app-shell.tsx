@@ -9,7 +9,7 @@ import { useData } from "@/components/data-provider";
 import { ModelVersion } from "@/components/model-version";
 import { ReplayBar } from "@/components/replay-bar";
 import { Button } from "@/components/ui/button";
-import { ABOUT_NAV, DISCLOSURE, MAIN_NAV, titleFor, type NavItem } from "@/lib/nav";
+import { DISCLOSURE, INFO_NAV, MAIN_NAV, titleFor, type NavItem } from "@/lib/nav";
 import { carriedSearch } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 
@@ -145,9 +145,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               </li>
             ))}
             <li aria-hidden="true" className="mx-5 my-2 border-t border-sidebar-active" />
-            <li>
-              <NavLink item={ABOUT_NAV} current={pathname === ABOUT_NAV.href} onNavigate={onNavigate} />
-            </li>
+            {INFO_NAV.map((item) => (
+              <li key={item.href}>
+                <NavLink item={item} current={pathname === item.href} onNavigate={onNavigate} />
+              </li>
+            ))}
           </ul>
           <div className="mt-auto px-5 pt-6 text-xs leading-4 text-sidebar-muted">
             Model version: <ModelVersion />

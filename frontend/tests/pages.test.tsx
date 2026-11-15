@@ -66,3 +66,15 @@ describe("About & Data", () => {
     expect(container.textContent).toMatch(/simulated sample data published by Microsoft/);
   });
 });
+
+describe("In a Real Plant", () => {
+  it("covers the lifecycle and says none of it is built in this demo", async () => {
+    const { default: RealPlantPage } = await import("@/app/real-plant/page");
+    const { container } = renderWithData(<RealPlantPage />, fakeFetch(readyMetadata()));
+    for (const name of ["From alert to work order", "Who acts on an alert", "CMMS integration", "Historian integration", "Handover after commissioning"]) {
+      expect(screen.getByRole("heading", { name })).toBeInTheDocument();
+    }
+    expect(container.textContent).toMatch(/none of these integrations exist in this demo/);
+    expect(container.textContent).toMatch(/simulated/);
+  });
+});

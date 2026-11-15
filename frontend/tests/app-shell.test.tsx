@@ -46,7 +46,7 @@ describe("AppShell", () => {
     );
   });
 
-  it("lists the five pages as links and marks the current one", () => {
+  it("lists the six pages as links and marks the current one", () => {
     mockPath = "/model-performance";
     renderShell();
     const nav = screen.getByRole("navigation", { name: "Main" });
@@ -56,6 +56,7 @@ describe("AppShell", () => {
       "Asset Details",
       "Maintenance Planner",
       "Model Performance",
+      "In a Real Plant",
       "About & Data",
     ]);
     expect(screen.getByRole("link", { name: "Model Performance" })).toHaveAttribute("aria-current", "page");

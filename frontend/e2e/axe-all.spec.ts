@@ -130,7 +130,9 @@ for (const vp of VIEWPORTS) {
       expect(await violations(page)).toEqual([]);
     });
 
-    for (const def of PAGES.filter((p) => p.name !== "About & Data")) {
+    // About & Data and In a Real Plant are static pages: they read nothing from the data service, so they have no
+    // loading, waking-up or error state to check.
+    for (const def of PAGES.filter((p) => p.name !== "About & Data" && p.name !== "In a Real Plant")) {
       test(`${def.name}: loading state and "waking up" state`, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
         let release: () => void = () => {};

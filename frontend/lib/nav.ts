@@ -13,7 +13,12 @@ export const MAIN_NAV: NavItem[] = [
 
 export const ABOUT_NAV: NavItem = { href: "/about-data", label: "About & Data" };
 
-export const ALL_NAV: NavItem[] = [...MAIN_NAV, ABOUT_NAV];
+export const PLANT_NAV: NavItem = { href: "/real-plant", label: "In a Real Plant" };
+
+/** The reading pages under the divider. */
+export const INFO_NAV: NavItem[] = [PLANT_NAV, ABOUT_NAV];
+
+export const ALL_NAV: NavItem[] = [...MAIN_NAV, ...INFO_NAV];
 
 /** Pages that change with the replay time (full replay controls). The others show the time read-only. */
 export const REPLAY_PAGES: readonly string[] = ["/", "/asset-details", "/maintenance-planner"];

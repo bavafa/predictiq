@@ -37,7 +37,7 @@ for (const vp of [
   { name: "desktop", width: 1280, height: 800 },
   { name: "mobile", width: 390, height: 844 },
 ]) {
-  for (const route of [...SCREENS, "/about-data"]) {
+  for (const route of [...SCREENS, "/real-plant", "/about-data"]) {
     test(`${route} with no model data: notice present and axe finds nothing at all (${vp.name})`, async ({ page }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto(route);
@@ -52,7 +52,7 @@ for (const vp of [
 
 test("mobile: every control in the no-model state is at least 44x44 (docs/ux-spec.md, Accessibility, Mobile)", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const route of [...SCREENS, "/about-data"]) {
+  for (const route of [...SCREENS, "/real-plant", "/about-data"]) {
     await page.goto(route);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.keyboard.press("Tab"); // brings the Skip to content link into view so it is measured too
