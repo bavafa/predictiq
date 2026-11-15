@@ -2,6 +2,9 @@
 
 _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
+## 2026-11-15: purge rule confirmed; bundle with component scores built (branch purge-rule-and-bundle)
+Decision 81: the owner confirmed the purge rule for the 7-day, 14-day and 48-hour labels (no retraining; models unchanged). New serving bundle built locally for piq-20261114-efc9c243 with components comp-20261115-228daea1: 14 files, 12,710,719 bytes uncompressed, bundle.zip 10,257,566 bytes, SHA-256 d417ff57...cad8e7a (simulated data). The production download allow-list now includes the four component files (it refused them before). Component scores in the bundle match a re-run of the step 2 test scoring (worst difference 3e-8). Checks: pytest 414 passed; realbundle 12 passed; size tests 3 passed; e2e:real 244 passed, 7 failed (6 = keyboard.spec.ts:242, local only; 1 = an axe selector-name flake, fixed, 36/36 on rerun). **Not done:** the new zip is not uploaded and the hash is not on main; production still serves the old bundle (Machines plan only). Waiting for the owner's OK on the release step.
+
 ## 2026-11-15: "In a Real Plant" page (branch real-plant)
 New static page: alert to work order, who acts on an alert, CMMS and historian integration, handover after commissioning; says none of it is built. Checks: tsc, eslint clean; Vitest 185 passed; Playwright 229 passed, 5 skipped, 6 failed (keyboard.spec.ts:242, fail only locally, pass in CI). Next: component-level 7-14 day planner awaits owner approval of a spec.
 

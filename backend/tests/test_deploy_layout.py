@@ -93,7 +93,7 @@ def test_prebuild_copies_a_real_bundle_and_works_without_one(tmp_path: Path) -> 
 
 
 def test_node_and_python_bundle_fetchers_allow_the_same_files() -> None:
-    """fetch-bundle.mjs (production build) and scripts/fetch_bundle.py allow the same ten names."""
+    """The Node and Python fetchers allow the same names: every file a bundle can hold."""
     import re
 
     from scripts.fetch_bundle import ALLOWED
@@ -102,6 +102,10 @@ def test_node_and_python_bundle_fetchers_allow_the_same_files() -> None:
     block = re.search(r"export const ALLOWED = \[(.*?)\];", js, re.S)
     assert block is not None
     assert set(re.findall(r'"([^"]+)"', block.group(1))) == set(ALLOWED)
+    from ml.bundle import BUNDLE_FILES
+    from ml.component_bundle import COMPONENT_FILES
+
+    assert set(ALLOWED) == {*BUNDLE_FILES, *COMPONENT_FILES}
 
 
 def test_prebuild_downloads_only_when_asked_and_production_fails_without_a_bundle(tmp_path: Path) -> None:

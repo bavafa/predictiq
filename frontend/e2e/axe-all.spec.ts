@@ -43,7 +43,8 @@ const ACCEPTED_INCOMPLETE: { name: string; rule: string; selector: RegExp; reaso
   {
     name: "planner plan-table cells: slot and moved",
     rule: "color-contrast",
-    selector: /\[data-testid="plan-row"\](\[data-listing="[a-z_]+"\])? > \.whitespace-nowrap\[data-testid="(slot|moved)"\]$/,
+    // axe names the cell either way (td or .whitespace-nowrap), depending on what else is on the page
+    selector: /\[data-testid="plan-row"\](\[data-listing="[a-z_]+"\])? > (td|\.whitespace-nowrap)\[data-testid="(slot|moved)"\]$/,
     reason: /^Element's background color could not be determined because it's partially obscured by another element$/,
     coveredBy: "rendered text contrast",
   },

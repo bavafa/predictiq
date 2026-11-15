@@ -1,9 +1,9 @@
 {
   "bundle": {
     "file": "bundle.zip",
-    "sha256": "0ad2916e96323e9b95a86d306924b5d66beb3c1f3185efc510a7bcbc4b2d57d2",
-    "uncompressed_bytes": 10127369,
-    "zip_bytes": 8122585
+    "sha256": "d417ff574d11e5309f37c286fd728cda86ebfe9752bf8a8a5c452f267cad8e7a",
+    "uncompressed_bytes": 12710719,
+    "zip_bytes": 10257566
   },
   "sha256": {
     "baseline.json": "b9fb93fd9eee1f424f675d0df4ebda1d3c28c5dfa5de80aadca25bc73d72343f",

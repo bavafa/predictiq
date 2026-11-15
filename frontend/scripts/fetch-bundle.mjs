@@ -33,6 +33,11 @@ export const ALLOWED = [
   "contrib_values.npy",
   "contrib_other.npy",
   "telemetry.npy",
+  // optional component planner files (ml/component_bundle.py COMPONENT_FILES)
+  "components.json",
+  "component_wear_scores.npy",
+  "component_days_since.npy",
+  "component_warning_scores.npy",
 ];
 export const MAX_UNPACKED = 200 * 1024 * 1024;
 export const FALLBACK_MAX_ZIP = 64 * 1024 * 1024;

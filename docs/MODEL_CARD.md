@@ -120,6 +120,8 @@ _Spec: `docs/specs/component-planner.md`; decision 77. Built beside the machine 
 
 **Rule to beat.** "Chance by machine model and days since replacement, from training data." For each part and horizon, the wear model was shipped only if it beat the rule on validation (higher PR-AUC and Brier no worse). It did for 7 of 8 part-and-horizon pairs. For comp3 at 14 days the rule is shipped. On the test period the wear model also scored higher PR-AUC than the rule in all 8 pairs, but by a small margin for comp1, comp2 and comp3 at 14 days.
 
+**Purge rule.** The gap between the train, validation and test periods is only 1 day, which is shorter than the 7-day, 14-day and 48-hour labels. So training and validation rows whose label window reaches into the next period are dropped. The owner confirmed this rule on 15 Nov 2026 (decision 81). The results above were produced with it.
+
 
 **7-day wear view, test period, all 100 machines (simulated)**
 
