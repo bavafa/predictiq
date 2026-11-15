@@ -625,7 +625,7 @@ function slotText(r: PlanRow): string {
 
 function Th({ children, label, right }: { children: ReactNode; label?: ReactNode; right?: boolean }) {
   return (
-    <th scope="col" className={cn("border-b border-line bg-subtle px-2 py-2 align-top text-xs font-semibold text-ink-2", right ? "text-right" : "text-left")}>
+    <th scope="col" className={cn("border-b border-line bg-subtle px-1.5 py-2 align-top text-xs font-semibold text-ink-2", right ? "text-right" : "text-left")}>
       {children}
       {label && <div className="mt-1 font-normal">{label}</div>}
     </th>
@@ -673,33 +673,33 @@ function RankedList({ plan, unit }: { plan: PlanResponse; unit: string }) {
           <tbody>
             {plan.rows.map((r) => (
               <tr key={r.machine_id} data-testid="plan-row" data-machine={r.machine_id} data-listing={r.listing} className="border-b border-line">
-                <td className="tabular px-2 py-2 text-right text-sm">{r.rank}</td>
-                <td className="px-2 py-2 text-sm">
-                  <Link href={href(r.machine_id)} className="inline-flex min-h-11 w-min items-center text-link underline">
+                <td className="tabular px-1.5 py-2 text-right text-sm">{r.rank}</td>
+                <td className="px-1.5 py-2 text-sm">
+                  <Link href={href(r.machine_id)} className="inline-flex min-h-11 max-w-40 items-center text-link underline">
                     {machineName(r.machine_id)}
                   </Link>
                 </td>
-                <td className="px-2 py-2 text-sm">{r.model}</td>
-                <td className="px-2 py-2 text-right">
+                <td className="px-1.5 py-2 text-sm">{r.model}</td>
+                <td className="px-1.5 py-2 text-right">
                   <div className="tabular text-sm">{percent(r.score)}</div>
                   <StatusTag status={r.status} />
                 </td>
-                <td className="tabular px-2 py-2 text-right text-sm">{costCell(r, plan)}</td>
-                <td className="tabular px-2 py-2 text-right text-sm" data-testid="exposure">
+                <td className="tabular px-1.5 py-2 text-right text-sm">{costCell(r, plan)}</td>
+                <td className="tabular px-1.5 py-2 text-right text-sm" data-testid="exposure">
                   {money(r.expected_exposure)}
                 </td>
-                <td className="tabular px-2 py-2 text-right text-sm">{r.listing === "shortlisted" ? money(r.planned_cost) : "—"}</td>
+                <td className="tabular px-1.5 py-2 text-right text-sm">{r.listing === "shortlisted" ? money(r.planned_cost) : "—"}</td>
                 {showMoved && (
-                  <td className="px-2 py-2 text-sm whitespace-nowrap" data-testid="moved">
+                  <td className="px-1.5 py-2 text-sm whitespace-nowrap" data-testid="moved">
                     {movedText(r.moved)}
                   </td>
                 )}
                 {showNet && (
-                  <td className="tabular px-2 py-2 text-right text-sm" data-testid="net-benefit">
+                  <td className="tabular px-1.5 py-2 text-right text-sm" data-testid="net-benefit">
                     {r.net_benefit === null ? "—" : signedMoney(r.net_benefit)}
                   </td>
                 )}
-                <td className="px-2 py-2 text-sm whitespace-nowrap" data-testid="slot">
+                <td className="px-1.5 py-2 text-sm whitespace-nowrap" data-testid="slot">
                   {slotText(r)}
                 </td>
               </tr>
