@@ -186,9 +186,6 @@ export function ReplayBar() {
             <Timeline replay={replay} describedBy={replay.atStart ? "start-note" : replay.atEnd ? "end-note" : undefined} />
           </>
         )}
-        {ready && !interactive && (
-          <span className="text-sm text-ink-2">Nothing on this page changes with the replay time, so it is shown here only.</span>
-        )}
         {!ready && meta.status === "no-model" && (
           <span className="text-sm text-ink-2">
             There are no replay controls because the model data isn&rsquo;t installed in this preview.

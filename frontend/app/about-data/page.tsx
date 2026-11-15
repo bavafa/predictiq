@@ -17,8 +17,7 @@ export default function AboutDataPage() {
         <p className="m-0">
           PredictIQ is a portfolio prototype that estimates which machines may have a recorded failure in the next 24 hours
           and turns those estimates into an assumption-based maintenance list. It is built on a public
-          predictive-maintenance sample dataset. It is a demonstration of analytics and product design, not a deployed
-          production system.
+          predictive-maintenance sample dataset.
         </p>
         <p className="mt-3 mb-0">
           <strong>Where it stands.</strong> Two models were trained on the sample data: a simple baseline (logistic
@@ -57,7 +56,7 @@ export default function AboutDataPage() {
         </h2>
         <p className="m-0">
           The data is <strong>simulated sample data published by Microsoft</strong>: the &ldquo;Predictive Maintenance
-          Modelling Guide&rdquo; dataset (2015). It is not real plant, fleet or mine data.
+          Modelling Guide&rdquo; dataset (2015).
         </p>
         <p className="mt-3 mb-0">
           Data: Microsoft Predictive Maintenance Modelling Guide sample dataset (simulated), from
@@ -68,7 +67,6 @@ export default function AboutDataPage() {
           <li>100 machines with hourly sensor readings, 2015-01-01 06:00 to 2016-01-01 06:00.</li>
           <li>Also error logs, maintenance records, failure records, and each machine&rsquo;s model and age.</li>
           <li>Sensor units are not stated by the source.</li>
-          <li>Raw files are not stored in this repository; a script downloads them and checks SHA-256 fingerprints.</li>
         </ul>
         <p className="mt-3 mb-0">
           <a className="inline-flex min-h-11 items-center text-link underline" href={PROVENANCE_URL}>
