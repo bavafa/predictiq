@@ -67,15 +67,9 @@ The download needs the repository (and so its release) to be **public** (decisio
 ### Runtime
 Only `numpy` was added to the function's dependencies (pinned in `pyproject.toml` and `frontend/requirements.txt`). Arrays are read memory-mapped. Explanations use XGBoost's own `pred_contribs` at build time, so `shap` is not used anywhere. No model library is imported at runtime.
 
-## Builds are skipped for `main` (until launch) and the production section
+## Builds for `main` (live since launch)
 
-Until launch, `frontend/vercel.json` holds:
-
-```json
-"ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]"
-```
-
-Vercel's rule: exit code `0` means **skip** the build, `1` means build. So pushes to `main` exit 0 and are canceled (no production deployment until the owner decides). Every other branch exits 1 and gets a **preview** build. A deploy with no branch (CLI) also builds. `backend/tests/test_deploy_layout.py` checks the command for `main`, other branches, and an unset branch.
+Until launch, `frontend/vercel.json` held an `ignoreCommand` that cancelled every `main` build. It was removed on 14 Nov 2026 (decision 74), so a push to `main` now builds as the **production** deployment and every other branch gets a protected **preview**. `backend/tests/test_deploy_layout.py` checks that the key stays absent. To stop production builds again (rollback), restore the line `"ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]"` (exit `0` skips the build, `1` builds).
 
 ### Production (at the launch gate only, after Meysam's go-ahead)
 The exact ordered steps, owners and rollback are in [`docs/LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md). In short:
