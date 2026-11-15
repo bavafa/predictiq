@@ -69,7 +69,21 @@ def test_purge_keeps_24h_rows_and_drops_longer_windows() -> None:
     assert list(kept["datetime"]) == [pd.Timestamp("2015-08-17 06:00")]  # window ends 08-31 06:00 < Sep 1
     v = pd.DataFrame({"datetime": [pd.Timestamp("2015-10-18 06:00")], "split": ["validation"]})
     assert purge(v, LEVELS["day14"][1]).empty  # window ends Nov 1 06:00, inside test
-    assert VALIDATION_START < TEST_START
+
+
+@pytest.mark.parametrize("level", list(LEVELS))
+def test_purge_boundary_is_exact(level: str) -> None:
+    h = LEVELS[level][1]
+    for split, nxt in (("train", VALIDATION_START), ("validation", TEST_START)):
+        rows = pd.DataFrame({"datetime": [nxt - h, nxt - h - H], "split": [split] * 2})
+        assert list(purge(rows, h)["datetime"]) == [nxt - h - H]  # window ending at the next start is dropped
+
+
+def test_no_machines_gives_empty_labels_and_duplicates_are_ignored() -> None:
+    ev = pd.DataFrame([(1, "comp1", T + D)], columns=["machineID", "comp", "datetime"])
+    times = pd.DatetimeIndex([T])
+    assert label_components(ev, [], times, LEVELS["day7"][1], FAR).empty
+    assert len(label_components(ev, [1, 1], times, LEVELS["day7"][1], FAR)) == 4
 
 
 def tiny() -> Tables:
@@ -111,17 +125,31 @@ def test_wear_and_label_rows_line_up_and_no_label_in_inputs() -> None:
     assert "label" not in x.columns
 
 
-def test_build_frame_unseen_machines_only_in_test_and_purged() -> None:
-    f = build_component_frame(tiny(), [2], "day14")
-    assert set(f["split"]) <= {"train", "validation", "test"}
-    assert f.loc[f["unseen"], "split"].eq("test").all()
-    assert (f.loc[f["split"] == "train", "datetime"] + LEVELS["day14"][1] < VALIDATION_START).all()
-    assert (f.loc[f["split"] == "validation", "datetime"] + LEVELS["day14"][1] < TEST_START).all()
-    assert f["datetime"].max() + LEVELS["day14"][1] <= pd.Timestamp("2015-12-31 06:00")
+@pytest.mark.parametrize("level", list(LEVELS))
+def test_build_frame_unseen_machines_only_in_test_and_purged(level: str) -> None:
+    h = LEVELS[level][1]
+    f = build_component_frame(tiny(), [2], level)
+    assert set(f["split"]) == {"train", "validation", "test"}
+    assert f["unseen"].any() and f.loc[f["unseen"], "split"].eq("test").all()
+    assert f.loc[f["split"].isin(["train", "validation"]), "machineID"].eq(1).all()  # machine 2 is unseen
+    train = f.loc[f["split"] == "train", "datetime"]
+    val = f.loc[f["split"] == "validation", "datetime"]
+    assert (train + h < VALIDATION_START).all() and (val + h < TEST_START).all()
+    assert train.max() + h >= VALIDATION_START - (D if level != "hour48" else H)  # purged no more than needed
+    assert f["datetime"].max() + h <= pd.Timestamp("2015-12-31 06:00")
+
+
+# positives / rows per split, simulated data, unseen machines as in ml/unseen_machines.json
+REAL_COUNTS = {
+    "day7": {"train": (2540, 75200), "validation": (514, 17280), "test": (720, 21600)},
+    "day14": {"train": (4944, 72960), "validation": (887, 15040), "test": (1280, 18800)},
+    "hour48": {"train": (17862, 1841280), "validation": (4026, 453120), "test": (5329, 559600)},
+}
 
 
 @pytest.mark.realdata
-def test_real_counts_recorded() -> None:
+@pytest.mark.parametrize("level", list(LEVELS))
+def test_real_counts_recorded(level: str) -> None:
     if not (RAW_DIR / "PdM_failures.csv").exists():
         pytest.skip("data/raw is missing")
     from ml.splits import load_unseen_machines
@@ -129,6 +157,8 @@ def test_real_counts_recorded() -> None:
 
     t, problems = validate()
     assert problems == [] and t is not None
-    f = build_component_frame(t, load_unseen_machines(), "day14", with_inputs=True)
-    assert f[["days_since_replacement", "machine_model", "age", "past_failures"]].notna().all().mean() > 0.9
-    assert f["label"].sum() > 0
+    f = build_component_frame(t, load_unseen_machines(), level, with_inputs=level == "day14")
+    got = {k: (int(g["label"].sum()), len(g)) for k, g in f.groupby("split")}
+    assert got == REAL_COUNTS[level]
+    if level == "day14":  # a never-replaced part may be NaN by design; the rest must be complete
+        assert f[["machine_model", "age", "past_failures"]].notna().all().all()

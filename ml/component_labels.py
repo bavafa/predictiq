@@ -64,7 +64,10 @@ def label_components(
     upper = (times + horizon).to_numpy()
     by_key = {k: g["datetime"].to_numpy() for k, g in events.groupby(["machineID", "comp"])}
     parts = []
-    for m in sorted(int(x) for x in machine_ids):
+    ids = sorted({int(x) for x in machine_ids})
+    if not ids:
+        return pd.DataFrame({"machineID": [], "comp": [], "datetime": [], "label": []})
+    for m in ids:
         for comp in COMPONENTS:
             ev = np.sort(by_key.get((m, comp), np.array([], dtype="datetime64[ns]")))
             n = np.searchsorted(ev, upper, side="right") - np.searchsorted(ev, t, side="right")
@@ -77,8 +80,10 @@ def label_components(
 
 
 def wear_inputs(tables: Tables, machine_ids: np.ndarray, times: pd.DatetimeIndex) -> pd.DataFrame:
-    """Wear-view inputs for every (machine, component, time); same row order as `label_components`."""
-    ids = np.sort(machine_ids)
+    """Wear-view inputs for every (machine, component, time), in the same key order as `label_components`.
+
+    Labels drop times whose window passes the end of coverage and inputs do not, so join by key."""
+    ids = np.unique(machine_ids)
     grid = pd.DataFrame(
         {"machineID": np.repeat(ids, len(times)), "datetime": np.tile(times.to_numpy(), len(ids))}
     )
