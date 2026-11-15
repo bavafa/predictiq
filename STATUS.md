@@ -2,6 +2,9 @@
 
 _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
+## 2026-11-15: "In a Real Plant" page (branch real-plant)
+New static page: alert to work order, who acts on an alert, CMMS and historian integration, handover after commissioning; says none of it is built. Checks: tsc, eslint clean; Vitest 185 passed; Playwright 229 passed, 5 skipped, 6 failed (keyboard.spec.ts:242, fail only locally, pass in CI). Next: component-level 7-14 day planner awaits owner approval of a spec.
+
 ## 2026-11-15: machine types, units, palette (branch machine-types, PR pending merge)
 Illustrative machine types replace "Machine N" everywhere (decision 75); charts show V, rpm, psi, mm/s (vibration displayed / 10); Hatch-inspired palette (decision 76). Checks: tsc, eslint clean; Vitest 184 passed; pytest scripts/tests 118 passed; Playwright 212 passed, 5 skipped, 6 failed (keyboard.spec.ts:242 replay controls; also fail on unmodified main locally, not investigated). Previewed locally on the synthetic bundle only.
 
