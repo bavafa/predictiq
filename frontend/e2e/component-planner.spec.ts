@@ -106,19 +106,26 @@ test("a part row opens that machine on Asset Details, which shows its four parts
   await expect(panel.getByTestId("component-row")).toHaveCount(4);
 });
 
-for (const [name, size] of [
-  ["desktop", { width: 1280, height: 900 }],
-  ["narrow desktop", { width: 1024, height: 800 }],
-  ["mobile", { width: 390, height: 844 }],
-] as const) {
-  test(`tables fit and no serious accessibility problems (${name})`, async ({ page }) => {
-    await page.setViewportSize(size);
-    await openParts(page);
-    expect(await fits(page, "parts-list")).toBe(true);
-    expect(await blocking(page)).toEqual([]);
-    await page.goto("/asset-details?machine=3");
-    await expect(page.getByTestId("component-row")).toHaveCount(4);
-    expect(await fits(page, "component-panel")).toBe(true);
-    expect(await blocking(page)).toEqual([]);
-  });
+// Linux CI draws text wider than a Mac does, so every size is also checked with the text 18% larger.
+for (const scale of [1, 1.18]) {
+  for (const [name, size] of [
+    ["desktop", { width: 1280, height: 900 }],
+    ["narrow desktop", { width: 1024, height: 800 }],
+    ["mobile", { width: 390, height: 844 }],
+  ] as const) {
+    test(`tables fit and no serious accessibility problems (${name}, text ${Math.round(scale * 100)}%)`, async ({ page }) => {
+      await page.setViewportSize(size);
+      const grow = () => page.evaluate((x) => void (document.documentElement.style.fontSize = `${x * 100}%`), scale);
+      await openParts(page);
+      await grow();
+      expect(await fits(page, "parts-list")).toBe(true);
+      if (name === "mobile") expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+      expect(await blocking(page)).toEqual([]);
+      await page.goto("/asset-details?machine=3");
+      await expect(page.getByTestId("component-row")).toHaveCount(4);
+      await grow();
+      expect(await fits(page, "component-panel")).toBe(true);
+      expect(await blocking(page)).toEqual([]);
+    });
+  }
 }

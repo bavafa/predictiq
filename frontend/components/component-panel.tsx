@@ -59,7 +59,26 @@ function PanelBody({ id, at, modelVersion, info }: { id: number; at: string; mod
           <p className="mt-0 mb-2 text-sm" data-testid="component-window">
             Next shutdown window for {data.model}: <strong>{windowText(data.window_start)}</strong> ({untilText(data.days_to_window)}) <ValueLabel kind="Assumed" />
           </p>
-          <div className="overflow-x-auto">
+          <ul className="m-0 list-none p-0 md:hidden" aria-label="The four parts of this machine" data-testid="component-cards">
+            {data.parts.map((p) => (
+              <li key={p.part} data-testid="component-card" data-part={p.part} className="border-b border-line py-3">
+                <p className="m-0 text-sm font-semibold">
+                  <span title={p.part}>{p.part_name}</span> <span className="text-xs font-normal text-ink-2">({p.part}, assumed name)</span>
+                </p>
+                <p className="m-0 text-xs leading-5 text-ink-2">
+                  {Math.round(p.days_since_replacement)} days since replaced · wear estimate {percent(p.wear_chance)} over {data.horizon_days} days (
+                  {WEAR_LABEL}) · chance before window {percent(p.chance_before_window)}
+                </p>
+                <p className="m-0 text-sm">
+                  <strong>{p.warning_active ? `⚠ Warning: ${p.part_name} signature` : "No warning"}</strong>{" "}
+                  <span className="text-xs text-ink-2">
+                    48 h chance {percent(p.warning_chance_48h)} · warns at {p.warning_cutoff_percent}%
+                  </span>
+                </p>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto md:block" tabIndex={0} role="region" aria-label="Parts table (scrolls sideways if it is too wide)">
             <table className="w-full border-collapse text-left" data-testid="component-table">
               <caption className="sr-only">
                 The four parts of this machine: days since replaced, wear estimate over {data.horizon_days} days, chance before the next window and the 48-hour warning.

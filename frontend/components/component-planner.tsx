@@ -102,7 +102,7 @@ function Body() {
       <p className="sr-only" role="status" aria-live="polite" data-testid="component-announcer">
         {announcement}
       </p>
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(300px,340px)_minmax(0,1fr)]">
+      <div className="grid items-start gap-4 2xl:grid-cols-[minmax(300px,340px)_minmax(0,1fr)]">
         <Assumptions
           fields={fields}
           set={set}

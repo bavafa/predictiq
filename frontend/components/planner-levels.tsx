@@ -30,11 +30,11 @@ function LevelSwitch() {
         <span id="level-label" className="text-sm font-semibold">
           Plan for
         </span>
-        <div role="radiogroup" aria-labelledby="level-label" className="flex gap-2">
+        <div role="radiogroup" aria-labelledby="level-label" className="flex flex-wrap gap-2">
           {(
             [
-              ["machine", "Machines (next 24 hours)"],
-              ["parts", "Parts (7 to 14 days)"],
+              ["machine", "Machines, 24 h"],
+              ["parts", "Parts, 7 to 14 days"],
             ] as const
           ).map(([l, text]) => (
             <Button key={l} role="radio" aria-checked={level === l} variant={level === l ? "primary" : "outline"} data-testid={`level-${l}`} onClick={() => choose(l)}>
