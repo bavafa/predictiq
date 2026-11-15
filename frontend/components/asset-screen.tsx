@@ -12,6 +12,7 @@ import { Definition } from "@/components/definition";
 import { ValueLabel } from "@/components/value-label";
 import { CAVEAT_LINE, effectWord, inputName, recentFirst, rowHour, sameAnswer, signed } from "@/lib/asset";
 import { percent } from "@/lib/fleet";
+import { machineName } from "@/lib/machine-types";
 import { parseHour, readableHour } from "@/lib/time";
 import type { ApiError } from "@/lib/api";
 import type { Asset, Explanation, MachineModel, Range, Telemetry } from "@/lib/types";
@@ -62,7 +63,7 @@ function MachineSelect({ selected, total }: { selected: number | null; total: nu
         {selected === null && <option value="">Choose a machine</option>}
         {options.map((m) => (
           <option key={m.machine_id} value={m.machine_id}>
-            Machine {m.machine_id}
+            {machineName(m.machine_id)}
             {m.model ? ` · ${m.model}` : ""}
           </option>
         ))}
@@ -238,7 +239,7 @@ function FactsPanel({ query, data, id }: { query: Q; data: Asset | null; id: num
   return (
     <section className={card} aria-labelledby="facts-title" data-testid="facts">
       <h2 id="facts-title" className={h2}>
-        Machine {id}
+        {machineName(id)}
       </h2>
       {query.error ? (
         <PanelError testId="asset-error-facts" message="Couldn't load this machine's details." onRetry={query.retry} />

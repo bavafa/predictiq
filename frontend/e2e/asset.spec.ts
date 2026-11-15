@@ -60,7 +60,7 @@ test("the machine picker and the web address choose the machine; the score is th
 
   // switching machines keeps the time and cut-off
   await page.getByRole("combobox", { name: "Machine" }).selectOption("40");
-  await expect(page.getByTestId("facts")).toContainText("Machine 40");
+  await expect(page.getByTestId("facts")).toContainText("Reciprocating compressor 40");
   const url = new URL(page.url());
   expect([url.searchParams.get("machine"), url.searchParams.get("at"), url.searchParams.get("cutoff")]).toEqual(["40", at, "33"]);
 });

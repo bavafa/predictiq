@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
 import { addHours, readWindow, shownHour } from "./support";
+import { machineName } from "../lib/machine-types";
 
 type FleetAnswer = {
   cutoff_percent: number;
@@ -147,7 +148,7 @@ test("a machine row opens Asset Details at the same replay time and cut-off", as
   await loaded(page);
   const first = page.getByTestId("fleet-row").first();
   const machine = (await first.getAttribute("data-machine"))!;
-  await first.getByRole("link", { name: `Machine ${machine}` }).click();
+  await first.getByRole("link", { name: machineName(machine) }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Asset Details");
   const url = new URL(page.url());
   expect(url.pathname).toBe("/asset-details");
@@ -245,7 +246,7 @@ test("axe and layout: Fleet Overview on a phone has a list, a Sort menu and no s
     expect(box.height).toBeGreaterThanOrEqual(43.5);
   }
   await page.getByRole("combobox", { name: "Sort" }).selectOption("machine-asc");
-  await expect(page.getByTestId("fleet-card-row").first()).toContainText("Machine");
+  await expect(page.getByTestId("fleet-card-row").first()).toContainText(machineName(1));
 });
 
 test("replay at the start and at the end still show the fleet for that hour", async ({ page, request }) => {

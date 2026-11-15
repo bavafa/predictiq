@@ -66,7 +66,11 @@ export default function AboutDataPage() {
         <ul className="mt-3 mb-0 list-disc pl-5 text-sm leading-6 text-ink-2">
           <li>100 machines with hourly sensor readings, 2015-01-01 06:00 to 2016-01-01 06:00.</li>
           <li>Also error logs, maintenance records, failure records, and each machine&rsquo;s model and age.</li>
-          <li>Sensor units are not stated by the source.</li>
+          <li>
+            Machine types (pump, compressor, mixer, fan, spindle, conveyor drive) and sensor units (V, rpm, psi, mm/s) are
+            our best guesses: the source does not state them. Types follow the machine model and, for two models, age;
+            vibration is shown as the source value divided by 10.
+          </li>
         </ul>
         <p className="mt-3 mb-0">
           <a className="inline-flex min-h-11 items-center text-link underline" href={PROVENANCE_URL}>

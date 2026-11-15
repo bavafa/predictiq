@@ -117,7 +117,7 @@ describe("Asset Details: states without a machine", () => {
     renderWithData(<AssetDetailsPage />, server());
     await userEvent.selectOptions(await screen.findByRole("combobox", { name: "Machine" }), "12");
     expect(window.location.search).toContain("machine=12");
-    expect(await screen.findByTestId("facts")).toHaveTextContent("Machine 12");
+    expect(await screen.findByTestId("facts")).toHaveTextContent("Industrial mixer 12");
   });
 });
 

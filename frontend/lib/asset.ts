@@ -5,10 +5,11 @@ import { parseHour } from "@/lib/time";
 import type { Asset, Range, Telemetry } from "@/lib/types";
 
 export const SENSORS = [
-  { key: "volt", label: "Voltage" },
-  { key: "rotate", label: "Rotation" },
-  { key: "pressure", label: "Pressure" },
-  { key: "vibration", label: "Vibration" },
+  // Units are assumed, not stated by the source. Vibration is shown as the raw value / 10 so it reads as mm/s (decision 75).
+  { key: "volt", label: "Voltage", unit: "V", scale: 1 },
+  { key: "rotate", label: "Rotation", unit: "rpm", scale: 1 },
+  { key: "pressure", label: "Pressure", unit: "psi", scale: 1 },
+  { key: "vibration", label: "Vibration", unit: "mm/s", scale: 0.1 },
 ] as const;
 export type SensorKey = (typeof SENSORS)[number]["key"];
 
@@ -115,11 +116,12 @@ export function marksFor(asset: Asset, shown: ReadonlySet<string>): EventMark[] 
   return out.filter((m) => shown.has(m.hour));
 }
 
-export function sensorSummary(t: Telemetry, key: SensorKey, label: string): string {
-  const values = t.rows.map((r) => r[key]).filter((v): v is number => v !== null);
+export function sensorSummary(t: Telemetry, key: SensorKey, label: string, unit = "", scale = 1): string {
+  const values = t.rows.map((r) => r[key]).filter((v): v is number => v !== null).map((v) => v * scale);
+  const u = unit ? ` ${unit}` : "";
   if (values.length === 0) return `No ${label.toLowerCase()} readings in this range.`;
   const last = values[values.length - 1]!;
-  return `${label}: latest ${last.toFixed(1)}, lowest ${Math.min(...values).toFixed(1)}, highest ${Math.max(...values).toFixed(1)} over ${values.length} hourly readings.`;
+  return `${label}: latest ${last.toFixed(1)}${u}, lowest ${Math.min(...values).toFixed(1)}${u}, highest ${Math.max(...values).toFixed(1)}${u} (units assumed) over ${values.length} hourly readings.`;
 }
 
 /**

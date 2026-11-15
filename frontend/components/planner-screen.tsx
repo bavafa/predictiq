@@ -30,6 +30,7 @@ import {
   type PlannerFields,
   type PlannerInputs,
 } from "@/lib/planner";
+import { machineName } from "@/lib/machine-types";
 import { parseHour, readableHour } from "@/lib/time";
 import type { MachineModel, PlanResponse, PlanRow } from "@/lib/types";
 import { carriedSearch } from "@/lib/url-state";
@@ -675,7 +676,7 @@ function RankedList({ plan, unit }: { plan: PlanResponse; unit: string }) {
                 <td className="tabular px-2 py-2 text-right text-sm">{r.rank}</td>
                 <td className="px-2 py-2 text-sm">
                   <Link href={href(r.machine_id)} className="inline-flex min-h-11 items-center text-link underline">
-                    Machine {r.machine_id}
+                    {machineName(r.machine_id)}
                   </Link>
                 </td>
                 <td className="px-2 py-2 text-sm">{r.model}</td>
@@ -714,7 +715,7 @@ function RankedList({ plan, unit }: { plan: PlanResponse; unit: string }) {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <Link href={href(r.machine_id)} className="inline-flex min-h-11 items-center text-sm font-semibold text-link underline">
-                  {r.rank} · Machine {r.machine_id}
+                  {r.rank} · {machineName(r.machine_id)}
                 </Link>{" "}
                 <StatusTag status={r.status} />
               </div>

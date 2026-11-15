@@ -66,7 +66,7 @@ function markCounts(marks: EventMark[]): string {
 
 function SensorChart({ telemetry, asset, sensor, range }: { telemetry: Telemetry; asset: Asset | null; sensor: (typeof SENSORS)[number]; range: Range }) {
   const rows = telemetry.rows.filter((r) => strictlyBefore(r.hour, telemetry.at));
-  const data = rows.map((r) => ({ hour: r.hour, label: label(r.hour), value: r[sensor.key] }));
+  const data = rows.map((r) => ({ hour: r.hour, label: label(r.hour), value: r[sensor.key] === null ? null : r[sensor.key]! * sensor.scale }));
   const byHour = new Map(data.map((d) => [rowHour(d.hour), d]));
   const marks = asset ? marksFor(asset, new Set(byHour.keys())) : [];
   const wanted = range === "24h" ? 24 : 168;
@@ -79,7 +79,7 @@ function SensorChart({ telemetry, asset, sensor, range }: { telemetry: Telemetry
       testId={`sensor-${sensor.key}`}
       kind="Historical"
       title={sensor.label}
-      summary={`${sensorSummary(telemetry, sensor.key, sensor.label)}${asset ? (marks.length ? ` Markers: ${markCounts(marks)}.` : "") : " Markers are not available because the machine record did not load."}`}
+      summary={`${sensorSummary(telemetry, sensor.key, sensor.label, sensor.unit, sensor.scale)}${asset ? (marks.length ? ` Markers: ${markCounts(marks)}.` : "") : " Markers are not available because the machine record did not load."}`}
       note={data.length < wanted ? `Only ${data.length} ${data.length === 1 ? "hour" : "hours"} of history before this point.` : undefined}
       chart={
         <div className="h-56 w-full">
@@ -87,7 +87,7 @@ function SensorChart({ telemetry, asset, sensor, range }: { telemetry: Telemetry
             <LineChart data={data} margin={{ top: 12, right: 12, bottom: 28, left: 4 }} accessibilityLayer={false}>
               <CartesianGrid stroke={GRID} vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: INK2 }} minTickGap={48} label={{ value: "Time (historical)", position: "insideBottom", offset: -18, fontSize: 12, fill: INK2 }} />
-              <YAxis width={52} domain={[lo - pad, hi + pad]} tickFormatter={(v: number) => v.toFixed(0)} tick={{ fontSize: 11, fill: INK2 }} label={{ value: "Reading (no unit given)", angle: -90, position: "insideLeft", fontSize: 12, fill: INK2 }} />
+              <YAxis width={52} domain={[lo - pad, hi + pad]} tickFormatter={(v: number) => v.toFixed(sensor.scale < 1 ? 1 : 0)} tick={{ fontSize: 11, fill: INK2 }} label={{ value: `${sensor.unit} (assumed)`, angle: -90, position: "insideLeft", fontSize: 12, fill: INK2 }} />
               <Line type="monotone" dataKey="value" stroke={SENSOR} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
               {marks.map((m, i) => {
                 const d = byHour.get(m.hour)!;

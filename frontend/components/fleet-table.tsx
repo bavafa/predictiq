@@ -17,6 +17,7 @@ import {
   type Sort,
   type SortKey,
 } from "@/lib/fleet";
+import { machineName } from "@/lib/machine-types";
 import { parseHour, shortHour } from "@/lib/time";
 import { carriedSearch } from "@/lib/url-state";
 import type { FleetRow, Status } from "@/lib/types";
@@ -132,7 +133,7 @@ export function FleetTable({
                 <td className="tabular px-3 py-2 text-right text-sm">{r.rank}</td>
                 <td className="px-3 py-2 text-sm">
                   <Link href={href(r.machine_id)} className="inline-flex min-h-11 items-center text-link underline">
-                    Machine {r.machine_id}
+                    {machineName(r.machine_id)}
                   </Link>
                 </td>
                 <td className="px-3 py-2 text-sm">{r.model}</td>
@@ -160,7 +161,7 @@ export function FleetTable({
               <Link href={href(r.machine_id)} className="flex min-h-11 items-center justify-between gap-3 py-3 text-ink no-underline">
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold text-link underline">
-                    {r.rank} · Machine {r.machine_id}
+                    {r.rank} · {machineName(r.machine_id)}
                   </span>
                   <span className="block text-xs text-ink-2">
                     {r.model} · {r.age} years · latest error {latestErrorText(r.latest_error)} (historical)
