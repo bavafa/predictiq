@@ -51,6 +51,12 @@ export const PAGES: PageDef[] = [
     },
   },
   {
+    name: "In a Real Plant",
+    path: "/real-plant",
+    heading: "In a Real Plant",
+    ready: async () => {},
+  },
+  {
     name: "About & Data",
     path: "/about-data",
     heading: "About & Data",

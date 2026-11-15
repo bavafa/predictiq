@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const ROUTES = ["/", "/asset-details", "/maintenance-planner", "/model-performance", "/about-data"];
+const ROUTES = ["/", "/asset-details", "/maintenance-planner", "/model-performance", "/real-plant", "/about-data"];
 const VIEWPORTS = [
   { name: "desktop", width: 1280, height: 800 },
   { name: "mobile", width: 390, height: 844 },

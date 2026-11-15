@@ -97,7 +97,7 @@ for (const vp of VIEWPORTS) {
         // No positive tabindex anywhere: the order is the reading order.
         expect(await page.locator('[tabindex]:not([tabindex="0"]):not([tabindex="-1"])').count()).toBe(0);
 
-        if (def.name !== "Model Performance" && def.name !== "About & Data") {
+        if (def.name !== "Model Performance" && def.name !== "About & Data" && def.name !== "In a Real Plant") {
           // Replay controls: Start, Step back, Play, Step forward, Step size, then the timeline (ux-spec, Accessibility).
           expectInOrder(names, ["Start", "Step back", "Play", "Step forward", "Step size", "Replay time"]);
         }
