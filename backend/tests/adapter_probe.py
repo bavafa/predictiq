@@ -75,6 +75,27 @@ def main(frontend: Path) -> None:
         "cache": r.headers.get("cache-control"),
         "rows": len(r.json()["rows"]) if r.status_code == 200 else None,
     }
+    if meta.get("component_planner") is not None:
+        costs = {c: 10_000_000 - i for i, c in enumerate(("comp1", "comp2", "comp3", "comp4"))}
+        comp_body = {
+            "level": "component",
+            "at": end,
+            "horizon_days": 14,
+            "failure_cost": 10_000_000,
+            "failure_cost_by_part": costs,
+            "planned_cost": 10_000_000,
+            "planned_cost_by_part": costs,
+            "crew_slots": 100,
+            "risk_reduction_percent": 90,
+        }
+        r = client.post(f"{V}/plan?mv={mv}", json=comp_body)
+        out["POST plan (component level, maximum inputs)"] = {
+            "status": r.status_code,
+            "bytes": len(r.content),
+            "cache": r.headers.get("cache-control"),
+            "rows": len(r.json()["rows"]) if r.status_code == 200 else None,
+        }
+        call("assets/{id}/components", f"{V}/assets/1/components?mv={mv}&at={end}&horizon_days=14")
     print(json.dumps(out))
 
 

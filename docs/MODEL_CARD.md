@@ -111,3 +111,59 @@ The replay starts at 2015-11-01 00:00, the first test hour, because at least one
 ## How to reproduce
 
 `make data`, `make train`, `make evaluate` (once per version), `make verify`, `make replay`. Python 3.12, scikit-learn 1.9.1, xgboost 3.4.1, locked in `uv.lock`. The pipeline was run twice from scratch on 14 Nov 2026; every saved file, including `evaluation.json`, was byte-identical. `make verify` recomputes all test metrics from the saved models and compares them with `evaluation.json` (counts exactly, other numbers at six decimals). `manifest.json` lists the SHA-256 of every file in the version folder.
+
+## Component models: wear view and 48-hour warning (version comp-20261115-228daea1, simulated)
+
+_Spec: `docs/specs/component-planner.md`; decision 77. Built beside the machine model; nothing user-facing uses it yet. Component names are illustrative (assumed, not stated by the source); the data only has comp1 to comp4. Every number below is from the simulated Microsoft sample data._
+
+**What it is.** Two layers per part. The **wear view** (7 and 14 days) uses only part age, machine model, machine age and past failures of that part. It is a wear estimate, not an early warning. The **48-hour warning** uses the 35 sensor and error features plus the part's own age inputs. Both were fitted on the 80 seen machines (train), with models, calibration and cut-offs chosen on validation. The test period was scored once (`ml/component_evaluate.py`); no setting changed after seeing it.
+
+**Rule to beat.** "Chance by machine model and days since replacement, from training data." For each part and horizon, the wear model was shipped only if it beat the rule on validation (higher PR-AUC and Brier no worse). It did for 7 of 8 part-and-horizon pairs. For comp3 at 14 days the rule is shipped. On the test period the wear model also scored higher PR-AUC than the rule in all 8 pairs, but by a small margin for comp1, comp2 and comp3 at 14 days.
+
+
+**7-day wear view, test period, all 100 machines (simulated)**
+
+| Part | Base rate | Rule PR-AUC | Wear model PR-AUC | Lift over base rate (wear model) | Wear model Brier vs rule | Shipped |
+|---|---:|---:|---:|---:|---|---|
+| comp1 (Motor winding) | 2.9% | 0.052 | 0.090 (xgb) | 3.1x | 0.0274 vs 0.0282 | xgb |
+| comp2 (Bearing) | 5.5% | 0.081 | 0.146 (xgb) | 2.6x | 0.0495 vs 0.0521 | xgb |
+| comp3 (Seal / valve) | 2.2% | 0.152 | 0.212 (xgb) | 9.8x | 0.0181 vs 0.0189 | xgb |
+| comp4 (Coupling) | 2.7% | 0.072 | 0.114 (logistic) | 4.2x | 0.0254 vs 0.0259 | logistic |
+
+**14-day wear view, test period, all 100 machines (simulated)**
+
+| Part | Base rate | Rule PR-AUC | Wear model PR-AUC | Lift over base rate (wear model) | Wear model Brier vs rule | Shipped |
+|---|---:|---:|---:|---:|---|---|
+| comp1 (Motor winding) | 5.4% | 0.106 | 0.116 (xgb) | 2.1x | 0.0495 vs 0.0511 | xgb |
+| comp2 (Bearing) | 11.4% | 0.160 | 0.162 (logistic) | 1.4x | 0.0999 vs 0.1012 | logistic |
+| comp3 (Seal / valve) | 4.6% | 0.329 | 0.335 (xgb) | 7.2x | 0.0334 vs 0.0334 | rule |
+| comp4 (Coupling) | 5.8% | 0.146 | 0.252 (logistic) | 4.4x | 0.0476 vs 0.0513 | logistic |
+
+**48-hour warning, test period (simulated)**
+
+| Part | PR-AUC | Failures caught (all) | Failures caught (20 unseen machines) | False-alert hours per 100 component-weeks | Cut-off |
+|---|---:|---:|---:|---:|---:|
+| comp1 (Motor winding) | 0.903 | 24/24 | 8/8 | 23.7 | 27% |
+| comp2 (Bearing) | 0.927 | 44/44 | 8/8 | 48.8 | 35% |
+| comp3 (Seal / valve) | 0.951 | 18/18 | 5/5 | 12.1 | 36% |
+| comp4 (Coupling) | 0.942 | 21/21 | 4/4 | 21.0 | 40% |
+
+**Wear view alert volume at the validation cut-off (shipped model, all machines)**
+
+| Horizon | Part | Share of component-days that alert | Failures caught |
+|---|---|---:|---:|
+| 7 days | comp1 (Motor winding) | 9% | 8/18 |
+| 7 days | comp2 (Bearing) | 5% | 8/39 |
+| 7 days | comp3 (Seal / valve) | 3% | 5/16 |
+| 7 days | comp4 (Coupling) | 10% | 9/18 |
+| 14 days | comp1 (Motor winding) | 3% | 2/11 |
+| 14 days | comp2 (Bearing) | 74% | 29/31 |
+| 14 days | comp3 (Seal / valve) | 7% | 9/12 |
+| 14 days | comp4 (Coupling) | 8% | 8/17 |
+
+**How to read this**
+- **The wear view ranks parts; it does not warn.** Lift over the base rate is 1.4x to 9.8x. Much of comp3's lift is the rule that comp3 only fails on model1 and model2 (decision 75), which the plain rule also finds. A part ranked high is somewhat more likely to fail, but most high-ranked parts still do not fail in the window.
+- **Its alert cut-off is not usable as a call list.** The cut-off was set for best F1 on validation. For comp2 at 14 days that means 74% of component-days alert (base rate 11%), so "caught 29 of 31" says almost nothing. Rule and wear-model cut-offs differ, so their caught counts are not comparable either. A planner should use the ranking and a stated capacity, not this cut-off.
+- **The 48-hour warning is the strong signal.** It caught every failure whose full 48-hour window was in the test period (107 of 107 part failures across the four parts, including all 25 on the 20 unseen machines). With so few events, that is still compatible with a true catch rate well below 100%, and the simulator makes failures leave a clear mark about 2 days ahead.
+- **False alerts are counted in rows.** One failure makes up to 7, 14 or 48 rows positive, and alert rows overlap. "False-alert hours per 100 component-weeks" is false alert rows divided by component-time, not distinct false alarms.
+- **Not done:** no bootstrap intervals; no matched-alert-rate comparison of rule and wear model; no `--verify` command for this version yet; independent Codex review not run (Codex is not installed); one Claude subagent review covered step 1 only.

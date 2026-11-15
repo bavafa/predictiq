@@ -16,6 +16,9 @@ Layout (schema 1):
   contrib_other.npy    float32 (machines, test hours)     sum of all other pushes
   telemetry.npy        float32 (machines, telemetry hours, 4)  NaN where a reading is missing
   records.json         errors, repairs and failure events from the telemetry start on
+Optional component files (spec step 3; absent in older bundles, then `components` is None):
+  components.json, component_wear_scores.npy (2 horizons, machines, days, 4 parts),
+  component_days_since.npy (machines, days, 4), component_warning_scores.npy (machines, test hours, 4)
 Machine m (1-based) is row m - 1.
 """
 
@@ -65,6 +68,34 @@ def find_bundle_dir() -> Path | None:
 
 
 @dataclass(frozen=True)
+class Components:
+    """Component wear and warning scores (decisions 77 and 79). Parts are in `parts` order."""
+
+    meta: dict[str, Any]
+    wear: F32  # (horizon, machine, day, part): chance of failure within 7 or 14 days, scored daily at 06:00
+    since: F32  # (machine, day, part): days since the part was replaced or failed
+    warning: F32  # (machine, test hour, part): chance of failure within 48 hours
+    first_day: datetime
+    n_days: int
+
+    @property
+    def parts(self) -> list[str]:
+        return [str(c) for c in self.meta["components"]]
+
+    @property
+    def horizons(self) -> list[int]:
+        return [int(h) for h in self.meta["horizons_days"]]
+
+    @property
+    def version(self) -> str:
+        return str(self.meta["component_model_version"])
+
+    def day_index(self, t: datetime) -> int:
+        """Index of the latest 06:00 scoring day at or before `t`."""
+        return int((t - self.first_day) / timedelta(days=1))
+
+
+@dataclass(frozen=True)
 class Bundle:
     root: Path
     meta: dict[str, Any]
@@ -84,6 +115,7 @@ class Bundle:
     tel_start: datetime
     n_hours: int
     n_machines: int
+    components: Components | None = None
 
     @property
     def model_version(self) -> str:
@@ -138,6 +170,23 @@ def _npy(root: Path, name: str, dtype: type, shape: tuple[int, ...]) -> Any:
     return arr
 
 
+def _load_components(root: Path, n_m: int, n_h: int) -> Components | None:
+    if not (root / "components.json").is_file():
+        return None
+    meta = _load_json(root / "components.json")
+    if meta.get("schema") != SCHEMA:
+        raise BundleError("unsupported component schema")
+    n_d, n_c, n_hz = int(meta["wear_days"]), len(meta["components"]), len(meta["horizons_days"])
+    return Components(
+        meta=meta,
+        wear=_npy(root, "component_wear_scores.npy", np.float32, (n_hz, n_m, n_d, n_c)),
+        since=_npy(root, "component_days_since.npy", np.float32, (n_m, n_d, n_c)),
+        warning=_npy(root, "component_warning_scores.npy", np.float32, (n_m, n_h, n_c)),
+        first_day=datetime.fromisoformat(meta["wear_first_day"]),
+        n_days=n_d,
+    )
+
+
 def _by_machine(rows: list[list[Any]], conv: Any) -> dict[int, list[Any]]:
     out: dict[int, list[Any]] = {}
     for m, h, v in rows:
@@ -180,6 +229,7 @@ def _load(root: Path) -> Bundle:
         tel_start=datetime.fromisoformat(grid["telemetry_start"]),
         n_hours=n_h,
         n_machines=n_m,
+        components=_load_components(root, n_m, n_h),
     )
 
 

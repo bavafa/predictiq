@@ -27,7 +27,7 @@ import pandas as pd
 
 from ml.data import COMPONENTS, COVERAGE_END, FIRST_SCORED, LAST_SCORED, Tables
 from ml.features.build import _maint_features
-from ml.splits import TEST_START, VALIDATION_START, split_frame
+from ml.splits import TEST_START, VALIDATION_START, assign_split, split_frame
 
 # name -> (scoring step, label horizon)
 LEVELS: dict[str, tuple[str, pd.Timedelta]] = {
@@ -138,12 +138,19 @@ def purge(frame: pd.DataFrame, horizon: pd.Timedelta) -> pd.DataFrame:
 
 
 def build_component_frame(
-    tables: Tables, unseen: list[int] | set[int], level: str, with_inputs: bool = True
+    tables: Tables,
+    unseen: list[int] | set[int],
+    level: str,
+    with_inputs: bool = True,
+    splits: tuple[str, ...] = ("train", "validation", "test"),
 ) -> pd.DataFrame:
-    """Rows (machine, component, time) with `label`, `split`, `unseen` and, if asked, WEAR_COLUMNS."""
+    """Rows (machine, component, time) with `label`, `split`, `unseen` and, if asked, WEAR_COLUMNS.
+
+    Only times of the requested splits are built, so a training run never builds test rows."""
     freq, horizon = LEVELS[level]
     ids = np.sort(tables.machines["machineID"].to_numpy())
     times = scoring_times(freq)
+    times = times[assign_split(times).isin(splits).to_numpy()]
     frame = label_components(component_events(tables.failures), ids, times, horizon)
     if with_inputs:
         x = wear_inputs(tables, ids, times)

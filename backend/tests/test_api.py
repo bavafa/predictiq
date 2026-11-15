@@ -63,6 +63,7 @@ def test_routes_are_exactly_the_contract() -> None:
         "/api/v1/assets/{machine_id}": {"get"},
         "/api/v1/assets/{machine_id}/telemetry": {"get"},
         "/api/v1/assets/{machine_id}/explanation": {"get"},
+        "/api/v1/assets/{machine_id}/components": {"get"},
         "/api/v1/model/metrics": {"get"},
         "/api/v1/model/threshold-analysis": {"get"},
         "/api/v1/plan": {"post"},

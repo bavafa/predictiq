@@ -232,5 +232,7 @@ Nothing was deployed, no Vercel setting was changed and the repository stays pri
 
 **78. Wear input: a failure counts as a replacement (owner, 15 Nov 2026).** In the simulated data, 18 failures (all stamped 2015-01-02 03:00) have no replacement record. For the wear view's "days since replacement", the latest of replacement or failure of that part is used, so those parts do not look old right after failing. Found in the step 1 review (`docs/QA_REPORTS/component-planner-step1-claude-review.md`). The longer gap for 7, 14 and 48-hour labels (rows whose label window reaches the next period are dropped) is built in step 1 but not yet confirmed by the owner.
 
+**79. The wear view is a ranking, not an alert (owner, 15 Nov 2026).** After the step 2 test result (`docs/MODEL_CARD.md`, "Component models"), the 7 and 14 day wear view is accepted as a ranking with weak lift over the base failure rate. It has no alert cut-off: the Planner ranks parts by chance before the next window times cost, and the crew slots per window decide what is shortlisted. Only the 48-hour warning has a cut-off (its validation default). The page says so.
+
 ## Pending owner decisions
 - Launch gate (see `docs/LAUNCH_CHECKLIST.md`): go-ahead; the personal author email in commit `874a686` and the older internal paths in history (`docs/QA_REPORTS/stage5-history-scan.md`); a licence for this repository's own code; approval of decisions 70 and 71. (Vercel protection is Standard Protection, `all_except_custom_domains`; no change is expected, see the checklist, step 6.)
