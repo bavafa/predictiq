@@ -63,8 +63,8 @@ Status: **prepared, not started.** Nothing below has been run against production
 ### 6. Deployment protection: public production, protected previews
 - **Who:** Builder checks (read-only, logged out). No protection change is expected, so Meysam changes nothing in Vercel unless the fallback below applies.
 - **Facts (checked read-only by the orchestrator, 14 Nov 2026, about 5:15 PM ET):** the project's protection is Vercel Authentication with `deploymentType` `all_except_custom_domains`. Vercel's documentation (vercel.com/docs/deployment-protection, "Standard Protection: protects all deployments except production domains") calls this **Standard Protection**. The project's production domain is `predictiq-eight.vercel.app`. Logged out, it answers HTTP 404 `DEPLOYMENT_NOT_FOUND` with no sign-in redirect (no production deployment exists yet), while a preview URL answers 302 to Vercel's sign-in.
-- **Target:** no protection change at launch. Production on `predictiq-eight.vercel.app` should be public; previews stay protected.
-- **Check (logged out), after the production deployment:** `curl -sS -o /dev/null -w "%{http_code}\n" https://predictiq-eight.vercel.app/` prints `200`; the same request to a **preview** URL still prints `302` (redirect to Vercel's sign-in).
+- **Target:** no protection change at launch. Production on `predictiq-demo.vercel.app` should be public; previews stay protected.
+- **Check (logged out), after the production deployment:** `curl -sS -o /dev/null -w "%{http_code}\n" https://predictiq-demo.vercel.app/` prints `200`; the same request to a **preview** URL still prints `302` (redirect to Vercel's sign-in).
 - **Expected:** production 200 without login; previews 302 to sign-in.
 - **Fallback:** if production is still behind sign-in, **stop and ask Meysam**. Do not turn protection off.
 - **Rollback:** nothing was changed, so nothing to roll back. If Meysam changes a setting under the fallback, note the previous value first and restore it.

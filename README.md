@@ -2,7 +2,7 @@
 
 PredictIQ is a prototype asset-intelligence application built on a public predictive-maintenance sample dataset. It predicts recorded component failures over a 24-hour horizon and links model outputs to transparent, assumption-based maintenance prioritization. It is a demonstration of industrial analytics and product design, not a deployed production system.
 
-**Live demo:** `https://predictiq-eight.vercel.app` (goes live at launch)
+**Live demo:** [https://predictiq-demo.vercel.app](https://predictiq-demo.vercel.app) (simulated data)
 
 > Portfolio demo — simulated historical sample data; estimated economics are illustrative.
 

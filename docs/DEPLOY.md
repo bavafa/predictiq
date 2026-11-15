@@ -77,7 +77,7 @@ The exact ordered steps, owners and rollback are in [`docs/LAUNCH_CHECKLIST.md`]
 2. A pull request removes the `ignoreCommand` line (and updates its test); Meysam merges it. Vercel's Git integration then builds `main` as a **production** deployment; the prebuild downloads and verifies the bundle (table above) and fails the build if it cannot.
 3. Deployment protection needs no change: the project uses Vercel Authentication with `deploymentType` `all_except_custom_domains` (Vercel's "Standard Protection: protects all deployments except production domains"), so production on `predictiq-eight.vercel.app` should be public and previews stay protected (checked read-only on 14 Nov 2026, about 5:15 PM ET: the production domain answers 404 `DEPLOYMENT_NOT_FOUND` with no sign-in redirect because no production deployment exists yet; a preview URL answers 302 to sign-in). After the production deployment, check logged out that production returns 200 and a preview still returns 302. If production is still behind sign-in, stop and ask Meysam; do not turn protection off.
 4. Smoke checks run against production (health, metadata, each page, `/plan`, rate-limit rule, cache headers).
-No domain is added; the site is on the project's `predictiq-eight.vercel.app` address. No environment variables or secrets are needed. Nothing in this repository changes Vercel settings or deploys by itself.
+The site is on `predictiq-demo.vercel.app` (decision 74); `predictiq-eight.vercel.app` redirects to it. No environment variables or secrets are needed. Nothing in this repository changes Vercel settings or deploys by itself.
 
 ## Keeping `requirements.txt` in sync
 
