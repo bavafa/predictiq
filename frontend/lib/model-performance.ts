@@ -155,6 +155,13 @@ export function trustSummary(results: Results): string | null {
   return `In a ${days}-day test on simulated data, the model caught ${row.events_caught} of ${row.events_full_lookback} failures, and ${row.false_alerts} of its ${row.alerts} alerts were false. Real equipment would score lower.`;
 }
 
+/** The caught-failures count at the default cut-off, for the one-line fact on Home. */
+export function caughtFacts(results: Results): { caught: number; of: number; days: number } | null {
+  const cutoff = results.models.main.summary.default_cutoff_percent;
+  const row = cutoff === null ? null : rowAt(results, "main", cutoff);
+  return row ? { caught: row.events_caught, of: row.events_full_lookback, days: Math.round(results.testWindow.hours / 24) } : null;
+}
+
 const atCutoff = (results: Results, cutoff: number, pick: (row: CutoffRow) => Cell): Record<ModelKey, Cell> => {
   const cell = (m: ModelKey): Cell => {
     const row = rowAt(results, m, cutoff);

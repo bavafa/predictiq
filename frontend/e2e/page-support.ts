@@ -68,7 +68,8 @@ export const PAGES: PageDef[] = [
     path: "/",
     heading: "Home",
     ready: async (page) => {
-      await expect(page.getByTestId("overview-headline")).toBeVisible();
+      await expect(page.getByTestId("home-hero")).toBeVisible();
+      await expect(page.getByTestId("stat-act")).toBeVisible();
     },
   },
   {

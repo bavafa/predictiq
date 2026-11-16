@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 test("alert to work plan: add, schedule, mark done, reset", async ({ page }) => {
   // cut-off 0 makes every machine an alert, so the synthetic bundle always has one to add
   await page.goto("/?cutoff=0");
-  await expect(page.getByTestId("overview-headline")).toBeVisible();
+  await expect(page.getByTestId("home-alerts")).toBeVisible();
   await page.getByRole("button", { name: /Add to work plan/ }).first().click();
   await expect(page.getByRole("link", { name: /In work plan/ }).first()).toBeVisible();
 
