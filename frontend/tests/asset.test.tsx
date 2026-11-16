@@ -54,6 +54,11 @@ const explanation = (id: number): Explanation => ({
   caveat: "These are patterns the model used, not proven causes.",
 });
 
+const openDetails = async () => {
+  const b = await screen.findByRole("button", { name: /Model details/ });
+  if (b.getAttribute("aria-expanded") !== "true") await userEvent.click(b);
+};
+
 type Fail = Partial<Record<"asset" | "telemetry" | "explanation", () => Response>>;
 
 function server(fail: Fail = {}, seen: string[] = []) {
@@ -85,7 +90,7 @@ const setNarrow = (narrow: boolean) =>
   });
 
 beforeEach(() => {
-  localStorage.clear();
+  localStorage.clear(); // Model details start closed
   setNarrow(false);
   setAddress("?machine=7&at=2015-11-02T00:00", "/asset-details");
 });
@@ -131,7 +136,7 @@ describe("Asset Details: a machine", () => {
     expect(screen.getByTestId("asset-status")).toHaveAttribute("data-status", "alert");
     expect(screen.getByTestId("asset-status")).toHaveTextContent("Act today");
     expect(screen.getByTestId("cutoff-readout")).toHaveTextContent("Alert cut-off: 51%");
-    expect(screen.getByTestId("caveat")).toHaveTextContent("These are patterns the model found in the data, not causes. They are not repair advice.");
+    expect(screen.getByTestId("why-caveat")).toHaveTextContent("These are patterns the model found in the data, not causes. They are not repair advice.");
     expect(document.querySelectorAll('[data-value-label="Predicted"]').length).toBeGreaterThan(1);
     expect(document.querySelectorAll('[data-value-label="Historical"]').length).toBeGreaterThan(2);
     expect(document.body.textContent?.toLowerCase()).not.toMatch(/\blive\b|real-time|savings/);
@@ -140,6 +145,7 @@ describe("Asset Details: a machine", () => {
   it("lists the top 8 inputs and all others in plain words, and shows the exact pushes on request", async () => {
     const user = userEvent.setup();
     renderWithData(<AssetDetailsPage />, server());
+    await openDetails();
     await screen.findByTestId("explanation-table");
     const rows = screen.getAllByTestId("explanation-row");
     expect(rows).toHaveLength(9);
@@ -155,6 +161,7 @@ describe("Asset Details: a machine", () => {
 
   it("opens a plain definition from an input's ⓘ button and closes it with Escape", async () => {
     renderWithData(<AssetDetailsPage />, server());
+    await openDetails();
     await screen.findByTestId("explanation-table");
     const button = screen.getByRole("button", { name: 'What "Average vibration, past 24 hours" means' });
     await userEvent.click(button);
@@ -167,6 +174,7 @@ describe("Asset Details: a machine", () => {
   it("shows an input's definition on hover, hides it on mouse-out, and keeps it when clicked", async () => {
     const user = userEvent.setup();
     renderWithData(<AssetDetailsPage />, server());
+    await openDetails();
     await screen.findByTestId("explanation-table");
     const button = screen.getByRole("button", { name: 'What "Average vibration, past 24 hours" means' });
     await user.hover(button);
@@ -180,20 +188,23 @@ describe("Asset Details: a machine", () => {
     expect(screen.queryByRole("note")).toBeNull();
   });
 
-  it("never lists a record at or after the replay hour", async () => {
+  it("never lists a record at or after the replay hour, and shows errors, repairs and failures in one history", async () => {
     renderWithData(<AssetDetailsPage />, server());
-    const list = await screen.findByTestId("errors-list");
+    const list = await screen.findByTestId("history-list");
     await waitFor(() => expect(list).toHaveTextContent("error4"));
     expect(document.body.textContent).not.toMatch(/AT-THE-HOUR|AFTER/);
     for (const li of document.querySelectorAll("[data-record-time]")) {
       expect(li.getAttribute("data-record-time")! < AT).toBe(true);
     }
-    expect(within(screen.getByTestId("repairs-list")).getByText(/component 2 replaced/)).toBeInTheDocument();
-    expect(within(screen.getByTestId("failures-list")).getByText(/comp1, comp4/)).toBeInTheDocument();
-    expect(screen.getByTestId("failures-list")).toHaveTextContent("Simulated sample data");
+    expect(within(list).getByText(/Component 2 replaced/)).toBeInTheDocument();
+    expect(within(list).getByText(/comp1, comp4/)).toBeInTheDocument();
+    expect(list).toHaveTextContent("Simulated sample data");
+    // newest first
+    const times = [...list.querySelectorAll("[data-record-time]")].map((li) => li.getAttribute("data-record-time")!);
+    expect(times).toEqual([...times].sort().reverse());
   });
 
-  it("says so when there are no errors or repairs in the 7 days", async () => {
+  it("says so when there are no errors, repairs or failures in the 7 days", async () => {
     const quiet = fakeFetch(readyMetadata(), async (input) => {
       const url = new URL(input, "http://x");
       if (url.pathname.endsWith("/telemetry")) return json(telemetry(7, "24h"));
@@ -201,8 +212,7 @@ describe("Asset Details: a machine", () => {
       return json(asset(7, { errors: [], repairs: [], failures: [] }));
     });
     renderWithData(<AssetDetailsPage />, quiet);
-    expect(await screen.findByText("No errors in the 7 days up to this time.")).toBeInTheDocument();
-    expect(screen.getByText("No repairs in the 7 days up to this time.")).toBeInTheDocument();
+    expect(await screen.findByText("No errors, repairs or recorded failures in the 7 days up to this time.")).toBeInTheDocument();
   });
 
   it("draws four sensor charts with text summaries and a table alternative", async () => {
@@ -237,6 +247,29 @@ describe("Asset Details: a machine", () => {
     expect(screen.getByRole("tab", { name: "Rotation" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tab", { name: "Rotation" })).toHaveFocus();
     expect(await screen.findByTestId("sensor-rotate")).toBeInTheDocument();
+  });
+});
+
+describe("Machine page header and What to check first", () => {
+  it("links back to All alerts and says Act today starts at the cut-off", async () => {
+    renderWithData(<AssetDetailsPage />, server());
+    expect(await screen.findByRole("link", { name: /All alerts/ })).toHaveAttribute("href", expect.stringContaining("/alerts"));
+    expect(await screen.findByTestId("score-panel")).toHaveTextContent("Act today starts at 51%.");
+  });
+
+  it("starts with Model details closed and opens the table on request", async () => {
+    renderWithData(<AssetDetailsPage />, server());
+    const button = await screen.findByRole("button", { name: /Model details/ });
+    expect(button).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByTestId("explanation-table")).toBeNull();
+    await userEvent.click(button);
+    expect(await screen.findByTestId("explanation-table")).toBeInTheDocument();
+  });
+
+  it("keeps 'What to check first' away when the deployment has no component scores", async () => {
+    renderWithData(<AssetDetailsPage />, server());
+    await screen.findByTestId("asset-score");
+    expect(screen.queryByTestId("what-to-check")).not.toBeInTheDocument();
   });
 });
 
@@ -290,9 +323,10 @@ describe("Asset Details: when one panel fails", () => {
     expect(error).toHaveTextContent("The rest of this page is still correct.");
     // everything else is intact
     expect(screen.getByTestId("asset-score")).toHaveTextContent("87.3%");
-    expect(screen.getAllByTestId("explanation-row")).toHaveLength(9);
+    await openDetails();
+    expect(await screen.findAllByTestId("explanation-row")).toHaveLength(9);
     expect(screen.getByTestId("past-estimates")).toBeInTheDocument();
-    expect(screen.getByTestId("errors-list")).toHaveTextContent("error4");
+    expect(screen.getByTestId("history-list")).toHaveTextContent("error4");
     broken = false;
     await userEvent.click(within(error).getByRole("button", { name: "Try again" }));
     expect(await screen.findByTestId("sensor-volt")).toBeInTheDocument();
@@ -301,8 +335,9 @@ describe("Asset Details: when one panel fails", () => {
 
   it("shows the explanation error alone when only that request fails", async () => {
     renderWithData(<AssetDetailsPage />, server({ explanation: () => problem(500, "boom") }));
+    await openDetails();
     expect(await screen.findByTestId("explanation-error")).toHaveTextContent("Couldn't load what pushed this estimate.");
-    expect(screen.getByTestId("caveat")).toBeInTheDocument(); // the caveat never hides
+    expect(screen.getByTestId("why-caveat")).toBeInTheDocument(); // the caveat never hides
     expect(await screen.findByTestId("asset-score")).toHaveTextContent("87.3%");
     expect(screen.getByTestId("sensor-volt")).toBeInTheDocument();
   });
@@ -311,7 +346,8 @@ describe("Asset Details: when one panel fails", () => {
     renderWithData(<AssetDetailsPage />, server({ asset: () => problem(500, "boom") }));
     expect(await screen.findByTestId("asset-error-score")).toBeInTheDocument();
     expect(screen.getByTestId("asset-error-facts")).toBeInTheDocument();
-    expect(screen.getByTestId("errors-error")).toBeInTheDocument();
+    expect(screen.getByTestId("history-error")).toBeInTheDocument();
+    await openDetails();
     expect(await screen.findAllByTestId("explanation-row")).toHaveLength(9);
     expect(screen.getByTestId("sensor-volt")).toBeInTheDocument();
   });

@@ -97,7 +97,7 @@ for (const vp of VIEWPORTS) {
         const n = await buttons.count();
         expect(n).toBeGreaterThan(0);
         for (let i = 0; i < n; i++) await buttons.nth(i).click();
-        await expect(page.locator('button[aria-expanded="true"]:not([aria-controls="time-controls"])')).toHaveCount(n);
+        await expect(page.locator('button[aria-expanded="true"]:not([aria-controls="time-controls"]):not([aria-controls="model-details"])')).toHaveCount(n);
         expect(await violations(page)).toEqual([]);
       });
     }

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 
+import { openDetails } from "./page-support";
 import { addHours, readWindow } from "./support";
 
 // Opt-in: runs only against the real bundle (`npm run e2e:real`). The score on the screen must equal the
@@ -21,8 +22,8 @@ test("Asset Details shows the API score and status (real bundle)", async ({ page
     await expect(page.getByTestId("asset-score")).toHaveText(`${(api.score * 100).toFixed(1)}%`);
     await expect(page.getByTestId("asset-status")).toHaveAttribute("data-status", api.status);
     await expect(page.getByTestId("fact-model")).toHaveText(api.model);
-    await expect(page.getByTestId("errors-list").locator("li")).toHaveCount(api.errors.length);
-    await expect(page.getByTestId("repairs-list").locator("li")).toHaveCount(api.repairs.length);
+    await expect(page.getByTestId("history-list").locator("li")).toHaveCount(api.errors.length + api.repairs.length + api.failures.length);
+    await openDetails(page);
     const ex = await (await request.get(`/api/v1/assets/${machine}/explanation?at=${at}&mv=${meta.model_version}`)).json();
     await expect(page.getByTestId("explanation-row")).toHaveCount(ex.contributions.length + 1);
   }

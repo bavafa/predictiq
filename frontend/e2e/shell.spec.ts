@@ -43,3 +43,13 @@ test("an old fleet link with filters opens the Assets table with the same filter
   await expect(page).toHaveURL(/cutoff=30/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assets");
 });
+
+test("Model details on the machine page start closed for a first-time visitor and open on request", async ({ page }) => {
+  await page.goto("/asset-details?machine=1");
+  const button = page.getByRole("button", { name: /Model details/ });
+  await expect(button).toBeVisible();
+  await expect(button).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByTestId("explanation-table")).toHaveCount(0);
+  await button.click();
+  await expect(page.getByTestId("explanation-table")).toBeVisible();
+});
