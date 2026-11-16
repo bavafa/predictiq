@@ -27,7 +27,8 @@ for (const route of SCREENS) {
     await expect(page.getByRole("slider")).toHaveCount(0);
     await expect(page.getByTestId("replay-time")).toHaveText("—");
     await expect(page.getByTestId("model-version")).toHaveText("none yet");
-    await expect(page.getByText("Simulated plant time").first()).toBeVisible();
+    // Home has no header bar from 1024px, so the label is in the page but not always shown.
+    expect(await page.getByText("Simulated plant time").count()).toBeGreaterThan(0);
     const violations = (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze()).violations;
     expect(violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
   });
@@ -42,7 +43,7 @@ for (const vp of [
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-      await expect(page.getByRole("note").filter({ hasText: "Portfolio demo — simulated historical sample data; estimated economics are illustrative." })).toBeVisible();
+      await expect(page.getByRole("contentinfo").filter({ hasText: "PredictIQ is a portfolio demo. All data is simulated and costs are illustrative." })).toBeVisible();
       const tags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
       const { violations } = await new AxeBuilder({ page }).withTags(tags).analyze();
       expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(" ; ")}`)).toEqual([]);

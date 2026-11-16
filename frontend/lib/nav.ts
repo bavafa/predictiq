@@ -1,6 +1,6 @@
 export type NavItem = { href: string; label: string };
 
-export const DISCLOSURE = "Portfolio demo — simulated historical sample data; estimated economics are illustrative.";
+export const DISCLOSURE = "PredictIQ is a portfolio demo. All data is simulated and costs are illustrative.";
 
 export const PROVENANCE_URL = "https://github.com/bavafa/predictiq/blob/main/docs/DATA_PROVENANCE.md";
 

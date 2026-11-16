@@ -2,11 +2,11 @@ import { expect, test } from "@playwright/test";
 
 test("shell, banner, and every route render honestly", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("note")).toContainText(
-    "Portfolio demo — simulated historical sample data; estimated economics are illustrative.",
+  await expect(page.getByRole("contentinfo")).toContainText(
+    "PredictIQ is a portfolio demo. All data is simulated and costs are illustrative.",
   );
-  await expect(page.getByText("Simulated plant time").first()).toBeVisible();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Home");
+  await expect(page.getByTestId("plant-status")).toContainText("Plant time:");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Know which machines will fail");
   await expect(page.getByTestId("home-hero")).toBeVisible();
   await page.goto("/alerts");
   await expect(page.getByTestId("alerts")).toBeVisible();

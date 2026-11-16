@@ -26,9 +26,9 @@ beforeEach(() => {
 afterEach(() => window.history.replaceState(null, "", "/"));
 
 describe("AppShell", () => {
-  it("shows the disclosure banner and the Simulated plant time label, with no time controls when there is no model data", async () => {
+  it("shows the disclosure in the footer and the Simulated plant time label, with no time controls when there is no model data", async () => {
     renderShell();
-    expect(screen.getByRole("note")).toHaveTextContent(DISCLOSURE);
+    expect(screen.getByRole("contentinfo")).toHaveTextContent(DISCLOSURE);
     expect(screen.getAllByText("Simulated plant time").length).toBeGreaterThan(0);
     await screen.findByText(/no time controls/);
     expect(screen.queryByRole("slider")).not.toBeInTheDocument();
@@ -160,7 +160,6 @@ describe("AppShell", () => {
     expect(dialog).toHaveAttribute("aria-modal", "true");
     expect(dialog.querySelector("nav")).toBeInTheDocument();
     expect(menu.closest("[inert]")).not.toBeNull();
-    expect(screen.getByRole("note").closest("[inert]")).not.toBeNull();
     expect(screen.getByText("content").closest("[inert]")).not.toBeNull();
     expect(dialog.closest("[inert]")).toBeNull();
 
