@@ -1,14 +1,10 @@
-import { JobList } from "@/components/job-list";
-import { PlannerLevels } from "@/components/planner-levels";
 import { ScreenGate } from "@/components/screen-gate";
+import { WorkPlan } from "@/components/work-plan";
 
-export default function MaintenancePlannerPage() {
+export default function WorkPlanPage() {
   return (
-    <ScreenGate what="the predicted chances">
-      <div className="flex flex-col gap-4">
-        <JobList />
-        <PlannerLevels />
-      </div>
+    <ScreenGate what="the work plan">
+      <WorkPlan />
     </ScreenGate>
   );
 }
