@@ -50,11 +50,23 @@ type Inputs = {
 
 /** One list of jobs (decisions 88 and 89): Act today machines, 48-hour part warnings, wear-risk parts, and machines the
  *  visitor added. Act today first, then by cost at risk. Recommended jobs come from the model; status is the visitor's. */
+function inspectTitle(part: string, warnings: number): string {
+  const more = warnings - 1;
+  return more > 0 ? `Inspect: ${part}, +${more} more ${more === 1 ? "part" : "parts"} with a warning` : `Inspect: ${part}`;
+}
+
 export function buildJobs({ fleetRows, plan, parts, dismissed, added, status }: Inputs): Job[] {
   const cost = new Map<number, number>();
   plan?.rows.forEach((r) => cost.set(r.machine_id, r.expected_exposure));
+  // The part a machine's job names is the one with the highest 48-hour warning chance, as on Alerts and the Machine page.
   const warn = new Map<number, ComponentPlanResponse["rows"][number]>();
-  parts?.rows.filter((r) => r.signal === "warning").forEach((r) => !warn.has(r.machine_id) && warn.set(r.machine_id, r));
+  const warnCount = new Map<number, number>();
+  for (const r of parts?.rows ?? []) {
+    if (r.signal !== "warning") continue;
+    warnCount.set(r.machine_id, (warnCount.get(r.machine_id) ?? 0) + 1);
+    const best = warn.get(r.machine_id);
+    if (!best || r.warning_chance_48h > best.warning_chance_48h) warn.set(r.machine_id, r);
+  }
   const label = (key: string, id: number, isMachineJob: boolean) => jobLabel(status[key], isMachineJob && added.includes(id));
   const jobs: Job[] = [];
   const seen = new Set<string>();
@@ -63,7 +75,7 @@ export function buildJobs({ fleetRows, plan, parts, dismissed, added, status }: 
     const key = String(r.machine_id);
     const w = warn.get(r.machine_id);
     seen.add(key);
-    jobs.push({ key, machineId: r.machine_id, title: w ? `Inspect: ${w.part_name}` : "Inspect machine", urgency: "act", when: "This shift", cost: cost.get(r.machine_id) ?? null, label: label(key, r.machine_id, true), removable: added.includes(r.machine_id) });
+    jobs.push({ key, machineId: r.machine_id, title: w ? inspectTitle(w.part_name, warnCount.get(r.machine_id) ?? 1) : "Inspect machine", urgency: "act", when: "This shift", cost: cost.get(r.machine_id) ?? null, label: label(key, r.machine_id, true), removable: added.includes(r.machine_id) });
   }
   for (const r of parts?.rows ?? []) {
     if (r.listing !== "shortlisted") continue;
