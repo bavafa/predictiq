@@ -9,7 +9,7 @@ test("shell, banner, and every route render honestly", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Home");
   await expect(page.getByTestId("home-hero")).toBeVisible();
   await page.goto("/alerts");
-  await expect(page.getByTestId("overview-headline")).toBeVisible();
+  await expect(page.getByTestId("alerts")).toBeVisible();
   await page.goto("/assets");
   await expect(page.getByRole("heading", { level: 2, name: "Machines ranked by predicted 24-hour risk" })).toBeVisible();
 
