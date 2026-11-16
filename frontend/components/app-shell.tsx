@@ -293,7 +293,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             home && "lg:hidden",
           )}
         >
-          <div className="mx-auto flex min-h-10 w-full max-w-[1200px] flex-wrap items-center gap-3">
+          <div className="mx-auto flex min-h-10 w-full max-w-[1440px] flex-wrap items-center gap-3">
             <Button
               ref={menuButton}
               variant="outline"
@@ -319,14 +319,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           ref={main}
           id="main"
           tabIndex={-1}
-          className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 p-3 sm:p-5 lg:px-6"
+          className="mx-auto flex w-full max-w-[1440px] flex-col gap-4 p-3 sm:p-5 lg:px-6"
         >
           {home && meta.status !== "ready" && <h1 className="sr-only">Home</h1>}
           {children}
         </main>
 
         <footer className="mt-auto border-t border-line bg-card px-3 py-4 text-sm text-ink-2 sm:px-5 lg:px-6">
-          <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center justify-between gap-x-4">
+          <div className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-x-4">
             <p className="m-0">{DISCLOSURE}</p>
             <span>
               <Link
@@ -344,7 +344,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             </span>
           </div>
-          <p className="m-0 mx-auto w-full max-w-[1200px] text-xs leading-4">
+          <p className="m-0 mx-auto w-full max-w-[1440px] text-xs leading-4">
             Model version: <ModelVersion />. Data: Microsoft sample data
             (simulated), 2015.
           </p>

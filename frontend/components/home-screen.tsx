@@ -95,7 +95,7 @@ function Body({ fleet, carried, crew }: { fleet: Fleet; carried: string; crew: n
   const n = actToday.length;
 
   return (
-    <div className="flex flex-col gap-10 lg:pt-6" data-testid="home">
+    <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-10 lg:pt-6" data-testid="home">
       <div className="grid items-start gap-8 lg:grid-cols-[1fr_440px]">
         <section aria-labelledby="home-title" className="flex flex-col gap-4" data-testid="home-hero">
           <p className="m-0 text-sm font-semibold tracking-wide text-brand uppercase">Predictive maintenance</p>
