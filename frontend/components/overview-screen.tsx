@@ -112,9 +112,6 @@ export function TypeGrid({ rows, carried, title, note }: { rows: readonly FleetR
           ))}
         </ul>
         <p className="m-0 text-[13px] text-ink-2">{note}</p>
-        <Link href="/about-data" className="flex min-h-11 w-fit items-center text-sm font-semibold">
-          See About this demo
-        </Link>
       </section>
   );
 }

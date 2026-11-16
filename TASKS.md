@@ -107,3 +107,9 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 ## Redesign v2 (mock-ups 15 Nov 2026, spec `docs/specs/redesign-v2.md`)
 - [ ] Owner: approve the v2 spec and decisions 87 to 89.
 - [ ] Stage 1 shell (top nav, Play, status words), 2 Home, 3 Alerts, 4 Machine page, 5 Work plan, 6 sweep: wait for spec approval.
+
+## Redesign v2 gate (16 Nov 2026, `docs/QA_REPORTS/redesign-v2-gate.md`)
+- [x] Stages 1 to 5 merged (#26 to #30); stage 6 sweep in this pull request.
+- [ ] Owner: waive or run the independent review of v2 (codex is not installed in this environment).
+- [ ] Owner: five-second test (at least five people) and the 60-second timed check; record the results.
+- [ ] Owner: keep or change decision 91; decide on the unbuilt items (sensor tiles, Export job list, Home order by cost).
