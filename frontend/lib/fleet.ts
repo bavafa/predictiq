@@ -13,7 +13,7 @@ export function modelLabel(model: MachineModel): string {
 }
 
 export function statusLabel(status: Status): string {
-  return status === "alert" ? "Alert" : "Below cut-off";
+  return status === "alert" ? "Act today" : "Normal";
 }
 
 export type SortKey = "rank" | "machine" | "model" | "age" | "score" | "status";

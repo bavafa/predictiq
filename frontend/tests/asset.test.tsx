@@ -129,7 +129,7 @@ describe("Asset Details: a machine", () => {
     expect(screen.getByTestId("fact-model")).toHaveTextContent("model3");
     expect(screen.getByTestId("fact-age")).toHaveTextContent("12");
     expect(screen.getByTestId("asset-status")).toHaveAttribute("data-status", "alert");
-    expect(screen.getByTestId("asset-status")).toHaveTextContent("Alert");
+    expect(screen.getByTestId("asset-status")).toHaveTextContent("Act today");
     expect(screen.getByTestId("cutoff-readout")).toHaveTextContent("Alert cut-off: 51%");
     expect(screen.getByTestId("caveat")).toHaveTextContent("These are patterns the model found in the data, not causes. They are not repair advice.");
     expect(document.querySelectorAll('[data-value-label="Predicted"]').length).toBeGreaterThan(1);

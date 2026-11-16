@@ -1,9 +1,9 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Info, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
 
 /** "Show data labels" (redesign decision 82): value tags are visually hidden by default but stay in accessible names. */
 function DataLabelsSwitch() {
@@ -36,29 +36,65 @@ import { ReplayBar } from "@/components/replay-bar";
 import { Button } from "@/components/ui/button";
 import { DISCLOSURE, INFO_NAV, MAIN_NAV, titleFor, type NavItem } from "@/lib/nav";
 import { useStoredFlag } from "@/lib/stored-flag";
+import type { Fleet } from "@/lib/types";
 import { carriedSearch } from "@/lib/url-state";
+import { useApiQuery } from "@/lib/use-api-query";
 import { cn } from "@/lib/utils";
 
-function NavLink({ item, current, onNavigate }: { item: NavItem; current: boolean; onNavigate: () => void }) {
-  // The replay time, cut-off and selected machine travel with the reader from page to page (decision 13).
+function NavLink({ item, current, onNavigate, count }: { item: NavItem; current: boolean; onNavigate: () => void; count: number | null }) {
+  // The simulated plant time, cut-off and selected machine travel with the reader from page to page (decision 13).
   const { search } = useData();
+  const desktop = useDesktop();
   return (
     <Link
       href={`${item.href}${carriedSearch(search)}`}
       aria-current={current ? "page" : undefined}
       onClick={onNavigate}
       className={cn(
-        "on-dark flex min-h-11 items-center px-5 text-sm text-sidebar-text no-underline hover:bg-sidebar-active",
-        current && "border-l-4 border-white bg-sidebar-active pl-4 font-semibold text-white",
+        // Light text on the dark menu panel (below 1024px); dark text on the white top bar (1024px and up).
+        !desktop && "on-dark",
+        "flex min-h-11 items-center gap-2 px-5 text-sm text-sidebar-text no-underline hover:bg-sidebar-active",
+        "lg:min-h-14 lg:border-b-4 lg:border-transparent lg:px-3 lg:text-[15px] lg:text-ink lg:hover:bg-subtle",
+        current && "border-l-4 border-white bg-sidebar-active pl-4 font-semibold text-white lg:border-l-0 lg:border-b-brand lg:bg-transparent lg:pl-3 lg:text-ink",
       )}
     >
       {item.label}
+      {count !== null && count > 0 && (
+        <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-alert-bg px-1.5 text-xs leading-5 font-bold text-alert-text ring-1 ring-alert-edge">
+          <span aria-hidden="true">{count}</span>
+          <span className="sr-only">, {count} act today</span>
+        </span>
+      )}
     </Link>
   );
 }
 
+const DESKTOP = "(min-width: 1024px)";
+const subscribeDesktop = (cb: () => void) => {
+  const mq = window.matchMedia(DESKTOP);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+/** True from 1024px: the navigation is the top bar, not the menu panel. False on the server and while unknown. */
+function useDesktop(): boolean {
+  return useSyncExternalStore(subscribeDesktop, () => window.matchMedia(DESKTOP).matches, () => false);
+}
+
+/** The number of machines that need action at the simulated plant time (the badge on Alerts); null until known. */
+function useAlertCount(): number | null {
+  const { client, meta, view } = useData();
+  const version = meta.status === "ready" ? meta.meta.model_version : "";
+  const q = useApiQuery<Fleet>(
+    (signal) => (view ? client.fleet({ at: view.at, cutoff: view.cutoff }, { signal }) : Promise.reject(new Error("no view"))),
+    [client, version, view?.at, view?.cutoff],
+  );
+  return q.status === "ready" ? q.data.rows.filter((r) => r.status === "alert").length : null;
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const { search } = useData();
+  const alertCount = useAlertCount();
   const [open, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -135,83 +171,79 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
 
       <div role="note" inert={open} className="bg-disclosure-bg px-4 py-2 text-[13px] leading-5 font-semibold text-disclosure-text">
-        <span aria-hidden="true">ⓘ </span>
+        <Info aria-hidden="true" size={14} className="mr-1 inline align-[-2px]" />
         {DISCLOSURE}
       </div>
 
-      <div className="flex min-h-[calc(100vh-36px)]">
-        {open && <div className="fixed inset-0 z-10 bg-black/45 lg:hidden" aria-hidden="true" onClick={() => close(true)} />}
+      {open && <div className="fixed inset-0 z-10 bg-black/45 lg:hidden" aria-hidden="true" onClick={() => close(true)} />}
 
-        {/* While open (below 1024px only) this panel is a modal dialog: the rest of the page is inert. */}
-        <div
-          ref={panel}
-          id="site-nav"
-          role={open ? "dialog" : undefined}
-          aria-modal={open ? true : undefined}
-          aria-label={open ? "Main menu" : undefined}
-          className={cn(
-            "flex-col bg-sidebar py-4 text-sidebar-text lg:flex lg:w-60 lg:flex-none",
-            open ? "fixed inset-y-0 left-0 z-20 flex w-70 overflow-y-auto" : "hidden",
-          )}
-        >
-        <nav aria-label="Main" className="flex flex-1 flex-col">
-          <div className="px-5 pb-4 text-white">
-            <div className="text-lg font-bold">PredictIQ</div>
-            <div className="text-xs leading-4 text-sidebar-text">Predictive maintenance · Demo plant</div>
+      {/* Below 1024px this is the menu panel (a modal dialog while open: the rest of the page is inert). From 1024px
+          it is the top navigation bar (v2 spec, stage 1). */}
+      <div
+        ref={panel}
+        id="site-nav"
+        role={open ? "dialog" : undefined}
+        aria-modal={open ? true : undefined}
+        aria-label={open ? "Main menu" : undefined}
+        className={cn(
+          "flex-col bg-sidebar py-4 text-sidebar-text lg:flex lg:flex-row lg:items-center lg:border-t-4 lg:border-t-brand lg:border-b lg:border-line lg:bg-card lg:px-6 lg:py-0 lg:text-ink",
+          open ? "fixed inset-y-0 left-0 z-20 flex w-70 overflow-y-auto lg:static lg:w-auto lg:overflow-visible" : "hidden",
+        )}
+      >
+        <nav aria-label="Main" className="flex flex-1 flex-col lg:flex-row lg:items-center lg:gap-8">
+          <div className="px-5 pb-4 text-white lg:flex lg:items-baseline lg:gap-3 lg:px-0 lg:py-3 lg:text-ink">
+            <div className="text-lg font-bold lg:text-xl">PredictIQ</div>
+            <div className="text-xs leading-4 text-sidebar-text lg:text-sm lg:text-ink-2">Predictive maintenance · Demo plant</div>
           </div>
-          <Button
-            ref={closeButton}
-            variant="onDark"
-            className="mx-5 mb-3 self-start lg:hidden"
-            onClick={() => close(true)}
-          >
+          <Button ref={closeButton} variant="onDark" className="mx-5 mb-3 self-start lg:hidden" onClick={() => close(true)}>
             <X aria-hidden="true" size={16} /> Close menu
           </Button>
-          <ul className="m-0 list-none p-0">
+          <ul className="m-0 flex list-none flex-col p-0 lg:flex-row lg:items-stretch lg:gap-1">
             {MAIN_NAV.map((item) => (
-              <li key={item.href}>
-                <NavLink item={item} current={pathname === item.href} onNavigate={onNavigate} />
+              <li key={item.href} className="lg:flex">
+                <NavLink item={item} current={pathname === item.href} onNavigate={onNavigate} count={item.href === "/alerts" ? alertCount : null} />
               </li>
             ))}
-            <li aria-hidden="true" className="mx-5 my-2 border-t border-sidebar-active" />
+            <li aria-hidden="true" className="mx-5 my-2 border-t border-sidebar-active lg:hidden" />
             {INFO_NAV.map((item) => (
-              <li key={item.href}>
-                <NavLink item={item} current={pathname === item.href} onNavigate={onNavigate} />
+              <li key={item.href} className="lg:flex">
+                <NavLink item={item} current={pathname === item.href} onNavigate={onNavigate} count={null} />
               </li>
             ))}
           </ul>
-          <div className="mt-auto px-5 pt-6 text-xs leading-4 text-sidebar-muted">
-            Model version: <ModelVersion />
-            <br />
-            Data: Microsoft sample data (simulated), 2015
-          </div>
         </nav>
-        </div>
+      </div>
 
-        <div inert={open} className="flex min-w-0 flex-1 flex-col">
-          <header className="flex min-h-14 flex-wrap border-t-4 border-t-brand items-center gap-3 border-b border-line bg-card px-3 py-2 sm:px-5">
-            <Button
-              ref={menuButton}
-              variant="outline"
-              className="lg:hidden"
-              aria-expanded={open}
-              aria-controls="site-nav"
-              onClick={() => setOpen(true)}
-            >
-              <Menu aria-hidden="true" size={16} /> Menu
-            </Button>
-            <span className="text-base font-bold lg:hidden">PredictIQ · Demo plant</span>
-            <h1 className="order-3 m-0 basis-full text-xl leading-7 font-semibold lg:order-none lg:flex-1 lg:basis-auto lg:text-[22px]">
-              {title}
-            </h1>
-            <DataLabelsSwitch />
-            <ReplayBar />
-          </header>
+      <div inert={open} className="flex min-w-0 flex-col">
+        <header className="flex min-h-14 flex-wrap items-center gap-3 border-b border-line bg-card px-3 py-2 sm:px-5 lg:px-6">
+          <Button ref={menuButton} variant="outline" className="lg:hidden" aria-expanded={open} aria-controls="site-nav" onClick={() => setOpen(true)}>
+            <Menu aria-hidden="true" size={16} /> Menu
+          </Button>
+          <span className="text-base font-bold lg:hidden">PredictIQ · Demo plant</span>
+          <h1 className="order-3 m-0 basis-full text-xl leading-7 font-semibold lg:order-none lg:flex-1 lg:basis-auto lg:text-[22px]">{title}</h1>
+          <DataLabelsSwitch />
+          <ReplayBar />
+        </header>
 
-          <main ref={main} id="main" tabIndex={-1} className="flex max-w-[1440px] flex-col gap-4 p-3 sm:p-5">
-            {children}
-          </main>
-        </div>
+        <main ref={main} id="main" tabIndex={-1} className="flex w-full max-w-[1440px] flex-col gap-4 p-3 sm:p-5 lg:px-6">
+          {children}
+        </main>
+
+        <footer className="mt-auto border-t border-line bg-card px-3 py-4 text-sm text-ink-2 sm:px-5 lg:px-6">
+          <p className="m-0">
+            PredictIQ is a portfolio demo. All data is simulated and costs are illustrative.{" "}
+            <Link href={`/about-data${carriedSearch(search)}`} className="inline-flex min-h-11 items-center">
+              About this demo
+            </Link>
+            <span aria-hidden="true"> · </span>
+            <Link href={`/real-plant${carriedSearch(search)}`} className="inline-flex min-h-11 items-center">
+              In a real plant
+            </Link>
+          </p>
+          <p className="m-0 text-xs leading-4">
+            Model version: <ModelVersion />. Data: Microsoft sample data (simulated), 2015.
+          </p>
+        </footer>
       </div>
     </div>
   );

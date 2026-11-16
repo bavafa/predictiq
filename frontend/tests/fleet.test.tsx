@@ -154,7 +154,7 @@ describe("Fleet Overview", () => {
     renderWithData(<FleetOverviewPage />, server());
     const empty = await screen.findByTestId("empty-result");
     expect(empty).toHaveTextContent("No machines match these filters at");
-    expect(empty).toHaveTextContent('status "Alert" and machine number 6');
+    expect(empty).toHaveTextContent('status "Act today" and machine number 6');
     expect(screen.getByTestId("card-shown")).toHaveTextContent("0");
     expect(alertCount()).toBe(0);
     expect(screen.getByTestId("card-highest")).toHaveTextContent("None");

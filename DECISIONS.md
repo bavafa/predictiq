@@ -246,7 +246,13 @@ Nothing was deployed, no Vercel setting was changed and the repository stays pri
 
 **85. Likely part only with a 48-hour warning (owner, 15 Nov 2026).** "Likely part" and "What to check first" appear only when the 48-hour component warning is active (decisions 77 and 79); the weak 7 to 14 day wear estimate is never presented as a warning. *Status: approved by Meysam, 15 Nov 2026.*
 
-**86. v2 is built spec first, then stacked stages (owner, 15 Nov 2026).** Six stages as in the v2 spec; the owner approves the spec, then each stage gate. Decisions 87 to 89 in the spec (cost at risk wording, ranking by cost, one job list) are proposed and wait for the owner. *Status: approved by Meysam, 15 Nov 2026; spec itself not yet approved.*
+**86. v2 is built spec first, then stacked stages (owner, 15 Nov 2026).** Six stages as in the v2 spec; the owner approves the spec, then each stage gate. Decisions 87 to 89 in the spec (cost at risk wording, ranking by cost, one job list) were approved on 15 Nov 2026. *Status: approved by Meysam, 15 Nov 2026.*
+
+**87. "Cost at risk" replaces "expected exposure" in the interface (owner, 15 Nov 2026).** Same number and formula, labelled "(example cost)" or Illustrative; "savings" stays banned. Spec `docs/specs/redesign-v2.md`. *Status: approved by Meysam, 15 Nov 2026.*
+
+**88. Alerts are ranked by cost at risk, not by chance (owner, 15 Nov 2026).** The page says why the order can differ from the chance order. *Status: approved by Meysam, 15 Nov 2026.*
+
+**89. Job state moves to one list (owner, 15 Nov 2026).** Recommended jobs are computed from the model; Scheduled and Done are kept in the browser only; Reset demo stays; machines already added in v1 carry over as Recommended jobs. *Status: approved by Meysam, 15 Nov 2026; the spec is approved.*
 
 ## Pending owner decisions
 - Launch gate (see `docs/LAUNCH_CHECKLIST.md`): go-ahead; the personal author email in commit `874a686` and the older internal paths in history (`docs/QA_REPORTS/stage5-history-scan.md`); a licence for this repository's own code; approval of decisions 70 and 71. (Vercel protection is Standard Protection, `all_except_custom_domains`; no change is expected, see the checklist, step 6.)

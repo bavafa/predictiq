@@ -45,12 +45,12 @@ describe("replay bar", () => {
     expect(screen.getByText(/The simulated plant time starts at the first test-period hour where any machine is at or above/)).toBeInTheDocument();
   });
 
-  it("has the tab order Advance 1 h, Time controls, then Start, Step back, Play, Step forward, Step size, timeline", async () => {
+  it("has the tab order Advance 1 h, Play, Time controls, then Start, Step back, Step forward, Step size, timeline", async () => {
     await ready();
     const order = Array.from(
       document.querySelectorAll<HTMLElement>("button, select, input"),
     ).map((el) => (el.tagName === "BUTTON" ? el.textContent?.trim() : (el.getAttribute("type") ?? el.tagName.toLowerCase())));
-    expect(order.slice(0, 8)).toEqual(["Advance 1 h", "Time controls", "Start", "Step back", "Play", "Step forward", "select", "range"]);
+    expect(order.slice(0, 8)).toEqual(["Advance 1 h", "Play", "Time controls", "Start", "Step back", "Step forward", "select", "range"]);
   });
 
   it("steps by the chosen size, keeps the time in the web address, and Start goes to the window's first hour", async () => {

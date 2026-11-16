@@ -306,8 +306,8 @@ function FilterBar({
           onChange={(e) => onChange({ status: STATUSES.find((s) => s === e.target.value) ?? null })}
         >
           <option value="">All</option>
-          <option value="alert">Alert</option>
-          <option value="below_cutoff">Below cut-off</option>
+          <option value="alert">Act today</option>
+          <option value="below_cutoff">Normal</option>
         </select>
       </label>
       <div className="flex flex-col">
