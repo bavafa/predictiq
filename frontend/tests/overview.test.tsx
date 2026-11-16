@@ -62,6 +62,14 @@ describe("Overview", () => {
     expect(screen.getByTestId("workplan-summary")).toHaveTextContent("1 job added");
   });
 
+  it("a dismissed alert leaves the cards but is still counted in the headline", async () => {
+    localStorage.setItem("piq-dismissed", "[1]");
+    renderWithData(<OverviewPage />, server({ 1: 0.9, 2: 0.7, 3: 0.1 }));
+    expect(await screen.findByTestId("overview-headline")).toHaveTextContent("2 assets have a high chance");
+    expect(screen.getAllByTestId("alert-card")).toHaveLength(1);
+    expect(screen.getByText(/1 dismissed\./)).toBeInTheDocument();
+  });
+
   it("says so when nothing is in alert", async () => {
     renderWithData(<OverviewPage />, server({ 1: 0.1, 2: 0.2 }));
     expect(await screen.findByTestId("overview-headline")).toHaveTextContent("No assets have a high chance");

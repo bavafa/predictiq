@@ -2,6 +2,9 @@
 
 _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
+## 2026-11-15: redesign stage 3, Asset page (branch redesign-asset)
+Asset page header with Add to work plan and Dismiss alert (both saved in the browser only; a dismissed alert leaves the Overview cards but still counts in its headline), a "Why it is flagged" panel in sentences (biggest upward pushes and latest error; patterns, not causes), "Back to assets". Checks: tsc, eslint clean; Vitest 205 passed; Playwright full run before the last two fixes: 257 passed, 10 failed (6 = keyboard.spec.ts:242, known local-only; 4 fixed since and re-run: asset.spec.ts 11 passed, target-size.spec.ts passed). No full re-run after the last edits. **Not built:** sensor tiles with a trend and the single history timeline (the old sensor charts and the separate error, repair and failure lists stay); the parts panel is the existing one, unchanged.
+
 ## 2026-11-15: redesign stage 2, Overview and Assets (branch redesign-overview, stacked on main after PR 19)
 New Overview at `/` (headline, alert cards with Add to work plan, status by equipment type, trust card read from the saved evaluation, work plan card); the old fleet table, filters and charts live at `/assets`; the guide is removed; plant time and Advance 1 h sit inside the header. "Add to work plan" saves the machine in the browser (`piq-jobs`); stage 4 extends it. Checks: tsc, eslint clean; Vitest 201 passed; Playwright 261 passed, 5 skipped, 6 failed (keyboard.spec.ts:242, known local-only). Not done: crew-slot line and richer "why" text (stages 3 and 4); trust-card wording assumes false_alerts and alerts mean what the Alert accuracy page says.
 

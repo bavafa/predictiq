@@ -85,6 +85,7 @@ const setNarrow = (narrow: boolean) =>
   });
 
 beforeEach(() => {
+  localStorage.clear();
   setNarrow(false);
   setAddress("?machine=7&at=2015-11-02T00:00", "/asset-details");
 });
@@ -94,12 +95,12 @@ afterEach(() => {
 });
 
 describe("Asset Details: states without a machine", () => {
-  it("asks to choose a machine, with a selector and a link to Fleet Overview", async () => {
+  it("asks to choose a machine, with a selector and a link to Assets", async () => {
     setAddress("?at=2015-11-02T00:00&cutoff=40", "/asset-details");
     renderWithData(<AssetDetailsPage />, server());
     expect(await screen.findByText("Choose a machine to see its history and risk")).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Machine" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Back to fleet/ })).toHaveAttribute("href", "/?at=2015-11-02T00%3A00&cutoff=40");
+    expect(screen.getByRole("link", { name: /Back to assets/ })).toHaveAttribute("href", "/assets?at=2015-11-02T00%3A00&cutoff=40");
     expect(screen.queryByTestId("explanation")).toBeNull();
   });
 
@@ -109,7 +110,7 @@ describe("Asset Details: states without a machine", () => {
     expect(await screen.findByText("Machine 250 isn't in the sample data.")).toBeInTheDocument();
     expect(screen.getByText("The sample has machines numbered 1 to 100.")).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Machine" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Back to fleet/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Back to assets/ })).toBeInTheDocument();
   });
 
   it("choosing a machine from the picker puts its number in the address", async () => {
@@ -236,6 +237,45 @@ describe("Asset Details: a machine", () => {
     expect(screen.getByRole("tab", { name: "Rotation" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tab", { name: "Rotation" })).toHaveFocus();
     expect(await screen.findByTestId("sensor-rotate")).toBeInTheDocument();
+  });
+});
+
+describe("Asset page: actions and why it is flagged", () => {
+  it("says why in sentences, from the biggest upward pushes and the latest error, with the patterns-not-causes line", async () => {
+    renderWithData(<AssetDetailsPage />, server());
+    const box = await screen.findByTestId("why-flagged");
+    expect((await within(box).findAllByText(/pushed the estimate up\./, {}, { timeout: 5000 })).length).toBe(3);
+    expect(box).toHaveTextContent("Why it is flagged");
+    expect(box).toHaveTextContent(/Latest error record: error4/);
+    expect(box).not.toHaveTextContent(/error9-AT-THE-HOUR|error8-AFTER/);
+    expect(box).toHaveTextContent(/not causes/);
+  });
+
+  it("Add to work plan and Dismiss alert save in the browser only", async () => {
+    const user = userEvent.setup();
+    renderWithData(<AssetDetailsPage />, server());
+    await user.click(await screen.findByRole("button", { name: "Add to work plan" }, { timeout: 5000 }));
+    expect(localStorage.getItem("piq-jobs")).toBe("[7]");
+    expect(screen.getByRole("link", { name: /In work plan/ })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Dismiss alert" }));
+    expect(localStorage.getItem("piq-dismissed")).toBe("[7]");
+    expect(screen.queryByRole("button", { name: "Dismiss alert" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("dismissed-note")).toBeInTheDocument();
+  });
+
+  it("offers no Dismiss for a machine that is below the cut-off", async () => {
+    const f = fakeFetch(readyMetadata(), async (input) => {
+      const url = new URL(input, "http://x");
+      const m = /\/assets\/(\d+)(\/telemetry|\/explanation)?$/.exec(url.pathname);
+      if (!m) return problem(404, "Not found");
+      if (m[2] === "/telemetry") return json(telemetry(7, "24h"));
+      if (m[2] === "/explanation") return json(explanation(7));
+      return json(asset(7, { status: "below_cutoff", score: 0.1 }));
+    });
+    renderWithData(<AssetDetailsPage />, f);
+    await screen.findByRole("button", { name: "Add to work plan" }, { timeout: 5000 });
+    expect(screen.queryByRole("button", { name: "Dismiss alert" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("why-flagged")).toHaveTextContent("What the model sees");
   });
 });
 
