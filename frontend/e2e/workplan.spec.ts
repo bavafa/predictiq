@@ -27,3 +27,13 @@ test("alert to work plan: add, schedule, mark done, reset", async ({ page }) => 
   await page.getByRole("button", { name: "Reset demo" }).click();
   await expect(page.getByTestId("no-jobs")).toBeVisible();
 });
+
+test("Alerts ranks by cost at risk with the Illustrative tag, and says it is not the order of chance when it differs", async ({ page }) => {
+  await page.goto("/alerts?cutoff=0");
+  await expect(page.getByTestId("alerts")).toBeVisible();
+  const cards = page.getByTestId("alert-card");
+  await expect(cards.first()).toContainText("Priority 1");
+  await expect(cards.first().getByTestId("cost-at-risk")).toContainText("Illustrative");
+  await expect(page.getByTestId("rank-note")).toContainText("Cost at risk is the chance of failure times an example cost");
+  await expect(page.getByTestId("since-last-hour")).toContainText("Since the last hour");
+});
