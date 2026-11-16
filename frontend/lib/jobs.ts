@@ -1,9 +1,9 @@
 import { useSyncExternalStore } from "react";
 
 // The browser-saved work plan (redesign decision 82): machines added as jobs and alerts dismissed.
-// Stage 3 stores "added" and "dismissed"; stage 4 extends this with slots, status and Reset demo.
-const KEYS = { jobs: "piq-jobs", dismissed: "piq-dismissed" } as const;
-type Which = keyof typeof KEYS;
+// Stage 4: a job is Added, then Scheduled into a crew slot, then Done; Reset demo clears everything.
+const KEYS = { jobs: "piq-jobs", dismissed: "piq-dismissed", status: "piq-status" } as const;
+type Which = "jobs" | "dismissed"; // the lists; status has its own map below
 const EVENT = "piq-jobs-changed";
 const memory: Record<Which, number[]> = { jobs: [], dismissed: [] }; // used only when storage is blocked
 
@@ -41,17 +41,82 @@ function save(which: Which, list: number[]) {
   window.dispatchEvent(new Event(EVENT));
 }
 
-export function useJobs(): { jobs: number[]; dismissed: number[]; add: (m: number) => void; dismiss: (m: number) => void } {
+export type JobStatus = "scheduled" | "done";
+
+/** Saved status per machine: anything that is not "scheduled" or "done" is ignored. */
+export function parseStatus(text: string): Record<number, JobStatus> {
+  try {
+    const v: unknown = JSON.parse(text);
+    if (typeof v !== "object" || v === null || Array.isArray(v)) return {};
+    const out: Record<number, JobStatus> = {};
+    for (const [k, val] of Object.entries(v)) if ((val === "scheduled" || val === "done") && Number.isInteger(Number(k))) out[Number(k)] = val;
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+const memoryStatus: { value: Record<number, JobStatus> } = { value: {} };
+
+export function useJobs() {
   const jobs = parseJobs(useSyncExternalStore(subscribe, () => read("jobs"), () => "[]"));
   const dismissed = parseJobs(useSyncExternalStore(subscribe, () => read("dismissed"), () => "[]"));
+  const statusText = useSyncExternalStore(
+    subscribe,
+    () => {
+      try {
+        return localStorage.getItem(KEYS.status) ?? "{}";
+      } catch {
+        return JSON.stringify(memoryStatus.value);
+      }
+    },
+    () => "{}",
+  );
+  const status = parseStatus(statusText);
+  const saveStatus = (next: Record<number, JobStatus>) => {
+    memoryStatus.value = next;
+    try {
+      localStorage.setItem(KEYS.status, JSON.stringify(next));
+    } catch {}
+    window.dispatchEvent(new Event(EVENT));
+  };
   return {
     jobs,
     dismissed,
-    add: (m) => {
+    status,
+    add: (m: number) => {
       if (!jobs.includes(m)) save("jobs", [...jobs, m]);
     },
-    dismiss: (m) => {
+    dismiss: (m: number) => {
       if (!dismissed.includes(m)) save("dismissed", [...dismissed, m]);
     },
+    setStatus: (m: number, s: JobStatus | null) => {
+      const next = { ...status };
+      if (s === null) delete next[m];
+      else next[m] = s;
+      saveStatus(next);
+    },
+    remove: (m: number) => {
+      save("jobs", jobs.filter((j) => j !== m));
+      const next = { ...status };
+      delete next[m];
+      saveStatus(next);
+    },
+    /** "Reset demo": every job, status and dismissed alert goes. */
+    reset: () => {
+      save("jobs", []);
+      save("dismissed", []);
+      saveStatus({});
+    },
   };
+}
+
+/** Slots in use: the number of scheduled jobs. A job can be scheduled only while this is below the crew slots. */
+export function slotsUsed(status: Record<number, JobStatus>): number {
+  return Object.values(status).filter((s) => s === "scheduled").length;
+}
+
+/** The label a job carries: Added until it is scheduled, then Scheduled, then Done. */
+export function jobLabel(s: JobStatus | undefined): "Added" | "Scheduled" | "Done" {
+  return s === "scheduled" ? "Scheduled" : s === "done" ? "Done" : "Added";
 }
