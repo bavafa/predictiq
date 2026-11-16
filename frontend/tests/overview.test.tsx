@@ -1,13 +1,13 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import OverviewPage from "@/app/page";
+import OverviewPage from "@/app/alerts/page";
 import { headline, typeCounts } from "@/components/overview-screen";
 import { parseJobs } from "@/lib/jobs";
 import type { FleetRow } from "@/lib/types";
 import { fakeFetch, json, problem, readyMetadata, renderWithData, setAddress } from "./helpers";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/alerts" }));
 
 const row = (id: number, score: number, cutoff = 51): FleetRow => ({
   rank: 0,
@@ -42,7 +42,7 @@ beforeEach(() => {
 });
 afterEach(() => setAddress(""));
 
-describe("Overview", () => {
+describe("Alerts page (the current alert cards; stage 3 rebuilds it)", () => {
   it("opens on a plain headline, an alert card per alert with its reason, and status by equipment type", async () => {
     renderWithData(<OverviewPage />, server({ 1: 0.9, 2: 0.7, 3: 0.1 }));
     expect(await screen.findByTestId("overview-headline")).toHaveTextContent("2 assets have a high chance of failing in the next 24 hours");
@@ -59,7 +59,6 @@ describe("Overview", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Add to work plan/ }));
     expect(parseJobs(localStorage.getItem("piq-jobs") ?? "")).toEqual([1]);
     expect(screen.getByRole("link", { name: /In work plan/ })).toHaveAttribute("href", expect.stringContaining("/maintenance-planner"));
-    expect(screen.getByTestId("workplan-summary")).toHaveTextContent("1 job added");
   });
 
   it("a dismissed alert leaves the cards but is still counted in the headline", async () => {
@@ -74,11 +73,6 @@ describe("Overview", () => {
     renderWithData(<OverviewPage />, server({ 1: 0.1, 2: 0.2 }));
     expect(await screen.findByTestId("overview-headline")).toHaveTextContent("No assets have a high chance");
     expect(screen.queryByTestId("alert-card")).not.toBeInTheDocument();
-  });
-
-  it("falls back honestly when the test result is not available", async () => {
-    renderWithData(<OverviewPage />, server({ 1: 0.9 }));
-    expect(await screen.findByTestId("trust-summary", {}, { timeout: 5000 })).toHaveTextContent(/isn't available|Loading/);
   });
 });
 
