@@ -103,3 +103,7 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [ ] Owner: waive or run the independent review of the redesign (codex is not installed in this environment).
 - [ ] Owner: five-second test with at least five people, and the 60-second timed check; record the results.
 - [ ] Optional: Asset page sensor tiles with a trend and one history timeline; Work plan summary strip, merged job list, "Export job list", Parts as default level; asset count in the header.
+
+## Redesign v2 (mock-ups 15 Nov 2026, spec `docs/specs/redesign-v2.md`)
+- [ ] Owner: approve the v2 spec and decisions 87 to 89.
+- [ ] Stage 1 shell (top nav, Play, status words), 2 Home, 3 Alerts, 4 Machine page, 5 Work plan, 6 sweep: wait for spec approval.

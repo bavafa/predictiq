@@ -2,6 +2,9 @@
 
 _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
+## 2026-11-15: redesign v2 spec (branch redesign-v2-spec)
+New mock-ups (v2: top navigation, Home landing, Alerts page, Machine page, one-list Work plan) arrived after the v1 gate. The owner answered four questions (decisions 83 to 86: onboarding returns on Home; Act today / Normal with no "right now"; likely part only with a 48 h warning; spec first). Spec written, nothing built: `docs/specs/redesign-v2.md`. **Waiting for the owner:** approval of the spec and decisions 87 to 89 (cost at risk wording, ranking by cost, one job list). The v1 gate items still open (independent review, five-second test, 60-second check) are unchanged.
+
 ## 2026-11-15: redesign stage 6, gate sweep (branch redesign-sweep)
 Full sweep after the five stage pull requests (all merged, CI green on each). Checks: tsc, eslint clean; Vitest 210 passed; pytest 414 passed; Playwright 273 passed, 5 skipped, 6 failed (keyboard.spec.ts:242, local-only, pass in CI). Screenshots in `docs/QA_REPORTS/redesign-screenshots/` (synthetic bundle). Screenshots review fixed three copy defects ("1 years old", "Replay starts", "before the replay hour"). Gate report: `docs/QA_REPORTS/redesign-gate.md`. **Not done:** independent review (codex not installed), the five-second test and the 60-second timed check (need people), and the unbuilt items listed in the gate report.
 
