@@ -46,6 +46,6 @@ export function announceThisStep(stepsPlayed: number): boolean {
 }
 
 export const START_LINE =
-  "Replay starts at the first test-period hour where any machine is at or above the default alert cut-off (cut-off set on validation data). Rule fixed before results were seen.";
+  "The simulated plant time starts at the first test-period hour where any machine is at or above the default alert cut-off (cut-off set on validation data). Rule fixed before results were seen.";
 export const START_LINE_FALLBACK =
-  "No test-period hour had a machine at or above the default alert cut-off, so the replay starts at the first test hour. Rule fixed before results were seen.";
+  "No test-period hour had a machine at or above the default alert cut-off, so it starts at the first test hour. Rule fixed before results were seen.";

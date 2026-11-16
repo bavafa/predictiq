@@ -266,7 +266,7 @@ function FactsPanel({ query, data, id }: { query: Q; data: Asset | null; id: num
             <>
               <p className="mt-2 mb-1 text-sm">
                 {machineType(id)} · Machine model <strong data-testid="fact-model">{data.model}</strong> · Age{" "}
-                <strong data-testid="fact-age">{data.age}</strong> years · {recentRepairs === 0 ? "no repairs" : `${recentRepairs} ${recentRepairs === 1 ? "repair" : "repairs"}`} in the past 7 days
+                <strong data-testid="fact-age">{data.age}</strong> {data.age === 1 ? "year" : "years"} · {recentRepairs === 0 ? "no repairs" : `${recentRepairs} ${recentRepairs === 1 ? "repair" : "repairs"}`} in the past 7 days
               </p>
               <p className="m-0 text-sm text-ink-2">
                 <ValueLabel kind="Historical" /> from the simulated sample data
@@ -469,7 +469,7 @@ function EventList({ kind, query, data, at }: { kind: "errors" | "repairs"; quer
           ))}
         </ul>
       )}
-      <p className="mt-2 mb-0 text-xs text-ink-2">Lists only records from before the replay hour, the same rule the model follows.</p>
+      <p className="mt-2 mb-0 text-xs text-ink-2">Lists only records from before the simulated plant time, the same rule the model follows.</p>
     </section>
   );
 }

@@ -111,7 +111,7 @@ function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
                       <span aria-hidden="true">▲</span> Alert<span className="sr-only">, predicted</span>
                     </span>
                     <h3 className="m-0 text-lg font-semibold">{machineName(r.machine_id)}</h3>
-                    <span className="text-sm text-ink-2">{r.age} years old</span>
+                    <span className="text-sm text-ink-2">{r.age} {r.age === 1 ? "year" : "years"} old</span>
                   </div>
                   <p className="m-0 text-[15px]">{percent(r.score)} chance of failure within 24 h.</p>
                   <p className="m-0 text-sm text-ink-2">{whyText(r.latest_error)}</p>
