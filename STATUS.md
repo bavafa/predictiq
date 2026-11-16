@@ -2,6 +2,9 @@
 
 _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
+## 2026-11-15: redesign v2 stage 1, shell (branch v2-shell)
+Spec and decisions 83 to 89 approved. Top navigation replaces the sidebar (Home, Alerts with a count badge, Assets, Work plan, Alert accuracy, About this demo; the mobile menu panel stays); Play moved beside Advance 1 h (the Time controls panel keeps Start, Step back, Step forward, Step size, timeline); footer with the demo line, About this demo, In a real plant, model version; status words Act today / Normal; `/alerts` route (shows the current alert cards and the "Normal is not a guarantee" line until stage 3). Checks: tsc, eslint clean; Vitest 213 passed. Playwright first run: 269 passed, 15 skipped, 19 failed (6 known local-only keyboard.spec.ts:242, 13 stale tab-order, axe and copy assertions, all fixed since); **re-run not finished when this was written**. Next: stage 2, Home.
+
 ## 2026-11-15: redesign v2 spec (branch redesign-v2-spec)
 New mock-ups (v2: top navigation, Home landing, Alerts page, Machine page, one-list Work plan) arrived after the v1 gate. The owner answered four questions (decisions 83 to 86: onboarding returns on Home; Act today / Normal with no "right now"; likely part only with a 48 h warning; spec first). Spec written, nothing built: `docs/specs/redesign-v2.md`. **Waiting for the owner:** approval of the spec and decisions 87 to 89 (cost at risk wording, ranking by cost, one job list). The v1 gate items still open (independent review, five-second test, 60-second check) are unchanged.
 

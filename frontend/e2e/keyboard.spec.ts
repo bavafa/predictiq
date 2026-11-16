@@ -98,8 +98,8 @@ for (const vp of VIEWPORTS) {
         expect(await page.locator('[tabindex]:not([tabindex="0"]):not([tabindex="-1"])').count()).toBe(0);
 
         if (def.name !== "Alert accuracy" && def.name !== "About this demo" && def.name !== "In a real plant") {
-          // Replay controls: Start, Step back, Play, Step forward, Step size, then the timeline (ux-spec, Accessibility).
-          expectInOrder(names, ["Play", "Start", "Step back", "Step forward", "Step size", "Simulated plant time"]);
+          // Time controls panel: Start, Step back, Step forward, Step size, then the timeline (Play sits beside Advance 1 h) (ux-spec, Accessibility).
+          expectInOrder(names, ["Start", "Step back", "Step forward", "Step size", "Simulated plant time"]);
         }
       });
     }

@@ -98,14 +98,14 @@ test("works by keyboard: Space toggles Play, the timeline moves with keys, focus
   expect(await shownHour(page)).toBe(w.first);
   await page.keyboard.press("End");
   expect(await shownHour(page)).toBe(w.last);
-  // tab order: Start, Step back, Play, Step forward, Step size, timeline
+  // tab order in the Time controls panel: Start, Step back, Step forward, Step size, timeline
   await page.getByRole("button", { name: "Start", exact: true }).focus();
   const names: string[] = [];
   for (let i = 0; i < 5; i++) {
     await page.keyboard.press("Tab");
     names.push(await page.evaluate(() => (document.activeElement as HTMLElement).getAttribute("aria-label") ?? (document.activeElement as HTMLElement).textContent?.trim() ?? ""));
   }
-  expect(names.slice(0, 3)).toEqual(["Step back", "Play", "Step forward"].map((n) => expect.stringContaining(n)));
+  expect(names.slice(0, 2)).toEqual(["Step back", "Step forward"].map((n) => expect.stringContaining(n)));
 });
 
 test("with reduced motion, replay still steps", async ({ page, request }) => {

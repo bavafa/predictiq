@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Info, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
@@ -171,7 +171,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
 
       <div role="note" inert={open} className="bg-disclosure-bg px-4 py-2 text-[13px] leading-5 font-semibold text-disclosure-text">
-        <span aria-hidden="true">ⓘ </span>
+        <Info aria-hidden="true" size={14} className="mr-1 inline align-[-2px]" />
         {DISCLOSURE}
       </div>
 
