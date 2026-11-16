@@ -2,6 +2,9 @@
 
 _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
+## 2026-11-16: fix, Work plan names the same part as Alerts (branch fix-job-part)
+A check of the live site found Exhaust fan 15 as "Inspect: Bearing" on the Work plan but "Likely part: Coupling" on Alerts. The machine has two active 48-hour warnings (Coupling 97.7%, Bearing 95.1%); the Work plan took the first row of the plan, Alerts the highest chance. The Work plan now takes the highest chance and adds "+N more part(s) with a warning". Checks: tsc, eslint clean; Vitest 234 passed; Playwright workplan, axe, target-size and overflow specs 93 passed. Full CI run is the confirmation.
+
 ## 2026-11-16: redesign v2 stage 6, gate sweep (branch v2-sweep)
 Full sweep after the v2 stage pull requests #26 to #30 (all merged, required e2e green on each). Checks: tsc, eslint clean; Vitest 233 passed; pytest 414 passed; Playwright 300 passed, 5 skipped, 6 failed (keyboard.spec.ts:242, local-only, passes in CI). Screenshots in `docs/QA_REPORTS/redesign-v2-screenshots/` (synthetic bundle). Review of the screenshots fixed one cosmetic defect (a stray link on Alerts). Gate report: `docs/QA_REPORTS/redesign-v2-gate.md`. **Not done:** independent review (codex not installed), the five-second test and the 60-second timed check (need people), Machine page sensor tiles, Export job list.
 

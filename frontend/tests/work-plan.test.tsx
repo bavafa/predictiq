@@ -14,7 +14,8 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/maintenance-planner" })
 const row = (id: number, score: number): FleetRow => ({ rank: id, machine_id: id, model: "model1", age: 5, score, status: score >= 0.51 ? "alert" : "below_cutoff", latest_error: null });
 const plan = (exposure: Record<number, number>) =>
   ({ rows: Object.entries(exposure).map(([id, e]) => ({ machine_id: Number(id), expected_exposure: e })) }) as unknown as PlanResponse;
-const crow = (id: number, part: string, signal: "warning" | "wear", listing: string, exposure: number) => ({
+const crow = (id: number, part: string, signal: "warning" | "wear", listing: string, exposure: number, chance48 = 0.5) => ({
+  warning_chance_48h: chance48,
   machine_id: id,
   part,
   part_name: part === "comp3" ? "Seal / valve" : "Bearing",
@@ -45,6 +46,18 @@ describe("buildJobs", () => {
     const jobs = buildJobs({ ...base, fleetRows: [row(1, 0.9)], plan: plan({ 1: 5000 }), parts: parts([crow(1, "comp3", "warning", "shortlisted", 4000)]) });
     expect(jobs).toHaveLength(1);
     expect(jobs[0]!.title).toBe("Inspect: Seal / valve");
+  });
+
+  it("names the part with the highest 48 h warning chance and says when more parts have a warning, as Alerts does", () => {
+    // machine 1 has two active warnings; the lower-chance one comes first in the response and has the bigger exposure
+    const jobs = buildJobs({
+      ...base,
+      fleetRows: [row(1, 0.9)],
+      plan: plan({ 1: 5000 }),
+      parts: parts([crow(1, "comp2", "warning", "shortlisted", 9000, 0.95), crow(1, "comp3", "warning", "shortlisted", 4000, 0.977)]),
+    });
+    expect(jobs).toHaveLength(1);
+    expect(jobs[0]!.title).toBe("Inspect: Seal / valve, +1 more part with a warning");
   });
 
   it("leaves out a dismissed alert unless the visitor added it, and carries added machines as Added", () => {
