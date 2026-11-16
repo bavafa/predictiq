@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import AssetDetailsPage from "@/app/asset-details/page";
-import FleetOverviewPage from "@/app/page";
+import FleetOverviewPage from "@/app/assets/page";
 import { createApiClient } from "@/lib/api";
 import { fakeFetch, json, problem, readyMetadata, renderWithData, setAddress } from "./helpers";
 

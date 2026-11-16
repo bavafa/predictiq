@@ -104,7 +104,7 @@ for (const vp of VIEWPORTS) {
 
     test("Fleet Overview: filtered to nothing (empty state)", async ({ page }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
-      await page.goto("/?status=alert&cutoff=100");
+      await page.goto("/assets?status=alert&cutoff=100");
       await expect(page.getByTestId("empty-result")).toBeVisible();
       expect(await violations(page)).toEqual([]);
     });
@@ -165,7 +165,7 @@ for (const vp of VIEWPORTS) {
 
 test("axe: the open mobile Menu panel", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/assets");
   await page.getByRole("button", { name: "Menu", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Main menu" })).toBeVisible();
   expect(await violations(page)).toEqual([]);
@@ -175,8 +175,8 @@ test("axe: a panel that failed to load (Fleet Overview, desktop)", async ({ page
   await page.route("**/api/v1/fleet?**", (route) =>
     route.fulfill({ status: 500, contentType: "application/problem+json", body: JSON.stringify({ title: "boom", status: 500 }) }),
   );
-  await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Overview");
+  await page.goto("/assets");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assets");
   await expect(page.getByTestId("service-error").first()).toContainText("Couldn't load the fleet");
   expect(await violations(page)).toEqual([]);
 });

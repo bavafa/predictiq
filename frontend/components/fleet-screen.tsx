@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { CutoffControl } from "@/components/cutoff-control";
 import { useData } from "@/components/data-provider";
@@ -16,57 +16,6 @@ import { readableHour, parseHour } from "@/lib/time";
 import type { Fleet, FleetTrend, MachineModel, Range, Status } from "@/lib/types";
 import { MACHINE_MODELS, STATUSES, machineCount } from "@/lib/url-state";
 import { useApiQuery, useSettledSet } from "@/lib/use-api-query";
-
-const GUIDE_KEY = "predictiq-hide-guide";
-
-const guideListeners = new Set<() => void>();
-const subscribeGuide = (cb: () => void) => {
-  guideListeners.add(cb);
-  return () => void guideListeners.delete(cb);
-};
-const readGuideHidden = () => {
-  try {
-    return window.sessionStorage.getItem(GUIDE_KEY) === "1";
-  } catch {
-    return false; // storage not available: the guide simply shows
-  }
-};
-
-function Guide() {
-  const hidden = useSyncExternalStore(subscribeGuide, readGuideHidden, () => false);
-  if (hidden) return null;
-  return (
-    <section aria-labelledby="guide-title" data-testid="guide" className="rounded-lg border border-line bg-card p-4 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <h2 id="guide-title" className="m-0 text-lg leading-7 font-semibold">
-          New here? Three steps, about 90 seconds
-        </h2>
-        <Button
-          onClick={() => {
-            try {
-              window.sessionStorage.setItem(GUIDE_KEY, "1");
-            } catch {
-              /* ignore */
-            }
-            guideListeners.forEach((l) => l());
-          }}
-        >
-          Hide guide
-        </Button>
-      </div>
-      <ol className="mt-2 mb-0 list-decimal pl-5 text-sm leading-6">
-        <li>
-          Press <strong>Play</strong> to replay the simulated machine history hour by hour.
-        </li>
-        <li>Open the top machine in the table to see its sensors and what pushed its estimate up.</li>
-        <li>
-          Open <strong>Maintenance Planner</strong>, raise the failure cost of one machine model. That can change the order of the list,
-          marked &ldquo;moved up&rdquo; or &ldquo;moved down&rdquo;, and at some hours who is shortlisted.
-        </li>
-      </ol>
-    </section>
-  );
-}
 
 function Card({ label, children, note }: { label: string; children: React.ReactNode; note: React.ReactNode }) {
   return (
@@ -157,8 +106,6 @@ function FleetBody({ client, total, modelVersion }: { client: ReturnType<typeof 
 
   return (
     <div className="flex flex-col gap-4">
-      <Guide />
-
       <section aria-label="Alert cut-off and filters" className="rounded-lg border border-line bg-card p-4 sm:p-5">
         <CutoffControl
           onChanged={(c) => {

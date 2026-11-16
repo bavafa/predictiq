@@ -7,7 +7,7 @@ const play = (page: import("@playwright/test").Page) => page.getByRole("button",
 
 test("starts at the replay start from /metadata and says Historical replay, never live", async ({ page, request }) => {
   const w = await readWindow(request);
-  await page.goto("/");
+  await page.goto("/assets");
   await expect(page.getByTestId("replay-time")).toHaveAttribute("datetime", w.start);
   await expect(page.getByText("Simulated plant time").first()).toBeVisible();
   const text = (await page.locator("body").innerText()).toLowerCase();
@@ -18,7 +18,7 @@ test("starts at the replay start from /metadata and says Historical replay, neve
 test("step forward and back move by the step size and the time sits in the web address", async ({ page, request }) => {
   const w = await readWindow(request);
   const from = addHours(w.last, -100); // well inside the window for any bundle
-  await page.goto(`/?at=${from}`);
+  await page.goto(`/assets?at=${from}`);
   await expect(page.getByTestId("replay-time")).toHaveAttribute("datetime", from);
   await page.getByRole("button", { name: "Step forward" }).click();
   expect(await shownHour(page)).toBe(addHours(from, 1));
@@ -35,7 +35,7 @@ test("step forward and back move by the step size and the time sits in the web a
 test("play advances once per second and pause stops it", async ({ page, request }) => {
   const w = await readWindow(request);
   const from = addHours(w.last, -100);
-  await page.goto(`/?at=${from}`);
+  await page.goto(`/assets?at=${from}`);
   await play(page).click();
   await expect(page.getByRole("button", { name: "Pause" })).toBeFocused();
   await expect.poll(() => shownHour(page), { timeout: 5000 }).not.toBe(from);
@@ -47,7 +47,7 @@ test("play advances once per second and pause stops it", async ({ page, request 
 
 test("playback stops cleanly at the end: visible end state, nothing later, never wraps", async ({ page, request }) => {
   const w = await readWindow(request);
-  await page.goto(`/?at=${addHours(w.last, -2)}`);
+  await page.goto(`/assets?at=${addHours(w.last, -2)}`);
   await play(page).click();
   const end = page.getByTestId("end-state");
   await expect(end).toBeVisible({ timeout: 8000 });
@@ -71,7 +71,7 @@ test("playback stops cleanly at the end: visible end state, nothing later, never
 
 test("at the start, Start and Step back are unavailable with a visible reason", async ({ page, request }) => {
   const w = await readWindow(request);
-  await page.goto(`/?at=${w.first}`);
+  await page.goto(`/assets?at=${w.first}`);
   await expect(page.getByText("Start of the simulated data.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Start", exact: true })).toHaveAttribute("aria-disabled", "true");
   await page.getByRole("button", { name: "Step back" }).click({ force: true }); // does nothing
@@ -81,7 +81,7 @@ test("at the start, Start and Step back are unavailable with a visible reason", 
 test("works by keyboard: Space toggles Play, the timeline moves with keys, focus stays put", async ({ page, request }) => {
   const w = await readWindow(request);
   const from = addHours(w.last, -100);
-  await page.goto(`/?at=${from}`);
+  await page.goto(`/assets?at=${from}`);
   await play(page).focus();
   await page.keyboard.press("Space");
   await expect(page.getByRole("button", { name: "Pause" })).toBeFocused();
@@ -112,7 +112,7 @@ test("with reduced motion, replay still steps", async ({ page, request }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   const w = await readWindow(request);
   const from = addHours(w.last, -100);
-  await page.goto(`/?at=${from}`);
+  await page.goto(`/assets?at=${from}`);
   await play(page).click();
   await expect.poll(() => shownHour(page), { timeout: 5000 }).not.toBe(from);
 });
@@ -120,9 +120,9 @@ test("with reduced motion, replay still steps", async ({ page, request }) => {
 test("the replay time, cut-off and machine follow the reader to another page; a bad address is ignored", async ({ page, request }) => {
   const w = await readWindow(request);
   const at = addHours(w.last, -50);
-  await page.goto(`/?at=${at}&cutoff=30&machine=4&status=alert`);
-  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Asset page" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Asset page");
+  await page.goto(`/assets?at=${at}&cutoff=30&machine=4&status=alert`);
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Work plan" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Work plan");
   expect(await shownHour(page)).toBe(at);
   const url = new URL(page.url());
   expect(url.searchParams.get("at")).toBe(at);
@@ -130,7 +130,7 @@ test("the replay time, cut-off and machine follow the reader to another page; a 
   expect(url.searchParams.get("machine")).toBe("4");
   expect(url.searchParams.get("status")).toBeNull(); // filters stay on Fleet Overview
 
-  await page.goto("/?at=not-a-time&cutoff=500");
+  await page.goto("/assets?at=not-a-time&cutoff=500");
   expect(await shownHour(page)).toBe(w.start);
   await expect(page.getByRole("note").filter({ hasText: /simulated plant time in this link/ })).toBeVisible();
 });

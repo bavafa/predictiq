@@ -411,7 +411,7 @@ for (const vp of VIEWPORTS) {
 test("keyboard: Try again in the error state is reachable and works", async ({ page }) => {
   let fail = true;
   await page.route("**/api/v1/metadata*", (route) => (fail ? route.abort() : route.continue()));
-  await page.goto("/");
+  await page.goto("/assets");
   const error = page.getByTestId("service-error");
   await expect(error).toBeVisible();
   fail = false;

@@ -205,9 +205,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               {title}
             </h1>
             <DataLabelsSwitch />
+            <ReplayBar />
           </header>
-
-          <ReplayBar />
 
           <main ref={main} id="main" tabIndex={-1} className="flex max-w-[1440px] flex-col gap-4 p-3 sm:p-5">
             {children}
