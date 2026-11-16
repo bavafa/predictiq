@@ -165,6 +165,16 @@ describe("Work plan page", () => {
     expect(document.body.textContent?.toLowerCase()).not.toMatch(/\blive\b|real-time|right now|savings/);
   }, 15_000);
 
+  it("also lists every job as a card for phones, with the same status and actions", async () => {
+    renderWithData(<WorkPlanPage />, server({ 1: 0.9, 2: 0.8 }, { 1: 9000, 2: 5000 }));
+    const cards = await screen.findAllByTestId("job-card", {}, { timeout: 8000 });
+    expect(cards).toHaveLength(2);
+    expect(within(cards[0]!).getByTestId("job-card-status")).toHaveTextContent("Recommended");
+    expect(cards[0]).toHaveTextContent(/Cost at risk: 9,000/);
+    expect(within(cards[0]!).getByText("Illustrative")).toBeInTheDocument();
+    expect(within(cards[0]!).getByRole("button", { name: /Schedule/ })).toBeInTheDocument();
+  }, 15_000);
+
   it("says so when there are no jobs", async () => {
     renderWithData(<WorkPlanPage />, server({ 1: 0.1 }, {}));
     expect(await screen.findByTestId("no-jobs", {}, { timeout: 8000 })).toBeInTheDocument();

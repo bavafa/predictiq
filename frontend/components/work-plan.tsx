@@ -120,7 +120,7 @@ export function WorkPlan() {
     if (fleet.error.kind === "no-model-data") return <NoModelData />;
     // The job list needs the fleet; the detailed planners below do not, so they stay available.
     return (
-      <div className="flex max-w-[1120px] flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <ServiceError what="the job list" error={fleet.error as ApiError} onRetry={fleet.retry} />
         <Advanced />
       </div>
@@ -164,7 +164,7 @@ function Body({ fleet, plan, parts, ready, carried }: { fleet: Fleet; plan: Plan
     setStatus(key, "scheduled");
   };
   return (
-    <div className="flex max-w-[1120px] flex-col gap-4" data-testid="work-plan">
+    <div className="flex flex-col gap-4" data-testid="work-plan">
       <p className="m-0 max-w-3xl text-sm leading-6 text-ink-2">
         One list of jobs, costliest risk first. <strong>Act today</strong> jobs need a crew before the end of the shift. Wear-risk jobs can wait for the next shutdown
         window. Schedule a job to book a crew slot. Plan follows the simulated plant time.
@@ -211,7 +211,8 @@ function Body({ fleet, plan, parts, ready, carried }: { fleet: Fleet; plan: Plan
             </Link>
           </div>
         ) : (
-          <div className="mt-3 overflow-x-auto">
+          <>
+          <div className="relative mt-3 hidden overflow-x-auto lg:block">{/* relative: the screen-reader-only text in the buttons must not widen the page */}
             <table className="w-full border-collapse text-sm">
               <caption className="sr-only">Jobs, Act today first, then by cost at risk, with their status and actions.</caption>
               <thead>
@@ -232,7 +233,9 @@ function Body({ fleet, plan, parts, ready, carried }: { fleet: Fleet; plan: Plan
                   <tr key={j.key} className={cn("border-b border-line", j.label === "Done" && "text-ink-2")} data-testid="job-row" data-job-key={j.key}>
                     <td className="tabular px-3 py-2">{i + 1}</td>
                     <th scope="row" className="px-3 py-2 text-left font-normal">
-                      <Link href={assetHref(j.machineId)}>{machineName(j.machineId)}</Link>
+                      <Link href={assetHref(j.machineId)} className="inline-flex min-h-11 items-center">
+                        {machineName(j.machineId)}
+                      </Link>
                       <br />
                       <span className="text-xs text-ink-2">{j.title}</span>
                     </th>
@@ -246,35 +249,37 @@ function Body({ fleet, plan, parts, ready, carried }: { fleet: Fleet; plan: Plan
                       {j.label}
                     </td>
                     <td className="px-3 py-2">
-                      <div className="flex flex-wrap gap-2">
-                        {(j.label === "Recommended" || j.label === "Added") && (
-                          <Button onClick={() => schedule(j.key)}>
-                            Schedule<span className="sr-only">: {machineName(j.machineId)}, {j.title}</span>
-                          </Button>
-                        )}
-                        {j.label === "Scheduled" && (
-                          <>
-                            <Button variant="primary" onClick={() => setStatus(j.key, "done")}>
-                              Mark done<span className="sr-only">: {machineName(j.machineId)}, {j.title}</span>
-                            </Button>
-                            <Button onClick={() => setStatus(j.key, null)}>
-                              Unschedule<span className="sr-only">: {machineName(j.machineId)}, {j.title}</span>
-                            </Button>
-                          </>
-                        )}
-                        {j.label === "Done" && (
-                          <Button onClick={() => setStatus(j.key, null)}>
-                            Reopen<span className="sr-only">: {machineName(j.machineId)}, {j.title}</span>
-                          </Button>
-                        )}
-                        {j.removable && j.label !== "Done" && <Button onClick={() => remove(j.machineId)}>Remove<span className="sr-only">: {machineName(j.machineId)}</span></Button>}
-                      </div>
+                      <JobActions j={j} schedule={schedule} setStatus={setStatus} remove={remove} />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <ul className="m-0 mt-3 flex list-none flex-col gap-3 p-0 lg:hidden" data-testid="job-cards">
+            {list.map((j, i) => (
+              <li key={j.key} className={cn("flex flex-col gap-1 rounded-md border border-line p-3 text-sm", j.label === "Done" && "text-ink-2")} data-testid="job-card">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Link href={assetHref(j.machineId)} className="inline-flex min-h-11 items-center font-semibold">
+                    {i + 1}. {machineName(j.machineId)}
+                  </Link>
+                  <span className="font-semibold" data-testid="job-card-status">
+                    {j.label}
+                  </span>
+                </div>
+                <p className="m-0 text-ink-2">{j.title}</p>
+                <p className="m-0">
+                  {URGENCY_TEXT[j.urgency]}
+                  {j.urgency === "act" || j.urgency === "warning" ? <span className="sr-only">, predicted</span> : null} · {j.when}
+                </p>
+                <p className="m-0">
+                  Cost at risk: <span className="tabular">{j.cost === null ? "—" : money(j.cost)}</span> <ValueLabel kind="Illustrative" />
+                </p>
+                <JobActions j={j} schedule={schedule} setStatus={setStatus} remove={remove} />
+              </li>
+            ))}
+          </ul>
+          </>
         )}
         {full && (
           <p role="alert" className="mt-2 mb-0 text-sm text-alert-text" data-testid="slots-full">
@@ -289,6 +294,35 @@ function Body({ fleet, plan, parts, ready, carried }: { fleet: Fleet; plan: Plan
       </section>
 
       <Advanced />
+    </div>
+  );
+}
+
+function JobActions({
+  j,
+  schedule,
+  setStatus,
+  remove,
+}: {
+  j: Job;
+  schedule: (key: string) => void;
+  setStatus: (key: string, s: JobStatus | null) => void;
+  remove: (machine: number) => void;
+}) {
+  const who = <span className="sr-only">: {machineName(j.machineId)}, {j.title}</span>;
+  return (
+    <div className="flex flex-wrap gap-2">
+      {(j.label === "Recommended" || j.label === "Added") && <Button onClick={() => schedule(j.key)}>Schedule{who}</Button>}
+      {j.label === "Scheduled" && (
+        <>
+          <Button variant="primary" onClick={() => setStatus(j.key, "done")}>
+            Mark done{who}
+          </Button>
+          <Button onClick={() => setStatus(j.key, null)}>Unschedule{who}</Button>
+        </>
+      )}
+      {j.label === "Done" && <Button onClick={() => setStatus(j.key, null)}>Reopen{who}</Button>}
+      {j.removable && j.label !== "Done" && <Button onClick={() => remove(j.machineId)}>Remove{who}</Button>}
     </div>
   );
 }
