@@ -7,8 +7,8 @@ test.use({ storageState: { cookies: [], origins: [] } }); // a first-time visito
 
 test("header names the product, shows plant time and Advance 1 h; the full controls start closed", async ({ page, request }) => {
   const w = await readWindow(request);
-  await page.goto("/");
-  await expect(page.getByText("Predictive maintenance · Demo plant")).toBeVisible();
+  await page.goto("/alerts"); // Home has its own plant card and no header bar from 1024px
+  await expect(page.getByText("PredictIQ", { exact: true }).first()).toBeVisible();
   const time = page.getByTestId("replay-time");
   await expect(time).toHaveAttribute("datetime", w.start);
   await expect(page.getByRole("button", { name: "Play" })).toBeVisible(); // beside Advance 1 h

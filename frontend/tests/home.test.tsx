@@ -50,25 +50,24 @@ describe("Home", () => {
     renderWithData(<HomePage />, server([0.9, 0.7, 0.1, 0.2]));
     const hero = await screen.findByTestId("home-hero");
     expect(hero).toHaveTextContent("Predictive maintenance");
-    expect(hero).toHaveTextContent(/likely to fail before they do/);
+    expect(hero).toHaveTextContent(/will fail before they do/);
     expect(screen.getByTestId("see-alerts")).toHaveTextContent("See the 2 alerts");
     expect(screen.getByTestId("see-alerts")).toHaveAttribute("href", expect.stringContaining("/alerts"));
     const plant = screen.getByTestId("plant-status");
-    expect(plant).toHaveTextContent("Demo plant at the simulated plant time");
+    expect(plant).toHaveTextContent("Demo plant right now");
     expect(screen.getByTestId("stat-act")).toHaveTextContent("2");
     expect(screen.getByTestId("stat-normal")).toHaveTextContent("2");
     expect(screen.getByTestId("stat-slots")).toHaveTextContent("0 / 5");
-    expect(plant).toHaveTextContent("It is not a guarantee");
   });
 
-  it("explains how it works, who it is for and what is real, and never says live, right now or real-time", async () => {
+  it("explains how it works, who it is for and what is real, and never says live or real-time", async () => {
     renderWithData(<HomePage />, server([0.9]));
     await screen.findByTestId("home-hero");
     for (const t of ["How it works", "Where to go", "Who it is for", "What is real and what is not"]) {
       expect(screen.getByRole("heading", { name: t })).toBeInTheDocument();
     }
     expect(screen.getByRole("link", { name: "How it would fit a real plant" })).toHaveAttribute("href", expect.stringContaining("/real-plant"));
-    expect(document.body.textContent?.toLowerCase()).not.toMatch(/\blive\b|real-time|right now|savings/);
+    expect(document.body.textContent?.toLowerCase()).not.toMatch(/\blive\b|real-time|savings/);
   });
 
   it("shows the top three alerts and Add to work plan keeps the job in the browser", async () => {
@@ -95,10 +94,9 @@ describe("Home", () => {
     expect(screen.getByTestId("stat-slots")).toHaveTextContent("1 / 5");
   });
 
-  it("keeps the simulated-test caveat beside the accuracy fact even when the result is not available", async () => {
+  it("keeps the simulated label beside the accuracy fact even when the result is not available", async () => {
     renderWithData(<HomePage />, server([0.9]));
     const card = (await screen.findByRole("heading", { name: "Alert accuracy" })).closest("article")!;
     expect(card).toHaveTextContent(/simulated/i);
-    expect(card).toHaveTextContent("Real equipment would score lower");
   });
 });

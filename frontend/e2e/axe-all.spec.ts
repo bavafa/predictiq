@@ -143,7 +143,7 @@ for (const vp of VIEWPORTS) {
           await route.continue();
         });
         await page.goto(def.path);
-        await expect(page.getByTestId("skeleton").first()).toBeVisible();
+        await expect(page.getByTestId("skeleton").locator("visible=true").first()).toBeVisible();
         expect(await violations(page)).toEqual([]);
         await expect(page.getByTestId("waking-up")).toBeVisible({ timeout: 8000 }); // after 3 s without an answer
         expect(await violations(page)).toEqual([]);

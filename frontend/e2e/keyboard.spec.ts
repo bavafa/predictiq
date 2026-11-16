@@ -97,7 +97,7 @@ for (const vp of VIEWPORTS) {
         // No positive tabindex anywhere: the order is the reading order.
         expect(await page.locator('[tabindex]:not([tabindex="0"]):not([tabindex="-1"])').count()).toBe(0);
 
-        if (def.name !== "Alert accuracy" && def.name !== "About this demo" && def.name !== "In a real plant") {
+        if ((def.name !== "Home" || vp.name === "mobile") && def.name !== "Alert accuracy" && def.name !== "About this demo" && def.name !== "In a real plant") {
           // Time controls panel: Start, Step back, Step forward, Step size, then the timeline (Play sits beside Advance 1 h) (ux-spec, Accessibility).
           expectInOrder(names, ["Start", "Step back", "Step forward", "Step size", "Simulated plant time"]);
         }
@@ -261,10 +261,11 @@ for (const vp of VIEWPORTS) {
       await page.keyboard.press("Enter");
       expect(await shownHour(page)).toBe(addHours(from, 1));
 
-      // Step size: a native select, changed with the arrow key; the next step uses it.
+      // Step size: a native select, changed from the keyboard; the next step uses it.
       const size = page.getByLabel("Step size");
       await size.focus();
-      await page.keyboard.press("ArrowDown");
+      // Typing the first letters of an option picks it (the same on every platform; a lone arrow key only opens the list on macOS).
+      await page.keyboard.type("6");
       const stepHours = Number(await size.inputValue());
       expect(stepHours).toBeGreaterThan(1);
       await forward.focus();

@@ -3,7 +3,7 @@ import { expect, type Page } from "@playwright/test";
 // Shared by the Stage 5 accessibility specs (target size, keyboard, axe, notice): the five pages, how to tell
 // each one has finished loading, and the two viewports the specs use.
 
-export const DISCLOSURE = "Portfolio demo — simulated historical sample data; estimated economics are illustrative.";
+export const DISCLOSURE = "PredictIQ is a portfolio demo. All data is simulated and costs are illustrative.";
 
 export const VIEWPORTS = [
   { name: "desktop", width: 1280, height: 800 },
@@ -74,7 +74,7 @@ export const PAGES: PageDef[] = [
   {
     name: "Home",
     path: "/",
-    heading: "Home",
+    heading: "Know which machines will fail before they do, and plan the work to stop it.",
     ready: async (page) => {
       await expect(page.getByTestId("home-hero")).toBeVisible();
       await expect(page.getByTestId("stat-act")).toBeVisible();
