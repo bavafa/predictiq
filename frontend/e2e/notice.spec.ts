@@ -9,7 +9,7 @@ import { DISCLOSURE, PAGES, VIEWPORTS, openPage } from "./page-support";
 async function expectNotice(page: Page, viewportHeight: number) {
   const notice = page.getByRole("note").filter({ hasText: DISCLOSURE }).first();
   await expect(notice).toBeVisible();
-  await expect(notice).toHaveText(new RegExp(`^ⓘ\\s*${DISCLOSURE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
+  await expect(notice).toHaveText(new RegExp(`^\\s*${DISCLOSURE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
   // on screen without scrolling, and nothing in it can dismiss it
   const box = await notice.boundingBox();
   expect(box).not.toBeNull();
