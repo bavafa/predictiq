@@ -26,11 +26,11 @@ beforeEach(() => {
 afterEach(() => window.history.replaceState(null, "", "/"));
 
 describe("AppShell", () => {
-  it("shows the disclosure banner and the Historical replay badge, with no replay controls when there is no model data", async () => {
+  it("shows the disclosure banner and the Simulated plant time label, with no time controls when there is no model data", async () => {
     renderShell();
     expect(screen.getByRole("note")).toHaveTextContent(DISCLOSURE);
-    expect(screen.getByText("Historical replay")).toBeInTheDocument();
-    await screen.findByText(/no replay controls/);
+    expect(screen.getAllByText("Simulated plant time").length).toBeGreaterThan(0);
+    await screen.findByText(/no time controls/);
     expect(screen.queryByRole("slider")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /play|step|start/i })).not.toBeInTheDocument();
   });
@@ -39,8 +39,8 @@ describe("AppShell", () => {
     window.history.replaceState(null, "", "/?at=2015-11-02T00:00&cutoff=30&status=alert");
     service = fakeFetch(readyMetadata());
     renderShell();
-    await screen.findByRole("button", { name: "Play" }, { timeout: 10_000 });
-    expect(screen.getByRole("link", { name: "Asset Details" })).toHaveAttribute(
+    await screen.findByRole("button", { name: "Advance 1 h" }, { timeout: 10_000 });
+    expect(screen.getByRole("link", { name: "Asset page" })).toHaveAttribute(
       "href",
       "/asset-details?at=2015-11-02T00%3A00&cutoff=30",
     );
@@ -52,15 +52,15 @@ describe("AppShell", () => {
     const nav = screen.getByRole("navigation", { name: "Main" });
     const links = Array.from(nav.querySelectorAll("a")).map((a) => a.textContent);
     expect(links).toEqual([
-      "Fleet Overview",
-      "Asset Details",
-      "Maintenance Planner",
-      "Model Performance",
-      "In a Real Plant",
-      "About & Data",
+      "Overview",
+      "Asset page",
+      "Work plan",
+      "Alert accuracy",
+      "In a real plant",
+      "About this demo",
     ]);
-    expect(screen.getByRole("link", { name: "Model Performance" })).toHaveAttribute("aria-current", "page");
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Model Performance");
+    expect(screen.getByRole("link", { name: "Alert accuracy" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Alert accuracy");
   });
 
   it("shows 'none yet' when metadata reports no model", async () => {
@@ -103,7 +103,7 @@ describe("AppShell", () => {
     const user = userEvent.setup();
     renderShell();
     await user.click(screen.getByRole("button", { name: /^Menu$/ }));
-    const link = screen.getByRole("link", { name: "Asset Details" });
+    const link = screen.getByRole("link", { name: "Asset page" });
     link.addEventListener("click", (e) => e.preventDefault());
     await user.click(link);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

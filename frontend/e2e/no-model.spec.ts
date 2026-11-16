@@ -27,7 +27,7 @@ for (const route of SCREENS) {
     await expect(page.getByRole("slider")).toHaveCount(0);
     await expect(page.getByTestId("replay-time")).toHaveText("—");
     await expect(page.getByTestId("model-version")).toHaveText("none yet");
-    await expect(page.getByText("Historical replay").first()).toBeVisible();
+    await expect(page.getByText("Simulated plant time").first()).toBeVisible();
     const violations = (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze()).violations;
     expect(violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
   });
@@ -63,7 +63,7 @@ test("mobile: every control in the no-model state is at least 44x44 (docs/ux-spe
 test("the link to About & Data from the state works", async ({ page }) => {
   await page.goto("/");
   await page.getByTestId("no-model-data").getByRole("link", { name: /About & Data/ }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About & Data");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About this demo");
 });
 
 test("mobile: the state fits without sideways scrolling", async ({ page }) => {

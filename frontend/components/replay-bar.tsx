@@ -1,6 +1,6 @@
 "use client";
 
-import { Pause, Play, SkipBack, StepBack, StepForward } from "lucide-react";
+import { ChevronDown, FastForward, Pause, Play, SkipBack, StepBack, StepForward } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { REPLAY_PAGES } from "@/lib/nav";
 import { START_LINE, START_LINE_FALLBACK, STEP_SIZES, isStepSize } from "@/lib/replay";
+import { useStoredFlag } from "@/lib/stored-flag";
 import { readableHour, shortHour } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +46,7 @@ function Timeline({ replay, describedBy }: { replay: Replay; describedBy?: strin
   return (
     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 sm:flex-nowrap">
       <label htmlFor={id} className="text-sm font-semibold">
-        Replay time
+        Simulated plant time
       </label>
       <span className="text-xs text-ink-2">First hour {shortHour(first)}</span>
       <input
@@ -153,6 +154,7 @@ function Controls({ replay }: { replay: Replay }) {
 
 export function ReplayBar() {
   const { meta, view, replay } = useData();
+  const [panelOpen, setPanelOpen] = useStoredFlag("piq-time-panel");
   const pathname = usePathname();
   const interactive = REPLAY_PAGES.includes(pathname);
 
@@ -162,7 +164,7 @@ export function ReplayBar() {
         {readableHour(replay.hour)}
       </time>
     ) : meta.status === "loading" ? (
-      <Skeleton className="h-6 w-56" label="Loading the replay time" />
+      <Skeleton className="h-6 w-56" label="Loading the simulated plant time" />
     ) : (
       <span data-testid="replay-time" className="text-base font-bold">
         —
@@ -174,28 +176,49 @@ export function ReplayBar() {
     meta.status === "ready" && meta.meta.replay_start_branch === "no_alert_first_test_hour" ? START_LINE_FALLBACK : START_LINE;
 
   return (
-    <section aria-label="Historical replay controls" className="border-b border-line bg-card px-3 py-3 sm:px-5">
+    <section aria-label="Simulated plant time" className="border-b border-line bg-card px-3 py-3 sm:px-5">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <div className="flex flex-col">
-          <span className="text-xs font-semibold text-ink-2">Replay time shown</span>
+          <span className="text-xs font-semibold text-ink-2">Simulated plant time</span>
           {time}
         </div>
         {ready && interactive && (
           <>
-            <Controls replay={replay} />
-            <Timeline replay={replay} describedBy={replay.atStart ? "start-note" : replay.atEnd ? "end-note" : undefined} />
+            <Button
+              variant="primary"
+              aria-disabled={replay.atEnd}
+              aria-describedby={replay.atEnd ? "end-note" : undefined}
+              className={unavailable}
+              onClick={unlessUnavailable(!replay.atEnd, () => replay.goTo(replay.hour + 1))}
+            >
+              <FastForward aria-hidden="true" size={16} /> Advance 1 h
+            </Button>
+            <Button
+              variant="outline"
+              aria-expanded={panelOpen}
+              aria-controls="time-controls"
+              onClick={() => setPanelOpen(!panelOpen)}
+            >
+              Time controls <ChevronDown aria-hidden="true" size={16} className={cn(panelOpen && "rotate-180")} />
+            </Button>
           </>
         )}
         {!ready && meta.status === "no-model" && (
           <span className="text-sm text-ink-2">
-            There are no replay controls because the model data isn&rsquo;t installed in this preview.
+            There are no time controls because the model data isn&rsquo;t installed in this preview.
           </span>
         )}
       </div>
 
-      {ready && interactive && replay.atStart && (
+      {ready && interactive && panelOpen && (
+        <div id="time-controls" className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-3">
+          <Controls replay={replay} />
+          <Timeline replay={replay} describedBy={replay.atStart ? "start-note" : replay.atEnd ? "end-note" : undefined} />
+        </div>
+      )}
+      {ready && interactive && panelOpen && replay.atStart && (
         <p id="start-note" className="m-0 mt-2 text-sm text-ink-2">
-          Start of the replay window.
+          Start of the simulated data.
         </p>
       )}
       {ready && interactive && replay.atEnd && (
@@ -205,12 +228,12 @@ export function ReplayBar() {
           className={cn("mt-2 flex flex-wrap items-center gap-3 rounded-md border border-l-4 border-input-edge bg-subtle px-3 py-2 text-sm")}
         >
           <span>
-            <strong>End of the replay window.</strong> There is no later data.
+            <strong>End of the simulated data.</strong> There is no later data.
           </span>
           <Button onClick={replay.toStart}>Jump to start</Button>
         </div>
       )}
-      {ready && interactive && <p className="m-0 mt-2 text-xs leading-4 text-ink-2">{startLine}</p>}
+      {ready && interactive && panelOpen && <p className="m-0 mt-2 text-xs leading-4 text-ink-2">{startLine}</p>}
       {ready &&
         view?.issues.map((issue) => (
           <p key={issue} role="note" className="m-0 mt-2 text-xs leading-4 text-alert-text">

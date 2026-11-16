@@ -149,7 +149,7 @@ test("a machine row opens Asset Details at the same replay time and cut-off", as
   const first = page.getByTestId("fleet-row").first();
   const machine = (await first.getAttribute("data-machine"))!;
   await first.getByRole("link", { name: machineName(machine) }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Asset Details");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Asset page");
   const url = new URL(page.url());
   expect(url.pathname).toBe("/asset-details");
   expect(url.searchParams.get("machine")).toBe(machine);
@@ -253,7 +253,7 @@ test("replay at the start and at the end still show the fleet for that hour", as
   const w = await readWindow(request);
   await page.goto(`/?at=${w.first}`);
   await loaded(page);
-  await expect(page.getByText("Start of the replay window.")).toBeVisible();
+  await expect(page.getByText("Start of the simulated data.")).toBeVisible();
   expect(await num(page, "card-alert")).toBe((await fleetApi(request, w.first, w.cutoff)).cards.machines_in_alert);
   await page.goto(`/?at=${w.last}`);
   await loaded(page);

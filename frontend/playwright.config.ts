@@ -24,7 +24,16 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
-  use: { baseURL: `http://127.0.0.1:${port}`, trace: "retain-on-failure" },
+  use: {
+    baseURL: `http://127.0.0.1:${port}`,
+    trace: "retain-on-failure",
+    // The "Time controls" panel starts closed for a new visitor; the tests start with it open (the
+    // default-closed path has its own test in shell.spec.ts, which clears this).
+    storageState: {
+      cookies: [],
+      origins: [{ origin: `http://127.0.0.1:${port}`, localStorage: [{ name: "piq-time-panel", value: "on" }] }],
+    },
+  },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], launchOptions: { executablePath } } }],
   webServer: [
     {

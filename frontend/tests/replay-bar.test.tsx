@@ -15,7 +15,9 @@ async function ready(path = "/") {
   mockPath = path;
   renderWithData(<ReplayBar />, fakeFetch(readyMetadata()));
   // Generous timeout so a loaded machine (full parallel run) cannot time out before /metadata settles.
-  await screen.findByRole("button", { name: "Play" }, { timeout: 10_000 });
+  // The full controls sit in the "Time controls" panel (redesign decision 82); open it first.
+  fireEvent.click(await screen.findByRole("button", { name: /Time controls/ }, { timeout: 10_000 }));
+  await screen.findByRole("button", { name: "Play" });
   await waitFor(() => expect(screen.getByTestId("replay-time").textContent).toBeTruthy());
 }
 
@@ -25,27 +27,30 @@ function useFakeInterval() {
   vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
 }
 
-beforeEach(() => setAddress(""));
+beforeEach(() => {
+  localStorage.clear(); // the Time controls panel remembers it is open
+  setAddress("");
+});
 afterEach(() => {
   vi.useRealTimers();
   setAddress("");
 });
 
 describe("replay bar", () => {
-  it("starts at the replay start from /metadata, says Historical replay and never 'live'", async () => {
+  it("starts at the replay start from /metadata, says Simulated plant time and never 'live'", async () => {
     await ready();
     expect(time()).toBe("1 November 2015, 06:00");
-    expect(screen.getByRole("region", { name: /Historical replay controls/ })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /Simulated plant time/ })).toBeInTheDocument();
     expect(document.body.textContent?.toLowerCase()).not.toMatch(/\blive\b|real-time/);
     expect(screen.getByText(/Replay starts at the first test-period hour where any machine is at or above/)).toBeInTheDocument();
   });
 
-  it("has the tab order Start, Step back, Play, Step forward, Step size, timeline", async () => {
+  it("has the tab order Advance 1 h, Time controls, then Start, Step back, Play, Step forward, Step size, timeline", async () => {
     await ready();
     const order = Array.from(
       document.querySelectorAll<HTMLElement>("button, select, input"),
     ).map((el) => (el.tagName === "BUTTON" ? el.textContent?.trim() : (el.getAttribute("type") ?? el.tagName.toLowerCase())));
-    expect(order.slice(0, 6)).toEqual(["Start", "Step back", "Play", "Step forward", "select", "range"]);
+    expect(order.slice(0, 8)).toEqual(["Advance 1 h", "Time controls", "Start", "Step back", "Play", "Step forward", "select", "range"]);
   });
 
   it("steps by the chosen size, keeps the time in the web address, and Start goes to the window's first hour", async () => {
@@ -65,7 +70,7 @@ describe("replay bar", () => {
   it("at the start: Start and Step back are unavailable but stay focusable, with a visible reason", async () => {
     setAddress("?at=2015-11-01T00:00");
     await ready();
-    expect(screen.getByText("Start of the replay window.")).toBeVisible();
+    expect(screen.getByText("Start of the simulated data.")).toBeVisible();
     for (const name of ["Start", "Step back"]) {
       const b = button(name);
       expect(b).toHaveAttribute("aria-disabled", "true");
@@ -110,7 +115,7 @@ describe("replay bar", () => {
     await act(async () => {
       vi.advanceTimersByTime(1000);
     });
-    expect(announcer).toHaveTextContent("Replay time 1 November 2015, 12:00");
+    expect(announcer).toHaveTextContent("Simulated plant time 1 November 2015, 12:00");
   });
 
   it("stops cleanly at the end: end state shown, Play and Step forward unavailable, never wraps, Jump to start works", async () => {
@@ -122,8 +127,8 @@ describe("replay bar", () => {
       vi.advanceTimersByTime(10_000); // would be far past the end if it wrapped or kept going
     });
     expect(time()).toBe("3 November 2015, 00:00");
-    expect(screen.getByTestId("end-state")).toHaveTextContent("End of the replay window. There is no later data.");
-    expect(screen.getByTestId("replay-announcer")).toHaveTextContent("End of the replay window. There is no later data.");
+    expect(screen.getByTestId("end-state")).toHaveTextContent("End of the simulated data. There is no later data.");
+    expect(screen.getByTestId("replay-announcer")).toHaveTextContent("End of the simulated data. There is no later data.");
     expect(button("Play")).toHaveAttribute("aria-disabled", "true");
     expect(button("Step forward")).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(button("Step forward"));
@@ -152,7 +157,7 @@ describe("replay bar", () => {
 
   it("the timeline is a native range with first and last hour, spoken time, and keys apply at once", async () => {
     await ready();
-    const slider = screen.getByLabelText("Replay time");
+    const slider = screen.getByRole("slider", { name: "Simulated plant time" });
     expect(slider).toHaveAttribute("type", "range");
     expect(slider).toHaveAttribute("min", "0");
     expect(slider).toHaveAttribute("max", "48");
@@ -172,7 +177,7 @@ describe("replay bar", () => {
 
   it("dragging applies on release, not on every move", async () => {
     await ready();
-    const slider = screen.getByLabelText("Replay time");
+    const slider = screen.getByRole("slider", { name: "Simulated plant time" });
     fireEvent.pointerDown(slider);
     fireEvent.change(slider, { target: { value: "30" } });
     expect(time()).toBe("1 November 2015, 06:00");
@@ -190,7 +195,7 @@ describe("replay bar", () => {
     setAddress("?at=2099-01-01T00:00");
     await ready();
     expect(time()).toBe("1 November 2015, 06:00");
-    expect(screen.getByRole("note")).toHaveTextContent(/isn.t an hour inside the replay window/);
+    expect(screen.getByRole("note")).toHaveTextContent(/isn.t an hour inside the simulated data/);
   });
 
   it("shows the time read-only, without controls, on pages that don't change with it", async () => {

@@ -21,7 +21,7 @@ for (const def of PAGES) {
 }
 
 test("target size: charts shown as tables keep every control at least 44x44 (mobile)", async ({ page }) => {
-  for (const def of PAGES.filter((p) => ["Fleet Overview", "Asset Details", "Model Performance"].includes(p.name))) {
+  for (const def of PAGES.filter((p) => ["Overview", "Asset page", "Alert accuracy"].includes(p.name))) {
     await openPage(page, def, 390, 844);
     const n = await page.getByRole("button", { name: "View as table" }).count();
     expect(n).toBeGreaterThan(0);

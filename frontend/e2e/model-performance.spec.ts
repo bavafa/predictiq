@@ -21,7 +21,7 @@ test("the table equals the saved evaluation at the default cut-off, and header f
   const w = await readWindow(request);
   await page.goto("/model-performance");
   await loaded(page);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Model Performance");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Alert accuracy");
   await expect(page.getByRole("heading", { level: 2, name: "Main model vs simple baseline" })).toBeVisible();
   await expectTableMatches(page, saved, w.cutoff);
   await expect(page.getByTestId("fact-version")).toHaveText(saved.metrics.model_version);

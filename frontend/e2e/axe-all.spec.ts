@@ -97,7 +97,7 @@ for (const vp of VIEWPORTS) {
         const n = await buttons.count();
         expect(n).toBeGreaterThan(0);
         for (let i = 0; i < n; i++) await buttons.nth(i).click();
-        await expect(page.locator('button[aria-expanded="true"]')).toHaveCount(n);
+        await expect(page.locator('button[aria-expanded="true"]:not([aria-controls="time-controls"])')).toHaveCount(n);
         expect(await violations(page)).toEqual([]);
       });
     }
@@ -133,7 +133,7 @@ for (const vp of VIEWPORTS) {
 
     // About & Data and In a Real Plant are static pages: they read nothing from the data service, so they have no
     // loading, waking-up or error state to check.
-    for (const def of PAGES.filter((p) => p.name !== "About & Data" && p.name !== "In a Real Plant")) {
+    for (const def of PAGES.filter((p) => p.name !== "About this demo" && p.name !== "In a real plant")) {
       test(`${def.name}: loading state and "waking up" state`, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
         let release: () => void = () => {};
@@ -176,7 +176,7 @@ test("axe: a panel that failed to load (Fleet Overview, desktop)", async ({ page
     route.fulfill({ status: 500, contentType: "application/problem+json", body: JSON.stringify({ title: "boom", status: 500 }) }),
   );
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Fleet Overview");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Overview");
   await expect(page.getByTestId("service-error").first()).toContainText("Couldn't load the fleet");
   expect(await violations(page)).toEqual([]);
 });

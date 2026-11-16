@@ -151,7 +151,7 @@ test("a machine outside 1 to 100 shows the not-found state with a selector and a
   await loaded(page);
   await page.goto("/asset-details?machine=250");
   await page.getByRole("link", { name: /Back to fleet/ }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Fleet Overview");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Overview");
 });
 
 test("when the sensor history fails, only that panel shows an error and Try again fixes it", async ({ page, request }) => {
@@ -176,12 +176,12 @@ test("replay control on this screen: 'Historical replay' wording, clean stop at 
   const w = await readWindow(request);
   await page.goto(`/asset-details?machine=4&at=${addHours(w.last, -2)}`);
   await loaded(page);
-  await expect(page.getByText("Historical replay").first()).toBeVisible();
+  await expect(page.getByText("Simulated plant time").first()).toBeVisible();
   expect((await page.locator("body").innerText()).toLowerCase()).not.toMatch(/\blive\b|real-time/);
   await play(page).click();
   const end = page.getByTestId("end-state");
   await expect(end).toBeVisible({ timeout: 8000 });
-  await expect(end).toContainText("End of the replay window. There is no later data.");
+  await expect(end).toContainText("End of the simulated data. There is no later data.");
   await page.waitForTimeout(2200); // would wrap or move on if it did not stop
   expect(await shownHour(page)).toBe(w.last);
   await expect(page.getByRole("button", { name: "Play" })).toHaveAttribute("aria-disabled", "true");
@@ -194,7 +194,7 @@ test("replay control on this screen: 'Historical replay' wording, clean stop at 
   }
   await page.getByRole("button", { name: "Jump to start" }).click();
   expect(await shownHour(page)).toBe(w.first);
-  await expect(page.getByText("Start of the replay window.")).toBeVisible();
+  await expect(page.getByText("Start of the simulated data.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Step back" })).toHaveAttribute("aria-disabled", "true");
   await expect(page.getByRole("button", { name: "Start", exact: true })).toHaveAttribute("aria-disabled", "true");
   await expect(page.getByTestId("asset-score")).toHaveText(pct((await assetApi(request, 4, w.first, w.cutoff)).score));

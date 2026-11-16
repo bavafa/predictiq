@@ -97,9 +97,9 @@ for (const vp of VIEWPORTS) {
         // No positive tabindex anywhere: the order is the reading order.
         expect(await page.locator('[tabindex]:not([tabindex="0"]):not([tabindex="-1"])').count()).toBe(0);
 
-        if (def.name !== "Model Performance" && def.name !== "About & Data" && def.name !== "In a Real Plant") {
+        if (def.name !== "Alert accuracy" && def.name !== "About this demo" && def.name !== "In a real plant") {
           // Replay controls: Start, Step back, Play, Step forward, Step size, then the timeline (ux-spec, Accessibility).
-          expectInOrder(names, ["Start", "Step back", "Play", "Step forward", "Step size", "Replay time"]);
+          expectInOrder(names, ["Start", "Step back", "Play", "Step forward", "Step size", "Simulated plant time"]);
         }
       });
     }
@@ -159,9 +159,9 @@ test.describe("keyboard: the Menu panel (mobile)", () => {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.getByRole("button", { name: "Menu", exact: true }).focus();
     await page.keyboard.press("Enter");
-    await tabTo(page, "Model Performance");
+    await tabTo(page, "Alert accuracy");
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Model Performance");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Alert accuracy");
     await expect(page.getByRole("dialog", { name: "Main menu" })).toBeHidden();
     await expect(page.locator("#main")).toBeFocused();
   });
@@ -284,7 +284,7 @@ for (const vp of VIEWPORTS) {
       expect(await shownHour(page)).toBe(paused);
 
       // The timeline: arrow keys move 1 hour, Page keys 10, Home and End go to the ends.
-      const line = page.getByRole("slider", { name: "Replay time" });
+      const line = page.getByRole("slider", { name: "Simulated plant time" });
       await line.focus();
       await page.keyboard.press("Home");
       await expect.poll(() => shownHour(page)).toBe(w.first);
