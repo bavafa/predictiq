@@ -1,6 +1,6 @@
 # Spec: redesign v2 (second round of mock-ups)
 
-_Proposed 15 Nov 2026. Decisions 83 to 86 are answered by the owner; the rest of this spec is not approved until the owner says so. Nothing here is built. All data stays simulated; money figures stay illustrative. Mock-ups: "PredictIQ redesign mock-ups" canvas (frames 1 Home, 1b Home on a phone, 2 Alerts, 3 Machine page, 4 Work plan; the three v1 frames are superseded). Placeholders in the mock-ups are not results._
+_Approved by the owner 15 Nov 2026, with decisions 83 to 89._ All data stays simulated; money figures stay illustrative. Mock-ups: "PredictIQ redesign mock-ups" canvas (frames 1 Home, 1b Home on a phone, 2 Alerts, 3 Machine page, 4 Work plan; the three v1 frames are superseded). Placeholders in the mock-ups are not results._
 
 Builds on `docs/specs/redesign-maintenance-tool.md` (v1, decision 82, stages 1 to 6 merged as #19 to #24). Where this spec is silent, v1 and the existing rules stand.
 
@@ -27,7 +27,7 @@ Pages that stay as they are: Assets (ranked table and filters), Alert accuracy e
 85. **Likely part and "What to check first" only when a 48-hour warning exists.** Otherwise the alert shows the machine-level reason only. Parts without a warning appear on the Machine page with their wear estimate labelled as a weak estimate (decision 79).
 86. **Spec first, then stacked stages.** Same rules as v1: one pull request per stage, owner merges, gate report at the end.
 
-## Proposed decisions for the owner (not yet answered)
+## Decisions 87 to 89 (approved by the owner, 15 Nov 2026)
 - **87. "Cost at risk" replaces "expected exposure" in the interface.** Same number and same formula, labelled "(example cost)" or Illustrative; "savings" stays banned. Default: yes.
 - **88. Alerts are ranked by cost at risk, not by chance.** The page says why the order can differ from chance order (as the mock-up does for Exhaust fan 15). Default: yes, same rule as the planner today.
 - **89. Job state moves to one list.** Recommended jobs are computed from the model; Scheduled and Done are saved in the browser only; "Reset demo" stays. Saved v1 job state (machines added) is carried over as Recommended jobs for those machines. Default: yes.

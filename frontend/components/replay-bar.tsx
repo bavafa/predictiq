@@ -94,7 +94,7 @@ function Timeline({ replay, describedBy }: { replay: Replay; describedBy?: strin
 }
 
 function Controls({ replay }: { replay: Replay }) {
-  const { atStart, atEnd, playing } = replay;
+  const { atStart, atEnd } = replay;
   return (
     <div className="flex flex-wrap items-center gap-2">
         <Button
@@ -112,16 +112,6 @@ function Controls({ replay }: { replay: Replay }) {
           onClick={unlessUnavailable(!atStart, replay.stepBack)}
         >
           <StepBack aria-hidden="true" size={16} /> Step back
-        </Button>
-        <Button
-          variant="primary"
-          aria-disabled={atEnd && !playing}
-          aria-describedby={atEnd ? "end-note" : undefined}
-          className={unavailable}
-          onClick={unlessUnavailable(!atEnd || playing, replay.toggle)}
-        >
-          {playing ? <Pause aria-hidden="true" size={16} /> : <Play aria-hidden="true" size={16} />}
-          {playing ? "Pause" : "Play"}
         </Button>
         <Button
           aria-disabled={atEnd}
@@ -192,6 +182,15 @@ export function ReplayBar() {
               onClick={unlessUnavailable(!replay.atEnd, () => replay.goTo(replay.hour + 1))}
             >
               <FastForward aria-hidden="true" size={16} /> Advance 1 h
+            </Button>
+            <Button
+              aria-disabled={replay.atEnd && !replay.playing}
+              aria-describedby={replay.atEnd ? "end-note" : undefined}
+              className={unavailable}
+              onClick={unlessUnavailable(!replay.atEnd || replay.playing, replay.toggle)}
+            >
+              {replay.playing ? <Pause aria-hidden="true" size={16} /> : <Play aria-hidden="true" size={16} />}
+              {replay.playing ? "Pause" : "Play"}
             </Button>
             <Button
               variant="outline"

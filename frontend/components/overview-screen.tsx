@@ -42,7 +42,7 @@ export function headline(alerts: number): string {
   return `${alerts} ${alerts === 1 ? "asset has" : "assets have"} a high chance of failing in the next 24 hours`;
 }
 
-export function OverviewScreen() {
+export function OverviewScreen({ only }: { only?: "alerts" }) {
   const { client, meta, view, search } = useData();
   const ready = meta.status === "ready" ? meta.meta : null;
   const at = view?.at;
@@ -68,10 +68,10 @@ export function OverviewScreen() {
       </div>
     );
   }
-  return <Body fleet={fleet.data} carried={carriedSearch(search)} />;
+  return <Body fleet={fleet.data} carried={carriedSearch(search)} only={only} />;
 }
 
-function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
+function Body({ fleet, carried, only }: { fleet: Fleet; carried: string; only?: "alerts" }) {
   const alerts = fleet.rows.filter((r) => r.status === "alert");
   const { jobs, dismissed, add } = useJobs();
   const open = alerts.filter((r) => !dismissed.includes(r.machine_id));
@@ -90,7 +90,8 @@ function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
           {headline(alerts.length)}
         </h2>
         <p className="m-0 text-base text-ink-2">
-          {total - alerts.length} {total - alerts.length === 1 ? "asset is" : "assets are"} below the alert cut-off ({fleet.cutoff_percent}%).
+          {total - alerts.length} {total - alerts.length === 1 ? "asset is" : "assets are"} Normal, below the Act today level of {fleet.cutoff_percent}%. Normal is
+          not a guarantee.
           {open.length > 0 && " Add a job to the work plan to get it scheduled."}
           {alerts.length > open.length && ` ${alerts.length - open.length} dismissed.`}
         </p>
@@ -108,7 +109,7 @@ function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
                 <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-1.5">
                   <div className="flex flex-wrap items-center gap-2.5">
                     <span className="inline-flex items-center gap-1 rounded-sm border border-alert-edge bg-alert-bg px-2 text-[13px] leading-6 font-bold text-alert-text">
-                      <span aria-hidden="true">▲</span> Alert<span className="sr-only">, predicted</span>
+                      <span aria-hidden="true">▲</span> Act today<span className="sr-only">, predicted</span>
                     </span>
                     <h3 className="m-0 text-lg font-semibold">{machineName(r.machine_id)}</h3>
                     <span className="text-sm text-ink-2">{r.age} {r.age === 1 ? "year" : "years"} old</span>
@@ -145,6 +146,8 @@ function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
         </section>
       )}
 
+      {only !== "alerts" && (
+        <>
       <section aria-labelledby="by-type" className="flex flex-col gap-3">
         <h2 id="by-type" className={h2}>
           Plant status by equipment type
@@ -187,6 +190,8 @@ function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
           </Link>
         </div>
       </section>
+        </>
+      )}
     </div>
   );
 }

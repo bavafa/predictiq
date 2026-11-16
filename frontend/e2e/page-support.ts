@@ -64,9 +64,17 @@ export const PAGES: PageDef[] = [
   },
   // Added last so the index-based picks above keep their pages (stage 2 of the redesign).
   {
-    name: "Overview",
+    name: "Home",
     path: "/",
-    heading: "Overview",
+    heading: "Home",
+    ready: async (page) => {
+      await expect(page.getByTestId("overview-headline")).toBeVisible();
+    },
+  },
+  {
+    name: "Alerts",
+    path: "/alerts",
+    heading: "Alerts",
     ready: async (page) => {
       await expect(page.getByTestId("overview-headline")).toBeVisible();
     },

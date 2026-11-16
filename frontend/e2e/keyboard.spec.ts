@@ -99,7 +99,7 @@ for (const vp of VIEWPORTS) {
 
         if (def.name !== "Alert accuracy" && def.name !== "About this demo" && def.name !== "In a real plant") {
           // Replay controls: Start, Step back, Play, Step forward, Step size, then the timeline (ux-spec, Accessibility).
-          expectInOrder(names, ["Start", "Step back", "Play", "Step forward", "Step size", "Simulated plant time"]);
+          expectInOrder(names, ["Play", "Start", "Step back", "Step forward", "Step size", "Simulated plant time"]);
         }
       });
     }

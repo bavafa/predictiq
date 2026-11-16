@@ -1,11 +1,11 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShell } from "@/components/app-shell";
 import type { FetchLike } from "@/lib/api";
 import { DISCLOSURE } from "@/lib/nav";
-import { fakeFetch, noModelMetadata, readyMetadata, renderWithData } from "./helpers";
+import { fakeFetch, json, noModelMetadata, problem, readyMetadata, renderWithData } from "./helpers";
 
 let mockPath = "/";
 vi.mock("next/navigation", () => ({ usePathname: () => mockPath }));
@@ -46,22 +46,49 @@ describe("AppShell", () => {
     );
   });
 
-  it("lists the six pages as links and marks the current one", () => {
+  it("lists the six pages as links (the top bar) and marks the current one", () => {
     mockPath = "/model-performance";
     renderShell();
     const nav = screen.getByRole("navigation", { name: "Main" });
     const links = Array.from(nav.querySelectorAll("a")).map((a) => a.textContent);
     expect(links).toEqual([
-      "Overview",
+      "Home",
+      "Alerts",
       "Assets",
       "Work plan",
       "Alert accuracy",
-      "In a real plant",
       "About this demo",
     ]);
     expect(screen.getByRole("link", { name: "Alert accuracy" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Alert accuracy");
   });
+
+  it("shows the number of machines to act on beside Alerts, with 'act today' for screen readers", async () => {
+    service = fakeFetch(readyMetadata(), async (input) => {
+      const url = new URL(input, "http://x");
+      if (!url.pathname.endsWith("/fleet")) return problem(404, "Not found");
+      const rows = [1, 2, 3].map((id) => ({ rank: id, machine_id: id, model: "model1", age: 3, score: 0.9, status: id < 3 ? "alert" : "below_cutoff", latest_error: null }));
+      return json({ model_version: "piq-test-1", at: url.searchParams.get("at"), cutoff_percent: 51, cards: { machines_shown: 3, machines_in_alert: 2, highest_score: 0.9, scored_hour: url.searchParams.get("at") }, distribution: [], rows });
+    });
+    renderShell();
+    const link = await screen.findByRole("link", { name: /^Alerts, 2 act today$/ }, { timeout: 10_000 });
+    expect(link).toHaveAttribute("href", expect.stringContaining("/alerts"));
+  }, 15_000);
+
+  it("has a footer with the demo line, About this demo and In a real plant", () => {
+    renderShell();
+    const footer = screen.getByRole("contentinfo");
+    expect(footer).toHaveTextContent("All data is simulated and costs are illustrative");
+    expect(within(footer).getByRole("link", { name: "About this demo" })).toHaveAttribute("href", expect.stringContaining("/about-data"));
+    expect(within(footer).getByRole("link", { name: "In a real plant" })).toHaveAttribute("href", expect.stringContaining("/real-plant"));
+  });
+
+  it("keeps Play beside Advance 1 h in the header, not only in the Time controls panel", async () => {
+    service = fakeFetch(readyMetadata());
+    renderShell();
+    expect(await screen.findByRole("button", { name: "Play" }, { timeout: 10_000 })).toBeInTheDocument();
+    expect(screen.queryByRole("slider")).not.toBeInTheDocument(); // the panel is closed
+  }, 15_000);
 
   it("shows 'none yet' when metadata reports no model", async () => {
     renderShell();

@@ -11,11 +11,12 @@ test("header names the product, shows plant time and Advance 1 h; the full contr
   await expect(page.getByText("Predictive maintenance · Demo plant")).toBeVisible();
   const time = page.getByTestId("replay-time");
   await expect(time).toHaveAttribute("datetime", w.start);
-  await expect(page.getByRole("button", { name: "Play" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Play" })).toBeVisible(); // beside Advance 1 h
+  await expect(page.getByRole("button", { name: "Start", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Advance 1 h" }).click();
   await expect(time).not.toHaveAttribute("datetime", w.start);
   await page.getByRole("button", { name: /Time controls/ }).click();
-  for (const name of ["Start", "Step back", "Play", "Step forward"]) {
+  for (const name of ["Start", "Step back", "Step forward"]) {
     await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
   }
   await expect(page.getByLabel("Step size")).toBeVisible();
