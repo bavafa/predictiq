@@ -532,7 +532,7 @@ function ModelDetails({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useStoredFlag("piq-model-details"); // remembered for the visitor, like the Time controls panel
   return (
     <section className="flex flex-col gap-3">
-      <Button aria-expanded={open} aria-controls="model-details" className="self-start" onClick={() => setOpen(!open)}>
+      <Button aria-expanded={open} aria-controls="model-details" className="h-auto max-w-full self-start py-2 text-left whitespace-normal" onClick={() => setOpen(!open)}>
         Model details: what pushed the estimate up or down
       </Button>
       <div id="model-details" hidden={!open}>
