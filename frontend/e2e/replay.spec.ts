@@ -12,7 +12,7 @@ test("starts at the replay start from /metadata and says Historical replay, neve
   await expect(page.getByText("Simulated plant time").first()).toBeVisible();
   const text = (await page.locator("body").innerText()).toLowerCase();
   expect(text).not.toMatch(/\blive\b|real-time/);
-  await expect(page.getByText(/Replay starts at the first test-period hour/)).toBeVisible();
+  await expect(page.getByText(/The simulated plant time starts at the first test-period hour/)).toBeVisible();
 });
 
 test("step forward and back move by the step size and the time sits in the web address", async ({ page, request }) => {

@@ -37,7 +37,7 @@ export function ModelFacts() {
       "Replay window",
       ready ? `${hour(ready.replay_window.start)} to ${hour(ready.replay_window.end)}, the period the models never saw while training` : DASH,
     ],
-    ["Replay starts at", ready ? hour(ready.replay_start) : DASH],
+    ["Simulated plant time starts at", ready ? hour(ready.replay_start) : DASH],
   ];
   return (
     <div data-testid="model-facts" className="mt-3">

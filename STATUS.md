@@ -2,6 +2,9 @@
 
 _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
+## 2026-11-15: redesign stage 6, gate sweep (branch redesign-sweep)
+Full sweep after the five stage pull requests (all merged, CI green on each). Checks: tsc, eslint clean; Vitest 210 passed; pytest 414 passed; Playwright 273 passed, 5 skipped, 6 failed (keyboard.spec.ts:242, local-only, pass in CI). Screenshots in `docs/QA_REPORTS/redesign-screenshots/` (synthetic bundle). Screenshots review fixed three copy defects ("1 years old", "Replay starts", "before the replay hour"). Gate report: `docs/QA_REPORTS/redesign-gate.md`. **Not done:** independent review (codex not installed), the five-second test and the 60-second timed check (need people), and the unbuilt items listed in the gate report.
+
 ## 2026-11-15: redesign stage 5, Alert accuracy, copy and redirect (branch redesign-copy)
 Alert accuracy opens with "Can I trust these alerts?", a plain answer read from the saved evaluation (also used on Overview, one shared function). About this demo, In a real plant, the no-data state and chart and card text use the new page names and "simulated plant time" instead of "replay time" in visible copy. An old fleet link with filters on `/` (status, machine_model, machine_number) redirects to `/assets` with the query kept. Route names are unchanged, so no other redirect is needed. Checks: tsc, eslint clean; Vitest 210 passed; Playwright 263 passed, 5 skipped, 6 failed (keyboard.spec.ts:242, known local-only). Run before the last two string fixes (a Vitest assertion and one link on In a real plant), which have no Playwright coverage; Vitest re-run after them: 210 passed. Left alone: internal comments and test names that still say "replay".
 

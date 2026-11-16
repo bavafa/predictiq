@@ -42,7 +42,7 @@ describe("replay bar", () => {
     expect(time()).toBe("1 November 2015, 06:00");
     expect(screen.getByRole("region", { name: /Simulated plant time/ })).toBeInTheDocument();
     expect(document.body.textContent?.toLowerCase()).not.toMatch(/\blive\b|real-time/);
-    expect(screen.getByText(/Replay starts at the first test-period hour where any machine is at or above/)).toBeInTheDocument();
+    expect(screen.getByText(/The simulated plant time starts at the first test-period hour where any machine is at or above/)).toBeInTheDocument();
   });
 
   it("has the tab order Advance 1 h, Time controls, then Start, Step back, Play, Step forward, Step size, timeline", async () => {

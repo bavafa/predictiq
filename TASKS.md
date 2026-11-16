@@ -97,3 +97,9 @@ Current stage: **Stage 3, core screens and data service (all 3 sessions done; aw
 - [x] Owner: launch gate done 14 Nov 2026 (`docs/LAUNCH_CHECKLIST.md`): go-ahead, approve decisions 70 and 71, choose a licence for the repo's own code. (Vercel protection needs no change: Standard Protection, checked 14 Nov 2026.)
 - [x] Launch (14 Nov 2026): repository public, `main` built as production, live at https://predictiq-demo.vercel.app.
 - [ ] Owner: portfolio card and case study; later PR to refresh the stale release-hygiene note.
+
+## Redesign as a maintenance tool (spec 15 Nov 2026, decision 82)
+- [x] Stages 1 to 5 built and merged (#19 to #23); stage 6 sweep and gate report in this pull request.
+- [ ] Owner: waive or run the independent review of the redesign (codex is not installed in this environment).
+- [ ] Owner: five-second test with at least five people, and the 60-second timed check; record the results.
+- [ ] Optional: Asset page sensor tiles with a trend and one history timeline; Work plan summary strip, merged job list, "Export job list", Parts as default level; asset count in the header.
