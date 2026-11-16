@@ -40,7 +40,7 @@ test("the machine picker and the web address choose the machine; the score is th
   const w = await readWindow(request);
   await page.goto("/asset-details");
   await expect(page.getByText("Choose a machine to see its history and risk")).toBeVisible();
-  await expect(page.getByRole("link", { name: /Back to fleet/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Back to assets/ })).toBeVisible();
   await page.getByRole("combobox", { name: "Machine" }).selectOption("5");
   await expect(page).toHaveURL(/machine=5/);
   await loaded(page);
@@ -150,8 +150,8 @@ test("a machine outside 1 to 100 shows the not-found state with a selector and a
   await page.getByRole("combobox", { name: "Machine" }).selectOption("2");
   await loaded(page);
   await page.goto("/asset-details?machine=250");
-  await page.getByRole("link", { name: /Back to fleet/ }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Overview");
+  await page.getByRole("link", { name: /Back to assets/ }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assets");
 });
 
 test("when the sensor history fails, only that panel shows an error and Try again fixes it", async ({ page, request }) => {

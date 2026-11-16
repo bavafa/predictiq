@@ -8,7 +8,8 @@ import { ComponentPanel } from "@/components/component-panel";
 import { useData } from "@/components/data-provider";
 import { StatusTag } from "@/components/fleet-table";
 import { NoModelData, PanelError, Skeleton } from "@/components/states";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Definition } from "@/components/definition";
 import { ValueLabel } from "@/components/value-label";
 import { CAVEAT_LINE, effectWord, inputName, recentFirst, rowHour, sameAnswer, signed } from "@/lib/asset";
@@ -19,6 +20,9 @@ import type { ApiError } from "@/lib/api";
 import type { Asset, Explanation, MachineModel, Range, Telemetry } from "@/lib/types";
 import { carriedSearch, machineCount } from "@/lib/url-state";
 import { useApiQuery, useSettledSet } from "@/lib/use-api-query";
+import { useJobs } from "@/lib/jobs";
+import { latestErrorText } from "@/components/fleet-table";
+import { machineType } from "@/lib/machine-types";
 
 const card = "rounded-lg border border-line bg-card p-4 sm:p-5";
 const h2 = "m-0 text-lg leading-7 font-semibold";
@@ -44,7 +48,7 @@ function useFleetHref() {
   const params = new URLSearchParams(carriedSearch(search));
   params.delete("machine");
   const text = params.toString();
-  return text ? `/?${text}` : "/";
+  return text ? `/assets?${text}` : "/assets";
 }
 
 function MachineSelect({ selected, total }: { selected: number | null; total: number }) {
@@ -77,7 +81,7 @@ function BackToFleet() {
   const href = useFleetHref();
   return (
     <Link href={href} className="inline-flex min-h-11 items-center text-sm text-link underline">
-      ‹ Back to fleet
+      ‹ Back to assets
     </Link>
   );
 }
@@ -89,7 +93,7 @@ function NoMachine({ total }: { total: number }) {
         Choose a machine to see its history and risk
       </h2>
       <p className="m-0 text-sm text-ink-2">
-        Pick one of the {total} machines in the sample, or open one from the ranked table on Fleet Overview.
+        Pick one of the {total} machines in the sample, or open one from the ranked table on Assets.
       </p>
       <div className="flex flex-wrap items-center gap-4">
         <MachineSelect selected={null} total={total} />
@@ -180,16 +184,17 @@ function AssetBody({ id, total, modelVersion }: { id: number; total: number; mod
         </div>
         <span className="text-sm text-ink-2" data-testid="cutoff-readout">
           Alert cut-off: {cutoff}% (shared; change it on{" "}
-          <Link href={fleetHref} className="inline-flex min-h-11 items-center text-link underline">
-            Fleet Overview
+          <Link href={fleetHref} className="inline-flex min-h-11 min-w-11 items-center justify-center text-link underline">
+            Assets
           </Link>
           )
         </span>
       </section>
 
+      <FactsPanel query={assetQ} data={assetData} id={id} />
       <div className="grid gap-4 md:grid-cols-2">
-        <FactsPanel query={assetQ} data={assetData} id={id} />
         <ScorePanel query={assetQ} data={assetData} hourLabel={hourLabel} busy={busy} />
+        <WhyFlagged asset={assetData} explanation={shown?.explanation.data ?? null} />
       </div>
 
       <ExplanationPanel error={shown?.explanation.error ?? null} retry={explanation.retry} data={shown?.explanation.data ?? null} dim={busy} />
@@ -239,25 +244,78 @@ function AssetBody({ id, total, modelVersion }: { id: number; total: number; mod
 type Q = { error: ApiError | null; retry: () => void };
 
 function FactsPanel({ query, data, id }: { query: Q; data: Asset | null; id: number }) {
+  const { jobs, dismissed, add, dismiss } = useJobs();
+  const { search } = useData();
+  const plan = `/maintenance-planner${carriedSearch(search)}`;
+  const added = jobs.includes(id);
+  const gone = dismissed.includes(id);
+  const alert = data?.status === "alert";
+  const recentRepairs = data ? recentFirst(data.repairs, data.at).length : 0;
   return (
     <section className={card} aria-labelledby="facts-title" data-testid="facts">
-      <h2 id="facts-title" className={h2}>
-        {machineName(id)}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h2 id="facts-title" className={h2}>
+            {machineName(id)}
+          </h2>
+          {query.error ? (
+            <PanelError testId="asset-error-facts" message="Couldn't load this machine's details." onRetry={query.retry} />
+          ) : data === null ? (
+            <Skeleton className="mt-2 h-10 w-72" label="Loading the machine details" />
+          ) : (
+            <>
+              <p className="mt-2 mb-1 text-sm">
+                {machineType(id)} · Machine model <strong data-testid="fact-model">{data.model}</strong> · Age{" "}
+                <strong data-testid="fact-age">{data.age}</strong> years · {recentRepairs === 0 ? "no repairs" : `${recentRepairs} ${recentRepairs === 1 ? "repair" : "repairs"}`} in the past 7 days
+              </p>
+              <p className="m-0 text-sm text-ink-2">
+                <ValueLabel kind="Historical" /> from the simulated sample data
+              </p>
+            </>
+          )}
+        </div>
+        {data && (
+          <div className="flex flex-wrap items-center gap-2.5">
+            {alert && (gone ? <span className="text-sm text-ink-2" data-testid="dismissed-note">Alert dismissed (kept in this browser only).</span> : <Button onClick={() => dismiss(id)}>Dismiss alert</Button>)}
+            {added ? (
+              <Link href={plan} className={cn(buttonVariants(), "no-underline")}>
+                <span aria-hidden="true">✓</span> In work plan
+              </Link>
+            ) : (
+              <Button variant="primary" onClick={() => add(id)}>
+                Add to work plan
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** "Why it is flagged": the biggest upward pushes and the latest error, in sentences. Patterns, not causes. */
+function WhyFlagged({ asset, explanation }: { asset: Asset | null; explanation: Explanation | null }) {
+  const alert = asset?.status === "alert";
+  const ups = (explanation?.contributions ?? []).filter((c) => c.contribution > 0).sort((a, b) => b.contribution - a.contribution).slice(0, 3);
+  const last = asset ? recentFirst(asset.errors, asset.at)[0] : undefined;
+  return (
+    <section className={card} aria-labelledby="flag-title" data-testid="why-flagged">
+      <h2 id="flag-title" className={h2}>
+        {alert ? "Why it is flagged" : "What the model sees"}
       </h2>
-      {query.error ? (
-        <PanelError testId="asset-error-facts" message="Couldn't load this machine's details." onRetry={query.retry} />
-      ) : data === null ? (
-        <Skeleton className="mt-2 h-16 w-full" label="Loading the machine details" />
+      {asset === null || explanation === null ? (
+        <Skeleton className="mt-2 h-20 w-full" label="Loading why this machine is flagged" />
+      ) : ups.length === 0 && !last ? (
+        <p className="mt-2 mb-0 text-sm">No input is pushing this machine&rsquo;s estimate up at this hour.</p>
       ) : (
-        <>
-          <p className="mt-2 mb-1 text-sm">
-            Machine model <strong data-testid="fact-model">{data.model}</strong> · Age <strong data-testid="fact-age">{data.age}</strong> years
-          </p>
-          <p className="m-0 text-sm text-ink-2">
-            <ValueLabel kind="Historical" /> from the simulated sample data
-          </p>
-        </>
+        <ul className="mt-2 mb-0 list-disc pl-5 text-sm leading-6">
+          {ups.map((c) => (
+            <li key={c.feature}>{inputName(c.feature).name} pushed the estimate up.</li>
+          ))}
+          {last && <li>Latest error record: {latestErrorText(last)}.</li>}
+        </ul>
       )}
+      <p className="mt-2 mb-0 text-xs text-ink-2">{CAVEAT_LINE}</p>
     </section>
   );
 }

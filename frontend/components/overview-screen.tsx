@@ -73,9 +73,10 @@ export function OverviewScreen() {
 
 function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
   const alerts = fleet.rows.filter((r) => r.status === "alert");
-  const shown = alerts.slice(0, MAX_CARDS);
+  const { jobs, dismissed, add } = useJobs();
+  const open = alerts.filter((r) => !dismissed.includes(r.machine_id));
+  const shown = open.slice(0, MAX_CARDS);
   const total = fleet.rows.length;
-  const { jobs, add } = useJobs();
   const types = typeCounts(fleet.rows);
   const assetHref = (id: number) => {
     const p = new URLSearchParams(carried);
@@ -90,11 +91,12 @@ function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
         </h2>
         <p className="m-0 text-base text-ink-2">
           {total - alerts.length} {total - alerts.length === 1 ? "asset is" : "assets are"} below the alert cut-off ({fleet.cutoff_percent}%).
-          {alerts.length > 0 && " Add a job to the work plan to get it scheduled."}
+          {open.length > 0 && " Add a job to the work plan to get it scheduled."}
+          {alerts.length > open.length && ` ${alerts.length - open.length} dismissed.`}
         </p>
       </div>
 
-      {alerts.length > 0 && (
+      {open.length > 0 && (
         <section aria-labelledby="needs-attention" className="flex flex-col gap-3">
           <h2 id="needs-attention" className={h2}>
             Needs attention
@@ -131,9 +133,9 @@ function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
               </article>
             );
           })}
-          {alerts.length > shown.length && (
+          {open.length > shown.length && (
             <p className="m-0 text-sm text-ink-2">
-              {alerts.length - shown.length} more in{" "}
+              {open.length - shown.length} more in{" "}
               <Link href={`/assets${carried}`} className="inline-flex min-h-11 items-center">
                 Assets
               </Link>
@@ -177,8 +179,8 @@ function Body({ fleet, carried }: { fleet: Fleet; carried: string }) {
           <h2 className="m-0 text-base font-semibold">Work plan</h2>
           <p className="m-0 text-sm leading-6 text-ink-2" data-testid="workplan-summary">
             {jobs.length === 0
-              ? `No jobs added yet. ${alerts.length} ${alerts.length === 1 ? "job is" : "jobs are"} recommended.`
-              : `${jobs.length} ${jobs.length === 1 ? "job" : "jobs"} added. ${Math.max(0, alerts.length - jobs.length)} more recommended.`}
+              ? `No jobs added yet. ${open.length} ${open.length === 1 ? "job is" : "jobs are"} recommended.`
+              : `${jobs.length} ${jobs.length === 1 ? "job" : "jobs"} added. ${Math.max(0, open.length - jobs.length)} more recommended.`}
           </p>
           <Link href={`/maintenance-planner${carried}`} className="flex min-h-11 items-center text-[15px] font-semibold">
             Open work plan
