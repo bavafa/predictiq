@@ -2,7 +2,8 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import MaintenancePlannerPage from "@/app/maintenance-planner/page";
+import { PlannerLevels } from "@/components/planner-levels";
+import { ScreenGate } from "@/components/screen-gate";
 import { check, defaultFields, answersInputs, applyToAll, wholeNumber } from "@/lib/planner";
 import type { MachineModel, Metadata, PlanRequest, PlanResponse, PlanRow, ReadyMetadata } from "@/lib/types";
 import { fakeFetch, json, noModelMetadata, problem, readyMetadata, renderWithData, setAddress } from "./helpers";
@@ -100,6 +101,13 @@ function plan(body: PlanRequest): PlanResponse {
   };
 }
 
+// The page wraps the planners in a gate that shows the no-model-data state.
+const Gated = () => (
+  <ScreenGate what="the predicted chances">
+    <PlannerLevels />
+  </ScreenGate>
+);
+
 let bodies: PlanRequest[] = [];
 const server = (opts: { fail?: () => boolean; meta?: ReadyMetadata } = {}) =>
   fakeFetch(
@@ -167,7 +175,7 @@ describe("planner helpers", () => {
 
 describe("Maintenance Planner screen", () => {
   it("asks the service for the starting values and shows the ranked list with units and labels", async () => {
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     expect(bodies[0]).toMatchObject({ failure_cost: 10000, planned_cost: 2500, crew_slots: 5, risk_reduction_percent: null, include_below_cutoff: false });
     // decision 55: per-model failure and planned costs are the starting values
@@ -195,7 +203,7 @@ describe("Maintenance Planner screen", () => {
 
   it("links each machine to Asset Details at the same time and cut-off", async () => {
     setAddress("?at=2015-11-02T00:00&cutoff=40", "/maintenance-planner");
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const link = within(screen.getAllByTestId("plan-row")[0]!).getByRole("link");
     expect(link).toHaveAttribute("href", "/asset-details?at=2015-11-02T00%3A00&cutoff=40&machine=1");
@@ -204,7 +212,7 @@ describe("Maintenance Planner screen", () => {
 
   it("a cost per machine model reorders the list, shows Moved marks and explains why", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const model3 = screen.getByLabelText(/^model3: cost if a failure happens/);
     expect(model3).toHaveValue("12000"); // decision 55 starting value; the visitor RAISES it
@@ -220,7 +228,7 @@ describe("Maintenance Planner screen", () => {
 
   it("Apply to all models writes the shared failure cost into the four fields: equal costs give the order by chance alone, Moved empty", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const shared = screen.getByLabelText(/Set every machine model's failure cost to/);
     await user.clear(shared);
@@ -238,7 +246,7 @@ describe("Maintenance Planner screen", () => {
 
   it("Apply to all models for planned cost changes planned spend, never the order or shortlist", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const before = ids();
     const shared = screen.getByLabelText(/Set every machine model's planned cost to/);
@@ -253,7 +261,7 @@ describe("Maintenance Planner screen", () => {
 
   it("a shared value out of range is marked, Apply does nothing and the last valid list stays", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const calls = bodies.length;
     const shared = screen.getByLabelText(/Set every machine model's failure cost to/);
@@ -269,7 +277,7 @@ describe("Maintenance Planner screen", () => {
   });
 
   it("the help text states exactly what each control changes", async () => {
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const failure = screen.getByTestId("failure-costs");
     expect(failure).toHaveTextContent(/Equal costs for all models give the order by predicted chance alone and leave Moved empty/);
@@ -280,7 +288,7 @@ describe("Maintenance Planner screen", () => {
 
   it("planned cost per machine model: spend is the sum over the shortlist and never changes the order", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const before = ids();
     expect(screen.getByTestId("summary-spend")).toHaveTextContent("10,000"); // 2,500 + 3,000 + 2,000 + 2,500
@@ -298,7 +306,7 @@ describe("Maintenance Planner screen", () => {
 
   it("a per-model field refused out of range is marked and keeps the last valid list", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const field = screen.getByLabelText(/^model2: planned maintenance cost/);
     await user.clear(field);
@@ -309,7 +317,7 @@ describe("Maintenance Planner screen", () => {
 
   it("crew slots (typed and −/+) change the shortlist and spare slots, not the order", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const before = ids();
     await user.click(screen.getByRole("button", { name: "Fewer crew slots" }));
@@ -327,7 +335,7 @@ describe("Maintenance Planner screen", () => {
 
   it("also listing machines below the cut-off adds them, marked, never shortlisted", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     await user.click(screen.getByLabelText(/Also list machines below the cut-off/));
     await waitFor(() => expect(ids()).toEqual(["1", "3", "2", "4", "5", "6"]));
@@ -336,14 +344,14 @@ describe("Maintenance Planner screen", () => {
 
   it("a different cut-off (from the address) changes which machines are listed", async () => {
     setAddress("?cutoff=75", "/maintenance-planner");
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     expect(ids()).toEqual(["1", "2"]);
   });
 
   it("the risk-reduction assumption is off by default; turning it on adds the net benefit column and total, labelled estimate", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     await user.click(screen.getByTestId("reduction-toggle"));
     await waitFor(() => expect(screen.getAllByTestId("net-benefit")).toHaveLength(4));
@@ -357,7 +365,7 @@ describe("Maintenance Planner screen", () => {
   });
 
   it("the reduction slider is a native range, 0 to 90 in 5-point steps", async () => {
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const slider = screen.getByRole("slider", { name: "Reduction" });
     expect(slider).toHaveAttribute("min", "0");
@@ -371,7 +379,7 @@ describe("Maintenance Planner screen", () => {
 
   it("refuses an out-of-range value with a message, marks the field and keeps the last valid result", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const calls = bodies.length;
     const field = screen.getByTestId("failure-cost");
@@ -395,7 +403,7 @@ describe("Maintenance Planner screen", () => {
 
   it("crew slots above 100 are refused with the allowed range", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const field = screen.getByLabelText(/Crew slots available/);
     await user.clear(field);
@@ -405,7 +413,7 @@ describe("Maintenance Planner screen", () => {
 
   it("Reset to defaults restores the starting values and is unavailable when nothing changed", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const reset = screen.getByRole("button", { name: "Reset to defaults" });
     expect(reset).toHaveAttribute("aria-disabled", "true");
@@ -421,7 +429,7 @@ describe("Maintenance Planner screen", () => {
 
   it("'How this is calculated' shows the formula in plain words", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const button = screen.getByRole("button", { name: "How this is calculated" });
     expect(button).toHaveAttribute("aria-expanded", "false");
@@ -434,7 +442,7 @@ describe("Maintenance Planner screen", () => {
 
   it("never says savings; the only 'saving' is the denial", async () => {
     const user = userEvent.setup();
-    const { container } = renderWithData(<MaintenancePlannerPage />, server());
+    const { container } = renderWithData(<PlannerLevels />, server());
     await ready();
     await user.click(screen.getByTestId("reduction-toggle"));
     await user.click(screen.getByRole("button", { name: "How this is calculated" }));
@@ -447,7 +455,7 @@ describe("Maintenance Planner screen", () => {
   it("no machines at or above the cut-off: says so and offers to list those below", async () => {
     setAddress("?cutoff=99", "/maintenance-planner");
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     expect(await screen.findByTestId("planner-empty")).toHaveTextContent("No machines are at or above the cut-off at this time.");
     await user.click(screen.getByRole("button", { name: "Also list machines below the cut-off" }));
     await waitFor(() => expect(ids()).toHaveLength(6));
@@ -457,7 +465,7 @@ describe("Maintenance Planner screen", () => {
   it("loading: grey rows and the loading line while the assumptions stay usable", async () => {
     let release: (r: Response) => void = () => {};
     const slow = fakeFetch(readyMetadata(), () => new Promise<Response>((r) => (release = r)));
-    renderWithData(<MaintenancePlannerPage />, slow);
+    renderWithData(<PlannerLevels />, slow);
     expect(await screen.findByText("Loading predicted chances for this hour…")).toBeInTheDocument();
     expect(screen.getAllByTestId("skeleton").length).toBeGreaterThan(0);
     expect(screen.getByTestId("failure-cost")).toBeEnabled();
@@ -467,7 +475,7 @@ describe("Maintenance Planner screen", () => {
   it("error: says what failed with Try again, keeps the assumptions, shows no stale list or summary", async () => {
     let failing = true;
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server({ fail: () => failing }));
+    renderWithData(<PlannerLevels />, server({ fail: () => failing }));
     expect(await screen.findByTestId("service-error")).toHaveTextContent(/Couldn.t load the predicted chances for 1 Nov 2015|Couldn.t load the predicted chances for/);
     expect(screen.queryByTestId("plan-table")).toBeNull();
     expect(screen.queryByTestId("summary")).toBeNull();
@@ -479,21 +487,21 @@ describe("Maintenance Planner screen", () => {
   });
 
   it("no model data: says so, no numbers", async () => {
-    const { container } = renderWithData(<MaintenancePlannerPage />, fakeFetch(noModelMetadata()));
+    const { container } = renderWithData(<Gated />, fakeFetch(noModelMetadata()));
     expect(await screen.findByTestId("no-model-data")).toBeInTheDocument();
     expect(container.querySelector("input, table")).toBeNull();
   });
 
   it("a service 503 on /plan shows the no-model-data state, not a number", async () => {
     renderWithData(
-      <MaintenancePlannerPage />,
+      <Gated />,
       fakeFetch(readyMetadata(), async () => problem(503, "Model data unavailable")),
     );
     expect(await screen.findByTestId("no-model-data")).toBeInTheDocument();
   });
 
   it("the summary counts exactly the shortlisted rows of the same answer", async () => {
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await ready();
     const shortlisted = slots().filter((s) => s?.startsWith("✓")).length;
     expect(screen.getByTestId("summary-slots")).toHaveTextContent(`${shortlisted} of 5 crew slots used`);

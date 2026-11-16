@@ -8,9 +8,10 @@ import { NoModelData, ServiceError, Skeleton } from "@/components/states";
 import { buttonVariants } from "@/components/ui/button";
 import { ApiError } from "@/lib/api";
 import { slotsUsed, useJobs } from "@/lib/jobs";
+import { crewSlots, usePlanSettings } from "@/lib/plan-settings";
 import { caughtFacts, parseResults } from "@/lib/model-performance";
 import { parseHour, readableHour } from "@/lib/time";
-import type { Fleet } from "@/lib/types";
+import type { Fleet, ReadyMetadata } from "@/lib/types";
 import { carriedSearch } from "@/lib/url-state";
 import { useApiQuery } from "@/lib/use-api-query";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ const STEPS = [
 /** The v2 landing page (decision 83): what the product is, the plant at the simulated plant time, and where to go. */
 export function HomeScreen() {
   const { client, meta, view, search } = useData();
+  const { settings } = usePlanSettings();
   const ready = meta.status === "ready" ? meta.meta : null;
   const fleet = useApiQuery<Fleet>(
     (signal) => client.fleet({ at: view!.at, cutoff: view!.cutoff }, { signal }),
@@ -49,7 +51,7 @@ export function HomeScreen() {
       </div>
     );
   }
-  return <Body fleet={fleet.data} carried={carriedSearch(search)} crew={ready.planner_defaults.crew_slots} />;
+  return <Body fleet={fleet.data} carried={carriedSearch(search)} crew={crewSlots(ready as ReadyMetadata, settings)} />;
 }
 
 function Body({ fleet, carried, crew }: { fleet: Fleet; carried: string; crew: number }) {

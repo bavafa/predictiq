@@ -2,7 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import MaintenancePlannerPage from "@/app/maintenance-planner/page";
+import { PlannerLevels } from "@/components/planner-levels";
 import AssetDetailsPage from "@/app/asset-details/page";
 import {
   PARTS,
@@ -230,14 +230,14 @@ describe("component planner helpers", () => {
 
 describe("Planner: Parts plan", () => {
   it("is not offered when the deployment has no component scores", async () => {
-    renderWithData(<MaintenancePlannerPage />, server({ withParts: false }));
+    renderWithData(<PlannerLevels />, server({ withParts: false }));
     await screen.findByTestId("assumptions");
     expect(screen.queryByTestId("level-switch")).toBeNull();
   });
 
   it("switches to Parts, asks for the 14 day view by default and says what the numbers are", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await screen.findByTestId("level-switch");
     await user.click(screen.getByTestId("level-parts"));
     await screen.findByTestId("parts-table");
@@ -259,7 +259,7 @@ describe("Planner: Parts plan", () => {
 
   it("the horizon switch and the crew slots change the request; net benefit appears only when assumed", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await user.click(await screen.findByTestId("level-parts"));
     await screen.findByTestId("parts-table");
     expect(screen.queryByTestId("part-net")).toBeNull();
@@ -277,7 +277,7 @@ describe("Planner: Parts plan", () => {
 
   it("a bad value keeps the last valid answer and says so", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server());
+    renderWithData(<PlannerLevels />, server());
     await user.click(await screen.findByTestId("level-parts"));
     await screen.findByTestId("parts-table");
     const before = bodies.length;
@@ -290,7 +290,7 @@ describe("Planner: Parts plan", () => {
 
   it("a failed request shows its own error with Try again, and the machine plan stays", async () => {
     const user = userEvent.setup();
-    renderWithData(<MaintenancePlannerPage />, server({ failPlan: true }));
+    renderWithData(<PlannerLevels />, server({ failPlan: true }));
     await screen.findByTestId("assumptions");
     await user.click(screen.getByTestId("level-parts"));
     const err = await screen.findByTestId("component-error");

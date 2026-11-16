@@ -23,7 +23,7 @@ import { useApiQuery, useSettledSet } from "@/lib/use-api-query";
 import { useJobs } from "@/lib/jobs";
 import { useStoredFlag } from "@/lib/stored-flag";
 import { rankByCost } from "@/components/alerts-screen";
-import { check, defaultFields } from "@/lib/planner";
+import { machineInputs, usePlanSettings } from "@/lib/plan-settings";
 import { windowText } from "@/lib/component-planner";
 import type { ComponentPart, MachineComponents, PlanResponse, ReadyMetadata } from "@/lib/types";
 import { latestErrorText } from "@/components/fleet-table";
@@ -256,7 +256,8 @@ function usePriority(id: number, enabled: boolean): { n: number; of: number } | 
     (signal) => (enabled && view ? client.fleet({ at: view.at, cutoff: view.cutoff }, { signal }) : Promise.reject(new Error("off"))),
     [client, ready?.model_version, enabled, view?.at, view?.cutoff],
   );
-  const inputs = ready ? (() => { const c = check(defaultFields(ready as ReadyMetadata)); return c.ok ? c.inputs : null; })() : null;
+  const { settings } = usePlanSettings();
+  const inputs = ready ? machineInputs(ready as ReadyMetadata, settings) : null;
   const inputsKey = JSON.stringify(inputs);
   const plan = useApiQuery<PlanResponse | null>(
     (signal) => (enabled && view && inputs ? client.plan({ at: view.at, cutoff_percent: view.cutoff, ...inputs }, { signal }) : Promise.resolve(null)),

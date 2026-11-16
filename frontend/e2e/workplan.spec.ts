@@ -10,22 +10,36 @@ test("alert to work plan: add, schedule, mark done, reset", async ({ page }) => 
 
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Work plan" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Work plan");
-  const row = page.getByTestId("job-row").first();
-  await expect(row.getByTestId("job-status")).toHaveText("Added");
+  const added = page.getByTestId("job-row").filter({ has: page.getByText("Added", { exact: true }) });
+  await expect(added).toHaveCount(1); // the machine added on Home is carried in as an Added job
+  const row = added.first();
+  const key = await row.getAttribute("data-job-key");
+  const same = () => page.locator(`[data-job-key="${key}"]`);
 
   await row.getByRole("button", { name: /Schedule/ }).click();
-  await expect(row.getByTestId("job-status")).toHaveText("Scheduled");
+  await expect(same().getByTestId("job-status")).toHaveText("Scheduled");
   await expect(page.getByTestId("slots-used")).toContainText("Slots used: 1 of");
 
   // The state survives a reload (browser storage), then Mark done frees the slot.
   await page.reload();
-  await expect(page.getByTestId("job-row").first().getByTestId("job-status")).toHaveText("Scheduled");
-  await page.getByTestId("job-row").first().getByRole("button", { name: /Mark done/ }).click();
-  await expect(page.getByTestId("job-row").first().getByTestId("job-status")).toHaveText("Done");
+  await expect(same().getByTestId("job-status")).toHaveText("Scheduled");
+  await same().getByRole("button", { name: /Mark done/ }).click();
+  await expect(same().getByTestId("job-status")).toHaveText("Done");
   await expect(page.getByTestId("slots-used")).toContainText("Slots used: 0 of");
 
   await page.getByRole("button", { name: "Reset demo" }).click();
-  await expect(page.getByTestId("no-jobs")).toBeVisible();
+  await expect(page.getByTestId("job-status").filter({ hasText: /Added|Done|Scheduled/ })).toHaveCount(0);
+  await expect(page.getByTestId("job-row").first().getByTestId("job-status")).toHaveText("Recommended");
+});
+
+test("Plan settings change the crew slots shown and survive a reload", async ({ page }) => {
+  await page.goto("/maintenance-planner?cutoff=0");
+  await page.getByRole("button", { name: "Plan settings" }).click();
+  const crew = page.getByLabel("Crew slots this shift");
+  await crew.fill("2");
+  await expect(page.getByTestId("slots-used")).toContainText("of 2");
+  await page.reload();
+  await expect(page.getByTestId("slots-used")).toContainText("of 2");
 });
 
 test("Alerts ranks by cost at risk with the Illustrative tag, and says it is not the order of chance when it differs", async ({ page }) => {

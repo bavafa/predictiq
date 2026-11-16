@@ -43,20 +43,23 @@ function save(which: Which, list: number[]) {
 
 export type JobStatus = "scheduled" | "done";
 
-/** Saved status per machine: anything that is not "scheduled" or "done" is ignored. */
-export function parseStatus(text: string): Record<number, JobStatus> {
+/** A job is keyed by its machine ("8", also the v1 key) or by a part of a machine ("8:comp2"). */
+const JOB_KEY = /^\d+(:comp[1-4])?$/;
+
+/** Saved status per job: anything that is not "scheduled" or "done", or has an odd key, is ignored. */
+export function parseStatus(text: string): Record<string, JobStatus> {
   try {
     const v: unknown = JSON.parse(text);
     if (typeof v !== "object" || v === null || Array.isArray(v)) return {};
-    const out: Record<number, JobStatus> = {};
-    for (const [k, val] of Object.entries(v)) if ((val === "scheduled" || val === "done") && Number.isInteger(Number(k))) out[Number(k)] = val;
+    const out: Record<string, JobStatus> = {};
+    for (const [k, val] of Object.entries(v)) if ((val === "scheduled" || val === "done") && JOB_KEY.test(k)) out[k] = val;
     return out;
   } catch {
     return {};
   }
 }
 
-const memoryStatus: { value: Record<number, JobStatus> } = { value: {} };
+const memoryStatus: { value: Record<string, JobStatus> } = { value: {} };
 
 export function useJobs() {
   const jobs = parseJobs(useSyncExternalStore(subscribe, () => read("jobs"), () => "[]"));
@@ -73,7 +76,7 @@ export function useJobs() {
     () => "{}",
   );
   const status = parseStatus(statusText);
-  const saveStatus = (next: Record<number, JobStatus>) => {
+  const saveStatus = (next: Record<string, JobStatus>) => {
     memoryStatus.value = next;
     try {
       localStorage.setItem(KEYS.status, JSON.stringify(next));
@@ -90,7 +93,7 @@ export function useJobs() {
     dismiss: (m: number) => {
       if (!dismissed.includes(m)) save("dismissed", [...dismissed, m]);
     },
-    setStatus: (m: number, s: JobStatus | null) => {
+    setStatus: (m: number | string, s: JobStatus | null) => {
       const next = { ...status };
       if (s === null) delete next[m];
       else next[m] = s;
@@ -99,7 +102,7 @@ export function useJobs() {
     remove: (m: number) => {
       save("jobs", jobs.filter((j) => j !== m));
       const next = { ...status };
-      delete next[m];
+      delete next[String(m)];
       saveStatus(next);
     },
     /** "Reset demo": every job, status and dismissed alert goes. */
@@ -112,11 +115,11 @@ export function useJobs() {
 }
 
 /** Slots in use: the number of scheduled jobs. A job can be scheduled only while this is below the crew slots. */
-export function slotsUsed(status: Record<number, JobStatus>): number {
+export function slotsUsed(status: Record<string, JobStatus>): number {
   return Object.values(status).filter((s) => s === "scheduled").length;
 }
 
 /** The label a job carries: Added until it is scheduled, then Scheduled, then Done. */
-export function jobLabel(s: JobStatus | undefined): "Added" | "Scheduled" | "Done" {
-  return s === "scheduled" ? "Scheduled" : s === "done" ? "Done" : "Added";
+export function jobLabel(s: JobStatus | undefined, added = false): "Recommended" | "Added" | "Scheduled" | "Done" {
+  return s === "scheduled" ? "Scheduled" : s === "done" ? "Done" : added ? "Added" : "Recommended";
 }

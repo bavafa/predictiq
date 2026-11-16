@@ -34,6 +34,7 @@ export default defineConfig({
       origins: [{ origin: `http://127.0.0.1:${port}`, localStorage: [
             { name: "piq-time-panel", value: "on" },
             { name: "piq-model-details", value: "on" },
+            { name: "piq-advanced-planner", value: "on" },
           ] }],
     },
   },

@@ -11,7 +11,8 @@ import { ApiError } from "@/lib/api";
 import { percent } from "@/lib/fleet";
 import { useJobs } from "@/lib/jobs";
 import { machineName } from "@/lib/machine-types";
-import { check, defaultFields, money } from "@/lib/planner";
+import { money } from "@/lib/planner";
+import { machineInputs, usePlanSettings } from "@/lib/plan-settings";
 import { formatHour, parseHour } from "@/lib/time";
 import type { Fleet, FleetRow, PlanResponse, ReadyMetadata } from "@/lib/types";
 import { carriedSearch } from "@/lib/url-state";
@@ -58,14 +59,11 @@ export function AlertsScreen() {
     (signal) => (prevAt ? client.fleet({ at: prevAt, cutoff }, { signal }) : Promise.resolve(null)),
     [client, ready?.model_version, prevAt, cutoff],
   );
-  const inputs = useMemo(() => {
-    if (!ready) return null;
-    const c = check(defaultFields(ready as ReadyMetadata));
-    return c.ok ? c.inputs : null;
-  }, [ready]);
+  const { settings } = usePlanSettings();
+  const inputs = useMemo(() => (ready ? machineInputs(ready as ReadyMetadata, settings) : null), [ready, settings]);
   const plan = useApiQuery<PlanResponse | null>(
     (signal) => (inputs ? client.plan({ at: at!, cutoff_percent: cutoff, ...inputs }, { signal }) : Promise.resolve(null)),
-    [client, ready?.model_version, at, cutoff, inputs],
+    [client, ready?.model_version, at, cutoff, JSON.stringify(inputs)],
   );
   if (!ready || !view) return null;
   if (fleet.status === "error") {
