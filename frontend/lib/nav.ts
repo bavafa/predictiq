@@ -5,15 +5,15 @@ export const DISCLOSURE = "Portfolio demo — simulated historical sample data; 
 export const PROVENANCE_URL = "https://github.com/bavafa/predictiq/blob/main/docs/DATA_PROVENANCE.md";
 
 export const MAIN_NAV: NavItem[] = [
-  { href: "/", label: "Fleet Overview" },
-  { href: "/asset-details", label: "Asset Details" },
-  { href: "/maintenance-planner", label: "Maintenance Planner" },
-  { href: "/model-performance", label: "Model Performance" },
+  { href: "/", label: "Overview" },
+  { href: "/asset-details", label: "Asset page" },
+  { href: "/maintenance-planner", label: "Work plan" },
+  { href: "/model-performance", label: "Alert accuracy" },
 ];
 
-export const ABOUT_NAV: NavItem = { href: "/about-data", label: "About & Data" };
+export const ABOUT_NAV: NavItem = { href: "/about-data", label: "About this demo" };
 
-export const PLANT_NAV: NavItem = { href: "/real-plant", label: "In a Real Plant" };
+export const PLANT_NAV: NavItem = { href: "/real-plant", label: "In a real plant" };
 
 /** The reading pages under the divider. */
 export const INFO_NAV: NavItem[] = [PLANT_NAV, ABOUT_NAV];

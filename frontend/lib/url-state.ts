@@ -57,7 +57,7 @@ export function parseUrlState(search: string | URLSearchParams, meta: ReadyMetad
   if (rawAt !== null) {
     const hour = parseHour(rawAt);
     if (hour !== null && hour >= first && hour <= last) at = hour;
-    else issues.push("The replay time in this link isn't an hour inside the replay window, so the replay starts at its usual hour.");
+    else issues.push("The simulated plant time in this link isn't an hour inside the simulated data, so it starts at its usual hour.");
   }
 
   let cutoff = meta.default_cutoff_percent;

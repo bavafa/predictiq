@@ -30,7 +30,7 @@ import { applyChanges, parseUrlState, windowHours, type UrlChanges, type UrlStat
 
 /** After this long without an answer from /metadata the "waking up" message is shown (ux-spec, States). */
 export const WAKING_AFTER_MS = 3000;
-export const END_MESSAGE = "End of the replay window. There is no later data.";
+export const END_MESSAGE = "End of the simulated data. There is no later data.";
 
 export type MetaState =
   | { status: "loading"; slow: boolean }
@@ -199,7 +199,7 @@ export function DataProvider({ children, client = api }: { children: ReactNode; 
         setPlaying(false);
         setAnnouncement(END_MESSAGE);
       } else if (announceThisStep(playedSteps.current)) {
-        setAnnouncement(`Replay time ${readableHour(tick.hour)}`);
+        setAnnouncement(`Simulated plant time ${readableHour(tick.hour)}`);
       }
     }, PLAY_INTERVAL_MS);
     return () => clearInterval(timer);

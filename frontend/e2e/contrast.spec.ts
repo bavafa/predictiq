@@ -263,7 +263,7 @@ for (const vp of VIEWPORTS) {
         return out;
       });
       expect(rep.checked, "text elements checked").toBeGreaterThan(10);
-      if (["Fleet Overview", "Asset Details", "Model Performance"].includes(def.name)) expect(rep.svg, "chart text checked").toBeGreaterThan(0);
+      if (["Overview", "Asset page", "Alert accuracy"].includes(def.name)) expect(rep.svg, "chart text checked").toBeGreaterThan(0);
       expect(rep.failures).toEqual([]);
     });
   }

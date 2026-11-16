@@ -14,18 +14,18 @@ export type PageDef = { name: string; path: string; heading: string; ready: (pag
 
 export const PAGES: PageDef[] = [
   {
-    name: "Fleet Overview",
+    name: "Overview",
     path: "/",
-    heading: "Fleet Overview",
+    heading: "Overview",
     ready: async (page) => {
       await expect(page.getByTestId("card-shown")).toBeVisible();
       await expect(page.getByTestId("risk-chart")).toBeVisible();
     },
   },
   {
-    name: "Asset Details",
+    name: "Asset page",
     path: "/asset-details?machine=1",
-    heading: "Asset Details",
+    heading: "Asset page",
     ready: async (page) => {
       await expect(page.getByTestId("asset-score")).toBeVisible();
       await expect(page.getByTestId("explanation-table")).toBeVisible();
@@ -33,33 +33,33 @@ export const PAGES: PageDef[] = [
     },
   },
   {
-    name: "Maintenance Planner",
+    name: "Work plan",
     path: "/maintenance-planner?cutoff=5",
-    heading: "Maintenance Planner",
+    heading: "Work plan",
     ready: async (page) => {
       await expect(page.getByTestId("planner-ready")).toBeVisible();
       await expect(page.getByTestId("planner-ready")).not.toHaveAttribute("aria-busy", "true");
     },
   },
   {
-    name: "Model Performance",
+    name: "Alert accuracy",
     path: "/model-performance",
-    heading: "Model Performance",
+    heading: "Alert accuracy",
     ready: async (page) => {
       await expect(page.getByTestId("comparison-table")).toBeVisible();
       await expect(page.getByTestId("mp-charts")).toBeVisible();
     },
   },
   {
-    name: "In a Real Plant",
+    name: "In a real plant",
     path: "/real-plant",
-    heading: "In a Real Plant",
+    heading: "In a real plant",
     ready: async () => {},
   },
   {
-    name: "About & Data",
+    name: "About this demo",
     path: "/about-data",
-    heading: "About & Data",
+    heading: "About this demo",
     ready: async () => {},
   },
 ];

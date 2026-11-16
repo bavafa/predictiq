@@ -2,6 +2,9 @@
 
 _Updated 2026-11-14 (evening ET), launched: https://predictiq-demo.vercel.app is live._
 
+## 2026-11-15: redesign stage 1, the shell (branch redesign-shell)
+Decision 82. New nav names, "Simulated plant time" plus "Advance 1 h" in the header, full controls in a "Time controls" panel, "Show data labels" switch (tags stay in accessible names; Illustrative always shows). Checks: tsc, eslint clean; Vitest 195 passed; Playwright full run 233 passed before the last copy fixes, then the 6 affected spec files re-run: 94 passed; only keyboard.spec.ts:242 (6, local-only, known) not re-checked here. Not done: axe/contrast/target-size were in the run above but not re-run after the last edits; header does not yet match the mock-up exactly (time sits in a bar under the header); no asset count. Stages 2 to 6 wait for the owner's approval of this gate.
+
 ## 2026-11-15: purge rule confirmed; bundle with component scores built (branch purge-rule-and-bundle)
 Decision 81: the owner confirmed the purge rule for the 7-day, 14-day and 48-hour labels (no retraining; models unchanged). New serving bundle built locally for piq-20261114-efc9c243 with components comp-20261115-228daea1: 14 files, 12,710,719 bytes uncompressed, bundle.zip 10,257,566 bytes, SHA-256 d417ff57...cad8e7a (simulated data). The production download allow-list now includes the four component files (it refused them before). Component scores in the bundle match a re-run of the step 2 test scoring (worst difference 3e-8). Checks: pytest 414 passed; realbundle 12 passed; size tests 3 passed; e2e:real 244 passed, 7 failed (6 = keyboard.spec.ts:242, local only; 1 = an axe selector-name flake, fixed, 36/36 on rerun). **Not done:** the new zip is not uploaded and the hash is not on main; production still serves the old bundle (Machines plan only). Waiting for the owner's OK on the release step.
 
