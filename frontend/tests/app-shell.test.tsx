@@ -40,9 +40,9 @@ describe("AppShell", () => {
     service = fakeFetch(readyMetadata());
     renderShell();
     await screen.findByRole("button", { name: "Advance 1 h" }, { timeout: 10_000 });
-    expect(screen.getByRole("link", { name: "Asset page" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Assets" })).toHaveAttribute(
       "href",
-      "/asset-details?at=2015-11-02T00%3A00&cutoff=30",
+      "/assets?at=2015-11-02T00%3A00&cutoff=30",
     );
   });
 
@@ -53,7 +53,7 @@ describe("AppShell", () => {
     const links = Array.from(nav.querySelectorAll("a")).map((a) => a.textContent);
     expect(links).toEqual([
       "Overview",
-      "Asset page",
+      "Assets",
       "Work plan",
       "Alert accuracy",
       "In a real plant",
@@ -103,7 +103,7 @@ describe("AppShell", () => {
     const user = userEvent.setup();
     renderShell();
     await user.click(screen.getByRole("button", { name: /^Menu$/ }));
-    const link = screen.getByRole("link", { name: "Asset page" });
+    const link = screen.getByRole("link", { name: "Assets" });
     link.addEventListener("click", (e) => e.preventDefault());
     await user.click(link);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

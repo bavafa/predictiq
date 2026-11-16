@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import FleetOverviewPage from "@/app/page";
+import FleetOverviewPage from "@/app/assets/page";
 import { sortRows } from "@/lib/fleet";
 import type { FleetRow, MachineModel } from "@/lib/types";
 import { fakeFetch, json, noModelMetadata, problem, readyMetadata, renderWithData, setAddress } from "./helpers";
@@ -242,22 +242,9 @@ describe("Fleet Overview", () => {
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
-  it("the guide's third step is the Planner step from the spec: a higher cost for one machine model can change the order", async () => {
+  it("has no guide card (decision 82)", async () => {
     renderWithData(<FleetOverviewPage />, server());
-    const guide = await screen.findByTestId("guide");
-    expect(guide).toHaveTextContent(/Maintenance Planner/);
-    expect(guide).toHaveTextContent(/raise the failure cost of one machine model/);
-    expect(guide).toHaveTextContent(/can change the order/);
-    expect(guide).toHaveTextContent(/at some hours who is shortlisted/);
-    expect(guide).not.toHaveTextContent(/and the shortlist changes/);
-    expect(guide).not.toHaveTextContent(/later stage/);
-  });
-
-  it("Hide guide hides it for the visit", async () => {
-    const user = userEvent.setup();
-    renderWithData(<FleetOverviewPage />, server());
-    expect(await screen.findByTestId("guide")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Hide guide" }));
+    await screen.findByTestId("card-shown");
     expect(screen.queryByTestId("guide")).not.toBeInTheDocument();
   });
 

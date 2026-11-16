@@ -14,9 +14,9 @@ export type PageDef = { name: string; path: string; heading: string; ready: (pag
 
 export const PAGES: PageDef[] = [
   {
-    name: "Overview",
-    path: "/",
-    heading: "Overview",
+    name: "Assets",
+    path: "/assets",
+    heading: "Assets",
     ready: async (page) => {
       await expect(page.getByTestId("card-shown")).toBeVisible();
       await expect(page.getByTestId("risk-chart")).toBeVisible();
@@ -61,6 +61,15 @@ export const PAGES: PageDef[] = [
     path: "/about-data",
     heading: "About this demo",
     ready: async () => {},
+  },
+  // Added last so the index-based picks above keep their pages (stage 2 of the redesign).
+  {
+    name: "Overview",
+    path: "/",
+    heading: "Overview",
+    ready: async (page) => {
+      await expect(page.getByTestId("overview-headline")).toBeVisible();
+    },
   },
 ];
 

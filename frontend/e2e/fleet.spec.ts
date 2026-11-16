@@ -44,7 +44,7 @@ async function blocking(page: Page) {
 
 test("the cards, charts and table show what the data service answers at the replay start", async ({ page, request }) => {
   const w = await readWindow(request);
-  await page.goto("/");
+  await page.goto("/assets");
   await loaded(page);
   const api = await fleetApi(request, w.start, w.cutoff);
   expect(await num(page, "card-shown")).toBe(api.cards.machines_shown);
@@ -63,7 +63,7 @@ test("the cards, charts and table show what the data service answers at the repl
 test("the Alert count equals the Alert rows of the filtered table, for every filter", async ({ page, request }) => {
   const w = await readWindow(request);
   const cutoff = 5; // low enough that several machines are in Alert on any bundle
-  await page.goto(`/?cutoff=${cutoff}`);
+  await page.goto(`/assets?cutoff=${cutoff}`);
   await loaded(page);
   for (const model of ["", "model1", "model2", "model3", "model4"]) {
     for (const status of ["", "alert", "below_cutoff"]) {
@@ -96,7 +96,7 @@ test("the Alert count equals the Alert rows of the filtered table, for every fil
 
 test("changing the cut-off updates the count and the table together (and Reset returns to the default)", async ({ page, request }) => {
   const w = await readWindow(request);
-  await page.goto("/");
+  await page.goto("/assets");
   await loaded(page);
   const slider = page.getByRole("slider", { name: "Alert cut-off" });
   await slider.focus();
@@ -124,7 +124,7 @@ test("changing the cut-off updates the count and the table together (and Reset r
 test("stepping the replay changes the numbers, and they match the service at each hour", async ({ page, request }) => {
   const w = await readWindow(request);
   const from = addHours(w.last, -400);
-  await page.goto(`/?at=${from}&cutoff=${w.cutoff}`);
+  await page.goto(`/assets?at=${from}&cutoff=${w.cutoff}`);
   await loaded(page);
   await page.getByLabel("Step size").selectOption("24");
   const seen = new Set<string>();
@@ -144,7 +144,7 @@ test("stepping the replay changes the numbers, and they match the service at eac
 test("a machine row opens Asset Details at the same replay time and cut-off", async ({ page, request }) => {
   const w = await readWindow(request);
   const at = addHours(w.last, -30);
-  await page.goto(`/?at=${at}&cutoff=40`);
+  await page.goto(`/assets?at=${at}&cutoff=40`);
   await loaded(page);
   const first = page.getByTestId("fleet-row").first();
   const machine = (await first.getAttribute("data-machine"))!;
@@ -158,7 +158,7 @@ test("a machine row opens Asset Details at the same replay time and cut-off", as
 });
 
 test("filters sit in the address, and Clear filters removes them", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/assets");
   await loaded(page);
   await page.getByRole("combobox", { name: "Machine model" }).selectOption("model2");
   await expect(page).toHaveURL(/machine_model=model2/);
@@ -168,7 +168,7 @@ test("filters sit in the address, and Clear filters removes them", async ({ page
 });
 
 test("EMPTY FILTER RESULT: zero everywhere, filters stay in their fields", async ({ page }) => {
-  await page.goto("/?cutoff=100&status=alert&machine_model=model1");
+  await page.goto("/assets?cutoff=100&status=alert&machine_model=model1");
   const empty = page.getByTestId("empty-result");
   await expect(empty).toBeVisible();
   await expect(empty).toContainText("No machines match these filters at");
@@ -186,7 +186,7 @@ test("EMPTY FILTER RESULT: zero everywhere, filters stay in their fields", async
 test("ERROR: a failed request says what failed, keeps the settings and recovers on Try again", async ({ page }) => {
   let broken = true;
   await page.route("**/api/v1/fleet?**", (route) => (broken ? route.fulfill({ status: 500, contentType: "application/problem+json", body: JSON.stringify({ title: "boom", status: 500 }) }) : route.continue()));
-  await page.goto("/?status=alert&cutoff=30");
+  await page.goto("/assets?status=alert&cutoff=30");
   const err = page.getByTestId("service-error").first();
   await expect(err).toContainText("Couldn't load the fleet at");
   await expect(err).toContainText("Your settings are kept.");
@@ -202,14 +202,14 @@ test("LOADING: grey blocks while the first answer is awaited", async ({ page }) 
     await new Promise((r) => setTimeout(r, 1200));
     await route.continue();
   });
-  await page.goto("/");
+  await page.goto("/assets");
   await expect(page.getByTestId("fleet-loading")).toBeVisible();
   await expect(page.getByTestId("skeleton").first()).toBeVisible();
   await expect(page.getByTestId("card-shown")).toBeVisible();
 });
 
 test("charts can be read as tables, and have a text summary", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/assets");
   await loaded(page);
   const risk = page.getByTestId("risk-chart");
   await expect(page.getByTestId("risk-chart-summary")).not.toBeEmpty();
@@ -224,7 +224,7 @@ test("charts can be read as tables, and have a text summary", async ({ page }) =
 });
 
 test("axe: Fleet Overview loaded, with the charts as tables and the empty state (desktop)", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/assets");
   await loaded(page);
   expect(await blocking(page)).toEqual([]);
   await page.getByTestId("risk-chart").getByRole("button", { name: "View as table" }).click();
@@ -233,7 +233,7 @@ test("axe: Fleet Overview loaded, with the charts as tables and the empty state 
 
 test("axe and layout: Fleet Overview on a phone has a list, a Sort menu and no sideways scroll", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/assets");
   await loaded(page);
   expect(await blocking(page)).toEqual([]);
   await expect(page.getByTestId("fleet-table")).toBeHidden();
@@ -251,11 +251,11 @@ test("axe and layout: Fleet Overview on a phone has a list, a Sort menu and no s
 
 test("replay at the start and at the end still show the fleet for that hour", async ({ page, request }) => {
   const w = await readWindow(request);
-  await page.goto(`/?at=${w.first}`);
+  await page.goto(`/assets?at=${w.first}`);
   await loaded(page);
   await expect(page.getByText("Start of the simulated data.")).toBeVisible();
   expect(await num(page, "card-alert")).toBe((await fleetApi(request, w.first, w.cutoff)).cards.machines_in_alert);
-  await page.goto(`/?at=${w.last}`);
+  await page.goto(`/assets?at=${w.last}`);
   await loaded(page);
   await expect(page.getByTestId("end-state")).toBeVisible();
   expect(await num(page, "card-alert")).toBe((await fleetApi(request, w.last, w.cutoff)).cards.machines_in_alert);

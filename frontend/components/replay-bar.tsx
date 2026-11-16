@@ -176,7 +176,7 @@ export function ReplayBar() {
     meta.status === "ready" && meta.meta.replay_start_branch === "no_alert_first_test_hour" ? START_LINE_FALLBACK : START_LINE;
 
   return (
-    <section aria-label="Simulated plant time" className="border-b border-line bg-card px-3 py-3 sm:px-5">
+    <section aria-label="Simulated plant time" className="order-4 basis-full border-t border-line pt-3">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <div className="flex flex-col">
           <span className="text-xs font-semibold text-ink-2">Simulated plant time</span>

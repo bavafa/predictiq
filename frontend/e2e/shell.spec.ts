@@ -23,7 +23,7 @@ test("header names the product, shows plant time and Advance 1 h; the full contr
 });
 
 test("value tags are hidden until Show data labels is on, and Illustrative stays", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/assets");
   const sw = page.getByRole("switch", { name: "Show data labels" });
   await expect(sw).toHaveAttribute("aria-checked", "false");
   const predicted = page.locator('[data-value-label="Predicted"]').first();

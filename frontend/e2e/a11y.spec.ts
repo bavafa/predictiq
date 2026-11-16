@@ -47,7 +47,7 @@ test("focus: Escape closes the mobile menu and returns focus to the Menu button"
 });
 
 test("focus: the chart table toggle keeps focus on its button, both ways", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/assets");
   await expect(page.getByTestId("card-shown")).toBeVisible();
   const risk = page.getByTestId("risk-chart");
   await risk.getByRole("button", { name: "View as table" }).click();
