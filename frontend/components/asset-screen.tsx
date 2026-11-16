@@ -17,10 +17,15 @@ import { percent } from "@/lib/fleet";
 import { machineName } from "@/lib/machine-types";
 import { parseHour, readableHour } from "@/lib/time";
 import type { ApiError } from "@/lib/api";
-import type { Asset, Explanation, MachineModel, Range, Telemetry } from "@/lib/types";
+import type { Asset, Explanation, Fleet, MachineModel, Range, Telemetry } from "@/lib/types";
 import { carriedSearch, machineCount } from "@/lib/url-state";
 import { useApiQuery, useSettledSet } from "@/lib/use-api-query";
 import { useJobs } from "@/lib/jobs";
+import { useStoredFlag } from "@/lib/stored-flag";
+import { rankByCost } from "@/components/alerts-screen";
+import { check, defaultFields } from "@/lib/planner";
+import { windowText } from "@/lib/component-planner";
+import type { ComponentPart, MachineComponents, PlanResponse, ReadyMetadata } from "@/lib/types";
 import { latestErrorText } from "@/components/fleet-table";
 import { machineType } from "@/lib/machine-types";
 
@@ -197,7 +202,7 @@ function AssetBody({ id, total, modelVersion }: { id: number; total: number; mod
         <WhyFlagged asset={assetData} explanation={shown?.explanation.data ?? null} />
       </div>
 
-      <ExplanationPanel error={shown?.explanation.error ?? null} retry={explanation.retry} data={shown?.explanation.data ?? null} dim={busy} />
+      <WhatToCheck id={id} at={at} modelVersion={modelVersion} />
 
       <ComponentPanel id={id} at={at} modelVersion={modelVersion} />
 
@@ -232,20 +237,43 @@ function AssetBody({ id, total, modelVersion }: { id: number; total: number; mod
         )}
       </section>
 
-      <div className={busy ? "grid gap-4 opacity-60 md:grid-cols-2" : "grid gap-4 md:grid-cols-2"} aria-busy={busy}>
-        <EventList kind="errors" query={assetQ} data={assetData} at={assetData?.at ?? at} />
-        <EventList kind="repairs" query={assetQ} data={assetData} at={assetData?.at ?? at} />
-      </div>
-      {assetData && <FailureList asset={assetData} />}
+      <HistoryList query={assetQ} data={assetData} busy={busy} />
+
+      <ModelDetails>
+        <ExplanationPanel error={shown?.explanation.error ?? null} retry={explanation.retry} data={shown?.explanation.data ?? null} dim={busy} />
+      </ModelDetails>
     </div>
   );
 }
 
 type Q = { error: ApiError | null; retry: () => void };
 
+function usePriority(id: number, enabled: boolean): { n: number; of: number } | null {
+  const { client, meta, view } = useData();
+  const ready = meta.status === "ready" ? meta.meta : null;
+  const { dismissed } = useJobs();
+  const fleet = useApiQuery<Fleet>(
+    (signal) => (enabled && view ? client.fleet({ at: view.at, cutoff: view.cutoff }, { signal }) : Promise.reject(new Error("off"))),
+    [client, ready?.model_version, enabled, view?.at, view?.cutoff],
+  );
+  const inputs = ready ? (() => { const c = check(defaultFields(ready as ReadyMetadata)); return c.ok ? c.inputs : null; })() : null;
+  const inputsKey = JSON.stringify(inputs);
+  const plan = useApiQuery<PlanResponse | null>(
+    (signal) => (enabled && view && inputs ? client.plan({ at: view.at, cutoff_percent: view.cutoff, ...inputs }, { signal }) : Promise.resolve(null)),
+    [client, ready?.model_version, enabled, view?.at, view?.cutoff, inputsKey],
+  );
+  if (fleet.status !== "ready" || plan.status === "loading" || !Array.isArray(fleet.data?.rows)) return null; // a failed side lookup never breaks the page
+  const open = fleet.data.rows.filter((r) => r.status === "alert" && !dismissed.includes(r.machine_id));
+  const ranked = rankByCost(open, plan.status === "ready" && Array.isArray(plan.data?.rows) ? plan.data : null).rows;
+  const i = ranked.findIndex((r) => r.machine_id === id);
+  return i < 0 ? null : { n: i + 1, of: ranked.length };
+}
+
 function FactsPanel({ query, data, id }: { query: Q; data: Asset | null; id: number }) {
   const { jobs, dismissed, add, dismiss } = useJobs();
-  const { search } = useData();
+  const { search, meta } = useData();
+  const priority = usePriority(id, data?.status === "alert");
+  const alertsHref = `/alerts${carriedSearch(search)}`;
   const plan = `/maintenance-planner${carriedSearch(search)}`;
   const added = jobs.includes(id);
   const gone = dismissed.includes(id);
@@ -255,9 +283,22 @@ function FactsPanel({ query, data, id }: { query: Q; data: Asset | null; id: num
     <section className={card} aria-labelledby="facts-title" data-testid="facts">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 id="facts-title" className={h2}>
-            {machineName(id)}
-          </h2>
+          <Link href={alertsHref} className="inline-flex min-h-11 items-center text-sm font-semibold">
+            <span aria-hidden="true">←&nbsp;</span>All alerts
+          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 id="facts-title" className={h2}>
+              {machineName(id)}
+            </h2>
+            {priority && (
+              <span className="text-sm font-semibold text-ink-2" data-testid="priority">
+                Priority {priority.n} of {priority.of}
+              </span>
+            )}
+            <span className="text-xs text-ink-2">
+              Machine {id} of {meta.status === "ready" ? machineCount(meta.meta) : "—"}
+            </span>
+          </div>
           {query.error ? (
             <PanelError testId="asset-error-facts" message="Couldn't load this machine's details." onRetry={query.retry} />
           ) : data === null ? (
@@ -315,7 +356,9 @@ function WhyFlagged({ asset, explanation }: { asset: Asset | null; explanation: 
           {last && <li>Latest error record: {latestErrorText(last)}.</li>}
         </ul>
       )}
-      <p className="mt-2 mb-0 text-xs text-ink-2">{CAVEAT_LINE}</p>
+      <p className="mt-2 mb-0 text-xs text-ink-2" data-testid="why-caveat">
+        {CAVEAT_LINE}
+      </p>
     </section>
   );
 }
@@ -342,9 +385,7 @@ function ScorePanel({ query, data, hourLabel, busy }: { query: Q; data: Asset | 
             <ValueLabel kind="Predicted" />
           </div>
           <p className="mt-2 mb-0 text-sm text-ink-2">
-            Scored at the simulated plant time, {hourLabel}. Uses only records from before this hour. Alert means the chance is at or above the
-            {" "}
-            {data.cutoff_percent}% cut-off. Model version {data.model_version}.
+            Scored at the simulated plant time, {hourLabel}. Uses only records from before this hour. Act today starts at {data.cutoff_percent}%. Model version {data.model_version}.
           </p>
         </>
       )}
@@ -436,68 +477,93 @@ function ExplanationTable({ e, dim }: { e: Explanation; dim: boolean }) {
 
 // --- recent records -------------------------------------------------------------------------------------------
 
-function EventList({ kind, query, data, at }: { kind: "errors" | "repairs"; query: Q; data: Asset | null; at: string }) {
-  const title = kind === "errors" ? "Recent errors (7 days up to simulated plant time)" : "Recent repairs (7 days up to simulated plant time)";
-  const empty = kind === "errors" ? "No errors in the 7 days up to this time." : "No repairs in the 7 days up to this time.";
-  const items =
+type HistoryItem = { time: string; kind: "error" | "repair" | "failure"; text: string };
+
+/** One list of everything recorded for the machine in the 7 days before the simulated plant time, newest first. */
+function HistoryList({ query, data, busy }: { query: Q; data: Asset | null; busy: boolean }) {
+  const at = data?.at ?? "";
+  const items: HistoryItem[] =
     data === null
       ? []
-      : kind === "errors"
-        ? recentFirst(data.errors, at).map((e) => ({ time: e.time, text: e.error }))
-        : recentFirst(data.repairs, at).map((r) => ({ time: r.time, text: `component ${r.component.replace(/^comp/, "")} replaced (${r.component})` }));
-  const testId = `${kind}-list`;
+      : [
+          ...recentFirst(data.errors, at).map((e) => ({ time: e.time, kind: "error" as const, text: `Error record: ${e.error}` })),
+          ...recentFirst(data.repairs, at).map((r) => ({ time: r.time, kind: "repair" as const, text: `Component ${r.component.replace(/^comp/, "")} replaced (${r.component})` })),
+          ...recentFirst(data.failures, at).map((f) => ({ time: f.time, kind: "failure" as const, text: `Recorded failure: ${f.components.join(", ")}` })),
+        ].sort((a, b) => b.time.localeCompare(a.time));
   return (
-    <section className={card} aria-labelledby={`${kind}-title`} data-testid={testId}>
+    <section className={`${card}${busy ? " opacity-60" : ""}`} aria-labelledby="history-title" data-testid="history-list" aria-busy={busy}>
       <div className="flex flex-wrap items-center gap-2">
-        <h2 id={`${kind}-title`} className={h2}>
-          {title}
+        <h2 id="history-title" className={h2}>
+          History, 7 days up to the simulated plant time
         </h2>
         <ValueLabel kind="Historical" />
       </div>
       {query.error ? (
-        <PanelError testId={`${kind}-error`} message={`Couldn't load the recent ${kind} for this machine.`} onRetry={query.retry} />
+        <PanelError testId="history-error" message="Couldn't load the history for this machine." onRetry={query.retry} />
       ) : data === null ? (
-        <Skeleton className="mt-2 h-24 w-full" label={`Loading the recent ${kind}`} />
+        <Skeleton className="mt-2 h-24 w-full" label="Loading the history" />
       ) : items.length === 0 ? (
-        <p className="mt-2 mb-0 text-sm">{empty}</p>
+        <p className="mt-2 mb-0 text-sm">No errors, repairs or recorded failures in the 7 days up to this time.</p>
       ) : (
-        <ul className="mt-2 mb-0 list-disc pl-5 text-sm leading-6">
+        <ul className="mt-2 mb-0 list-none pl-0 text-sm leading-6">
           {items.map((i, n) => (
-            <li key={`${i.time}-${n}`} data-record-time={i.time}>
-              <time dateTime={rowHour(i.time)}>{hourText(i.time)}</time> · {i.text}
+            <li key={`${i.time}-${i.kind}-${n}`} data-record-time={i.time} data-kind={i.kind}>
+              {i.kind === "failure" && (
+                <>
+                  <span aria-hidden="true" className="text-[#b91c1c]">◆ </span>
+                  <span className="inline-block rounded-sm bg-[#fee2e2] px-1.5 font-semibold text-[#991b1b]">Recorded failure</span>{" "}
+                </>
+              )}
+              <time dateTime={rowHour(i.time)}>{hourText(i.time)}</time> · {i.kind === "failure" ? i.text.replace("Recorded failure: ", "") : i.text}
             </li>
           ))}
         </ul>
       )}
-      <p className="mt-2 mb-0 text-xs text-ink-2">Lists only records from before the simulated plant time, the same rule the model follows.</p>
+      <p className="mt-2 mb-0 text-xs text-ink-2">
+        Lists only records from before the simulated plant time, the same rule the model follows. Simulated sample data. Recorded failures are shown so you can
+        see whether the estimate rose before one.
+      </p>
     </section>
   );
 }
 
-function FailureList({ asset }: { asset: Asset }) {
-  const failures = recentFirst(asset.failures, asset.at);
+/** "Model details": the full table of what pushed the estimate, closed until asked for. */
+function ModelDetails({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useStoredFlag("piq-model-details"); // remembered for the visitor, like the Time controls panel
   return (
-    <section className={card} aria-labelledby="failures-title" data-testid="failures-list">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 id="failures-title" className={h2}>
-          Recorded failures (7 days before simulated plant time)
-        </h2>
-        <ValueLabel kind="Historical" />
+    <section className="flex flex-col gap-3">
+      <Button aria-expanded={open} aria-controls="model-details" className="self-start" onClick={() => setOpen(!open)}>
+        Model details: what pushed the estimate up or down
+      </Button>
+      <div id="model-details" hidden={!open}>
+        {open && children}
       </div>
-      {failures.length === 0 ? (
-        <p className="mt-2 mb-0 text-sm">No recorded failures in the 7 days up to this time.</p>
-      ) : (
-        <ul className="mt-2 mb-0 list-none pl-0 text-sm leading-6">
-          {failures.map((f, n) => (
-            <li key={`${f.time}-${n}`} data-record-time={f.time}>
-              <span aria-hidden="true" className="text-[#b91c1c]">◆ </span>
-              <span className="inline-block rounded-sm bg-[#fee2e2] px-1.5 font-semibold text-[#991b1b]">Recorded failure</span>{" "}
-              <time dateTime={rowHour(f.time)}>{hourText(f.time)}</time> · {f.components.join(", ")}
-            </li>
-          ))}
-        </ul>
-      )}
-      <p className="mt-2 mb-0 text-xs text-ink-2">Simulated sample data. Shown beside the predicted chances above, to see whether the estimate rose before a failure.</p>
+    </section>
+  );
+}
+
+/** "What to check first": only while a part has an active 48-hour warning (decision 85). Nothing otherwise. */
+function WhatToCheck({ id, at, modelVersion }: { id: number; at: string; modelVersion: string }) {
+  const { client, meta } = useData();
+  const info = meta.status === "ready" ? (meta.meta.component_planner ?? null) : null;
+  const q = useApiQuery<MachineComponents | null>(
+    (signal) => (info ? client.components(id, { at }, { signal }) : Promise.resolve(null)),
+    [client, modelVersion, id, at, !!info],
+  );
+  if (q.status !== "ready" || !q.data) return null;
+  const warned = q.data.parts.filter((p: ComponentPart) => p.warning_active).sort((a, b) => b.warning_chance_48h - a.warning_chance_48h)[0];
+  if (!warned) return null;
+  return (
+    <section className={card} aria-labelledby="check-title" data-testid="what-to-check">
+      <h2 id="check-title" className={h2}>
+        What to check first
+      </h2>
+      <p className="mt-2 mb-1 text-sm leading-6">
+        Inspect the <strong>{warned.part_name.toLowerCase()}</strong>. Its 48-hour warning is active: {percent(warned.warning_chance_48h)} chance within 48 hours,
+        {" "}
+        next shutdown window {windowText(q.data.window_start)} (assumed).
+      </p>
+      <p className="m-0 text-xs text-ink-2">Based on patterns in past data, not a diagnosis. Part names are assumed.</p>
     </section>
   );
 }

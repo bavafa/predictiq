@@ -31,7 +31,10 @@ export default defineConfig({
     // default-closed path has its own test in shell.spec.ts, which clears this).
     storageState: {
       cookies: [],
-      origins: [{ origin: `http://127.0.0.1:${port}`, localStorage: [{ name: "piq-time-panel", value: "on" }] }],
+      origins: [{ origin: `http://127.0.0.1:${port}`, localStorage: [
+            { name: "piq-time-panel", value: "on" },
+            { name: "piq-model-details", value: "on" },
+          ] }],
     },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], launchOptions: { executablePath } } }],

@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
+import { openDetails } from "./page-support";
 import { addHours, readWindow, shownHour } from "./support";
 
 type AssetAnswer = {
@@ -25,7 +26,7 @@ const pct = (score: number) => `${(score * 100).toFixed(1)}%`;
 
 async function loaded(page: Page) {
   await expect(page.getByTestId("asset-score")).toBeVisible();
-  await expect(page.getByTestId("explanation-table")).toBeVisible();
+  await openDetails(page);
   await expect(page.getByTestId("sensor-volt")).toBeVisible();
 }
 
@@ -80,7 +81,7 @@ test("the factors are labelled patterns, not causes: top 8 plus all others, with
   await expect(page.getByTestId("explanation").getByRole("note")).toHaveCount(0);
   const text = (await page.locator("main").innerText()).toLowerCase();
   expect(text).not.toMatch(/\blive\b|real-time|savings|\bcaused by\b/);
-  await expect(page.getByTestId("failures-list")).toContainText("Simulated sample data");
+  await expect(page.getByTestId("history-list")).toContainText("Simulated sample data");
   await expect(page.getByTestId("past-estimates")).toContainText("simulated sample data");
 });
 
@@ -97,8 +98,7 @@ test("no error, repair or failure at or after the replay hour is shown, for many
     seenRecords += times.length;
     // the lists are exactly the service's records
     const api = await assetApi(request, machine, at, w.cutoff);
-    await expect(page.getByTestId("errors-list").locator("li")).toHaveCount(api.errors.length);
-    await expect(page.getByTestId("repairs-list").locator("li")).toHaveCount(api.repairs.length);
+    await expect(page.getByTestId("history-list").locator("li")).toHaveCount(api.errors.length + api.repairs.length + api.failures.length);
     for (const r of [...api.errors, ...api.repairs, ...api.failures]) expect(r.time.slice(0, 16) < at).toBe(true);
   }
   expect(seenRecords).toBeGreaterThanOrEqual(0);
@@ -163,9 +163,10 @@ test("when the sensor history fails, only that panel shows an error and Try agai
   await expect(error).toContainText("Couldn't load the sensor history for this machine.");
   await expect(error).toContainText("The rest of this page is still correct.");
   await expect(page.getByTestId("asset-score")).toBeVisible();
+  await openDetails(page);
   await expect(page.getByTestId("explanation-row")).toHaveCount(9);
   await expect(page.getByTestId("past-estimates")).toBeVisible();
-  await expect(page.getByTestId("errors-list")).toBeVisible();
+  await expect(page.getByTestId("history-list")).toBeVisible();
   broken = false;
   await error.getByRole("button", { name: "Try again" }).click();
   await expect(page.getByTestId("sensor-volt")).toBeVisible();

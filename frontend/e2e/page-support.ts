@@ -12,6 +12,14 @@ export const VIEWPORTS = [
 
 export type PageDef = { name: string; path: string; heading: string; ready: (page: Page) => Promise<void> };
 
+/** Opens "Model details" on the machine page (closed by default); safe to call twice. */
+export async function openDetails(page: Page) {
+  const button = page.getByRole("button", { name: /Model details/ });
+  await expect(button).toBeVisible();
+  if ((await button.getAttribute("aria-expanded")) !== "true") await button.click(); // normally already open: Playwright starts with it remembered open
+  await expect(page.getByTestId("explanation-table")).toBeVisible();
+}
+
 export const PAGES: PageDef[] = [
   {
     name: "Assets",
@@ -28,7 +36,7 @@ export const PAGES: PageDef[] = [
     heading: "Asset page",
     ready: async (page) => {
       await expect(page.getByTestId("asset-score")).toBeVisible();
-      await expect(page.getByTestId("explanation-table")).toBeVisible();
+      await openDetails(page);
       await expect(page.getByTestId("sensor-volt")).toBeVisible();
     },
   },
