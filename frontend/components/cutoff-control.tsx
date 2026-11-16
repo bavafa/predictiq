@@ -100,7 +100,7 @@ export function CutoffControl({ onChanged }: { onChanged?: (cutoff: number) => v
       >
         Reset to default
       </Button>
-      <span className="text-xs text-ink-2">Default set on validation data. Shared with the Planner and Model Performance.</span>
+      <span className="text-xs text-ink-2">Default set on validation data. Shared with the Work plan and Alert accuracy.</span>
     </div>
   );
 }

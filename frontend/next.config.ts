@@ -9,6 +9,15 @@ const apiProxy = process.env.API_PROXY_URL;
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Old fleet-table links (before the redesign) carried filters on "/"; the table now lives at /assets.
+  async redirects() {
+    return ["status", "machine_model", "machine_number"].map((key) => ({
+      source: "/",
+      has: [{ type: "query" as const, key }],
+      destination: "/assets",
+      permanent: false,
+    }));
+  },
   async rewrites() {
     return apiProxy ? [{ source: "/api/v1/:path*", destination: `${apiProxy}/api/v1/:path*` }] : [];
   },

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "In a Real Plant — PredictIQ" };
+export const metadata: Metadata = { title: "In a real plant — PredictIQ" };
 
 const card = "rounded-lg border border-line bg-card px-4 py-4 sm:px-5";
 const h2 = "m-0 mb-1 text-lg leading-7 font-semibold";
@@ -70,7 +70,7 @@ export default function RealPlantPage() {
           <li>
             <strong>Plan.</strong> A confirmed alert becomes a work order with a
             priority, parts, labour and a target window, ranked the way the
-            Maintenance Planner ranks machines: by expected cost, not by score
+            Work plan ranks machines: by expected cost, not by score
             alone.
           </li>
           <li>
@@ -210,7 +210,7 @@ export default function RealPlantPage() {
         </ul>
         <p className="mt-3 mb-0 text-sm">
           <Link href="/about-data" className="inline-flex min-h-11 items-center text-link underline">
-            Data and limitations: About &amp; Data
+            Data and limitations: About this demo
           </Link>
         </p>
       </section>

@@ -146,6 +146,15 @@ export function rowAt(results: Results, model: ModelKey, cutoff: number): Cutoff
   return results.models[model].cutoffs.find((r) => r.cutoff === cutoff) ?? null;
 }
 
+/** The plain answer to "can I trust these alerts?", read from the saved evaluation at its default cut-off. */
+export function trustSummary(results: Results): string | null {
+  const cutoff = results.models.main.summary.default_cutoff_percent;
+  const row = cutoff === null ? null : rowAt(results, "main", cutoff);
+  if (!row) return null;
+  const days = Math.round(results.testWindow.hours / 24);
+  return `In a ${days}-day test on simulated data, the model caught ${row.events_caught} of ${row.events_full_lookback} failures, and ${row.false_alerts} of its ${row.alerts} alerts were false. Real equipment would score lower.`;
+}
+
 const atCutoff = (results: Results, cutoff: number, pick: (row: CutoffRow) => Cell): Record<ModelKey, Cell> => {
   const cell = (m: ModelKey): Cell => {
     const row = rowAt(results, m, cutoff);

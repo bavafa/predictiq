@@ -215,7 +215,7 @@ function Cards({ fleet, total, hourLabel }: { fleet: Fleet; total: number; hourL
       >
         <span data-testid="card-highest">{c.highest_score === null ? "None" : percent(c.highest_score)}</span>
       </Card>
-      <Card label="Scored hour" note={<>Follows the replay time{none ? "; not affected by filters" : ""}. Simulated sample data.</>}>
+      <Card label="Scored hour" note={<>Follows the simulated plant time{none ? "; not affected by filters" : ""}. Simulated sample data.</>}>
         <span className="text-xl" data-testid="card-hour">
           {hourLabel}
         </span>

@@ -22,7 +22,7 @@ describe("About & Data", () => {
     expect(container.textContent).not.toMatch(/skeleton only|No model has been trained|no model yet/i);
     expect(container.textContent).toMatch(/Two models were trained/);
     expect(container.textContent).toMatch(/Nothing on this site is live/);
-    expect(container.textContent).toMatch(/Maintenance Planner.*illustrative.*Model Performance.*saved evaluation/);
+    expect(container.textContent).toMatch(/Work plan.*illustrative.*Alert accuracy.*saved evaluation/);
   });
 
   it("has a complete limitations section that matches the model card and Model Performance page", () => {

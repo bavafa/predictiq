@@ -4,7 +4,7 @@ import { ModelFacts } from "@/components/model-facts";
 import { ValueLabel } from "@/components/value-label";
 import { PROVENANCE_URL } from "@/lib/nav";
 
-export const metadata: Metadata = { title: "About & Data — PredictIQ" };
+export const metadata: Metadata = { title: "About this demo — PredictIQ" };
 
 const card = "rounded-lg border border-line bg-card px-4 py-4 sm:px-5";
 const h2 = "m-0 mb-1 text-lg leading-7 font-semibold";
@@ -22,9 +22,9 @@ export default function AboutDataPage() {
         <p className="mt-3 mb-0">
           <strong>Where it stands.</strong> Two models were trained on the sample data: a simple baseline (logistic
           regression) and a main model (gradient-boosted trees). Their scores for every machine and every hour of a held-out
-          later period are saved, and the data service reads only those saved scores. <strong>Fleet Overview</strong>,{" "}
-          <strong>Asset Details</strong> and <strong>Maintenance Planner</strong> work on them (the Planner turns them into a ranked list
-          using cost assumptions you set; those costs are illustrative). <strong>Model Performance</strong> compares the two models
+          later period are saved, and the data service reads only those saved scores. <strong>Overview</strong>,{" "}
+          <strong>Assets</strong>, the <strong>Asset page</strong> and the <strong>Work plan</strong> work on them (the Work plan turns them into a ranked list
+          using cost assumptions you set; those costs are illustrative). <strong>Alert accuracy</strong> compares the two models
           on the held-out period from the saved evaluation. Nothing is calculated live.
         </p>
         <ModelFacts />
@@ -47,7 +47,7 @@ export default function AboutDataPage() {
             <ValueLabel kind="Illustrative" /> An assumption that can be changed, such as costs and crew slots. Not real costs.
           </li>
         </ul>
-        <p className="mt-3 mb-0 text-sm">&ldquo;Historical replay&rdquo; steps through old records in order. Nothing on this site is live.</p>
+        <p className="mt-3 mb-0 text-sm">The &ldquo;simulated plant time&rdquo; steps through old records in order. Nothing on this site is live.</p>
       </section>
 
       <section className={card} aria-labelledby="source">
@@ -116,7 +116,7 @@ export default function AboutDataPage() {
                 <strong>Explanations are patterns, not causes.</strong> They show what the model used, not why a part failed.
               </li>
               <li>
-                <strong>Illustrative costs.</strong> Costs and crew slots in the Maintenance Planner are assumptions you set.
+                <strong>Illustrative costs.</strong> Costs and crew slots in the Work plan are assumptions you set.
                 They are not real costs, and the list promises no savings or financial result.
               </li>
               <li>
@@ -136,7 +136,7 @@ export default function AboutDataPage() {
             </ul>
             <p className="mt-3 mb-0 text-sm leading-6">
               Details, with the measured results and how the models were built, are in the model card in the project&rsquo;s
-              repository and on the Model Performance page.
+              repository and on the Alert accuracy page.
             </p>
           </div>
         </div>

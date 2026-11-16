@@ -204,11 +204,11 @@ function AssetBody({ id, total, modelVersion }: { id: number; total: number; mod
       <section aria-labelledby="sensors-title" className={card}>
         <div className="flex flex-wrap items-center gap-2">
           <h2 id="sensors-title" className={h2}>
-            Sensor history, up to the replay time
+            Sensor history, up to the simulated plant time
           </h2>
           <ValueLabel kind="Historical" />
         </div>
-        <p className="mt-1 mb-3 text-sm text-ink-2">One reading per hour, from before the replay time. The source gives no units, so the axes just say reading. Markers: ◆ recorded failure · ■ repair · ▲ error.</p>
+        <p className="mt-1 mb-3 text-sm text-ink-2">One reading per hour, from before the simulated plant time. The source gives no units, so the axes just say reading. Markers: ◆ recorded failure · ■ repair · ▲ error.</p>
         {shown?.telemetry.error ? (
           <PanelError testId="sensor-error" message="Couldn't load the sensor history for this machine." onRetry={telemetry.retry} />
         ) : !shown?.telemetry.data ? (
@@ -342,7 +342,7 @@ function ScorePanel({ query, data, hourLabel, busy }: { query: Q; data: Asset | 
             <ValueLabel kind="Predicted" />
           </div>
           <p className="mt-2 mb-0 text-sm text-ink-2">
-            Scored at the replay time, {hourLabel}. Uses only records from before this hour. Alert means the chance is at or above the
+            Scored at the simulated plant time, {hourLabel}. Uses only records from before this hour. Alert means the chance is at or above the
             {" "}
             {data.cutoff_percent}% cut-off. Model version {data.model_version}.
           </p>
@@ -437,7 +437,7 @@ function ExplanationTable({ e, dim }: { e: Explanation; dim: boolean }) {
 // --- recent records -------------------------------------------------------------------------------------------
 
 function EventList({ kind, query, data, at }: { kind: "errors" | "repairs"; query: Q; data: Asset | null; at: string }) {
-  const title = kind === "errors" ? "Recent errors (7 days up to replay time)" : "Recent repairs (7 days up to replay time)";
+  const title = kind === "errors" ? "Recent errors (7 days up to simulated plant time)" : "Recent repairs (7 days up to simulated plant time)";
   const empty = kind === "errors" ? "No errors in the 7 days up to this time." : "No repairs in the 7 days up to this time.";
   const items =
     data === null
@@ -480,7 +480,7 @@ function FailureList({ asset }: { asset: Asset }) {
     <section className={card} aria-labelledby="failures-title" data-testid="failures-list">
       <div className="flex flex-wrap items-center gap-2">
         <h2 id="failures-title" className={h2}>
-          Recorded failures (7 days before replay time)
+          Recorded failures (7 days before simulated plant time)
         </h2>
         <ValueLabel kind="Historical" />
       </div>
