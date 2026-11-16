@@ -23,6 +23,7 @@ import {
   comparisonRows,
   count,
   parseResults,
+  trustSummary,
   type MeasureRow,
   type Results,
 } from "@/lib/model-performance";
@@ -91,6 +92,19 @@ function Body() {
 
   return (
     <div className="flex flex-col gap-4" data-testid="model-performance">
+      <section aria-labelledby="mp-trust" className={card} data-testid="mp-trust">
+        <h2 id="mp-trust" className={h2}>
+          Can I trust these alerts?
+        </h2>
+        <p className="mt-2 mb-0 text-sm leading-6">
+          {results && trustSummary(results)
+            ? trustSummary(results)
+            : loading
+              ? "Loading the test result."
+              : "The test result isn't available in this deployment."}
+        </p>
+        <p className="mt-1 mb-0 text-sm text-ink-2">The full evaluation and every limitation follow below.</p>
+      </section>
       <section aria-labelledby="mp-facts" className={card} data-testid="mp-facts">
         <h2 id="mp-facts" className={h2}>
           About these results
@@ -104,7 +118,7 @@ function Body() {
         <p className="mt-2 mb-0 text-sm text-ink-2">
           The results below come from the saved evaluation of this model version, run once on simulated sample data.
           The model version and build date come from the model&apos;s own record. The date the saved results were
-          produced is not recorded, so the build date is shown instead. Nothing here describes real machines. The replay time above is shown for reference only; nothing on this
+          produced is not recorded, so the build date is shown instead. Nothing here describes real machines. The simulated plant time above is shown for reference only; nothing on this
           page changes with it.
         </p>
       </section>

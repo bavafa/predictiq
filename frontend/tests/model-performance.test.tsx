@@ -86,6 +86,13 @@ async function ready(search = "") {
 }
 
 describe("Model Performance, results", () => {
+  it("opens with a plain answer to 'can I trust these alerts', from the saved counts, always with the simulated-data caveat", async () => {
+    await ready();
+    const box = screen.getByTestId("mp-trust");
+    expect(box).toHaveTextContent("Can I trust these alerts?");
+    expect(box).toHaveTextContent(/In a \d+-day test on simulated data, the model caught \d+ of \d+ failures, and \d+ of its \d+ alerts were false\. Real equipment would score lower\./);
+  });
+
   it("shows the header facts: version, model build date, test period and the target in words", async () => {
     await ready();
     expect(screen.getByTestId("fact-version")).toHaveTextContent("piq-test-1");

@@ -25,7 +25,7 @@ describe("ScreenGate states", () => {
     expect(state).toHaveTextContent("The model data isn't installed in this preview");
     expect(screen.queryByText("screen body")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Try again" })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /About & Data/ })).toHaveAttribute("href", "/about-data");
+    expect(screen.getByRole("link", { name: /About this demo/ })).toHaveAttribute("href", "/about-data");
     expect(container.textContent).not.toMatch(/[0-9]/);
   });
 

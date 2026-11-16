@@ -204,13 +204,13 @@ export function PastEstimatesChart({ asset, range }: { asset: Asset; range: Rang
   const summary =
     data.length === 0
       ? "No past estimates to show."
-      : `Predicted chance at the replay time ${last!.pct.toFixed(1)}%; over this range lowest ${Math.min(...data.map((d) => d.pct)).toFixed(1)}%, highest ${Math.max(...data.map((d) => d.pct)).toFixed(1)}%. Cut-off ${cutoff}%. ${failures.length} recorded ${failures.length === 1 ? "failure" : "failures"} in the 7 days before the replay time${failures.length ? ": " + failures.map((f) => `${label(f.time)} (${f.components.join(", ")})`).join("; ") : ""}.`;
+      : `Predicted chance at the simulated plant time ${last!.pct.toFixed(1)}%; over this range lowest ${Math.min(...data.map((d) => d.pct)).toFixed(1)}%, highest ${Math.max(...data.map((d) => d.pct)).toFixed(1)}%. Cut-off ${cutoff}%. ${failures.length} recorded ${failures.length === 1 ? "failure" : "failures"} in the 7 days before the simulated plant time${failures.length ? ": " + failures.map((f) => `${label(f.time)} (${f.components.join(", ")})`).join("; ") : ""}.`;
   const wanted = range === "24h" ? 24 : 168;
   return (
     <ChartCard
       testId="past-estimates"
       title="Past estimates beside recorded failures"
-      caption={`Predicted chance of a recorded failure in the next 24 hours, each hour up to and including the replay time. ◆ marks a recorded failure (simulated sample data). Dashed line = cut-off ${cutoff}%.`}
+      caption={`Predicted chance of a recorded failure in the next 24 hours, each hour up to and including the simulated plant time. ◆ marks a recorded failure (simulated sample data). Dashed line = cut-off ${cutoff}%.`}
       summary={summary}
       note={data.length < wanted ? `Only ${data.length} ${data.length === 1 ? "hour" : "hours"} of history before this point.` : undefined}
       chart={
@@ -218,7 +218,7 @@ export function PastEstimatesChart({ asset, range }: { asset: Asset; range: Rang
           <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <LineChart data={data} margin={{ top: 12, right: 12, bottom: 28, left: 4 }} accessibilityLayer={false}>
               <CartesianGrid stroke={GRID} vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: INK2 }} minTickGap={48} label={{ value: "Replay time (historical)", position: "insideBottom", offset: -18, fontSize: 12, fill: INK2 }} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: INK2 }} minTickGap={48} label={{ value: "Simulated plant time (historical)", position: "insideBottom", offset: -18, fontSize: 12, fill: INK2 }} />
               <YAxis width={52} domain={[0, 100]} unit="%" tick={{ fontSize: 11, fill: INK2 }} label={{ value: "Chance (%)", angle: -90, position: "insideLeft", fontSize: 12, fill: INK2 }} />
               <ReferenceLine y={cutoff} stroke={CUTOFF} strokeDasharray="6 4" strokeWidth={2} label={{ value: `Cut-off ${cutoff}%`, position: "insideTopRight", fontSize: 11, fill: CUTOFF }} />
               <Line type="monotone" dataKey="pct" stroke={RISK} strokeWidth={2} dot={false} isAnimationActive={false} />

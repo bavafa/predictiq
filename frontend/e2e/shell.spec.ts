@@ -35,3 +35,10 @@ test("value tags are hidden until Show data labels is on, and Illustrative stays
   await page.reload();
   await expect(page.getByRole("switch", { name: "Show data labels" })).toHaveAttribute("aria-checked", "true");
 });
+
+test("an old fleet link with filters opens the Assets table with the same filters", async ({ page }) => {
+  await page.goto("/?status=alert&cutoff=30");
+  await expect(page).toHaveURL(/\/assets\?.*status=alert/);
+  await expect(page).toHaveURL(/cutoff=30/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assets");
+});

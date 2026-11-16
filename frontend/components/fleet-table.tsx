@@ -150,7 +150,7 @@ export function FleetTable({
           </tbody>
         </table>
         <p className="mt-2 mb-0 text-xs text-ink-2">
-          <ValueLabel kind="Predicted" /> Predicted chance and status. <ValueLabel kind="Historical" /> Machine model, age and latest error (the newest error record before the replay time).
+          <ValueLabel kind="Predicted" /> Predicted chance and status. <ValueLabel kind="Historical" /> Machine model, age and latest error (the newest error record before the simulated plant time).
         </p>
       </div>
 

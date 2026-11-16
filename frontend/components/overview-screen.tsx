@@ -10,7 +10,7 @@ import { ApiError } from "@/lib/api";
 import { percent } from "@/lib/fleet";
 import { useJobs } from "@/lib/jobs";
 import { machineName, machineType } from "@/lib/machine-types";
-import { parseResults, rowAt } from "@/lib/model-performance";
+import { parseResults, trustSummary } from "@/lib/model-performance";
 import type { Fleet, FleetRow } from "@/lib/types";
 import { carriedSearch } from "@/lib/url-state";
 import { useApiQuery } from "@/lib/use-api-query";
@@ -202,19 +202,12 @@ function TrustCard() {
     },
     [client, version],
   );
-  const results = q.status === "ready" ? q.data : null;
-  const cutoff = results?.models.main.summary.default_cutoff_percent ?? null;
-  const row = results && cutoff !== null ? rowAt(results, "main", cutoff) : null;
-  const days = results ? Math.round(results.testWindow.hours / 24) : 0;
+  const text = q.status === "ready" && q.data ? trustSummary(q.data) : null;
   return (
     <div className={cn(card, "flex flex-[1_1_320px] flex-col gap-2")}>
       <h2 className="m-0 text-base font-semibold">Can I trust these alerts?</h2>
       <p className="m-0 text-sm leading-6 text-ink-2" data-testid="trust-summary">
-        {row
-          ? `In a ${days}-day test on simulated data, the model caught ${row.events_caught} of ${row.events_full_lookback} failures, and ${row.false_alerts} of its ${row.alerts} alerts were false. Real equipment would score lower.`
-          : q.status === "loading"
-            ? "Loading the test result."
-            : "The test result isn't available in this deployment. See Alert accuracy."}
+        {text ?? (q.status === "loading" ? "Loading the test result." : "The test result isn't available in this deployment. See Alert accuracy.")}
       </p>
       <Link href={`/model-performance${carriedSearch(search)}`} className="flex min-h-11 items-center text-[15px] font-semibold">
         See alert accuracy

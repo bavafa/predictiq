@@ -60,9 +60,9 @@ test("mobile: every control in the no-model state is at least 44x44 (docs/ux-spe
   }
 });
 
-test("the link to About & Data from the state works", async ({ page }) => {
+test("the link to About & Data from the no-data state works", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("no-model-data").getByRole("link", { name: /About & Data/ }).click();
+  await page.getByTestId("no-model-data").getByRole("link", { name: /About this demo/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("About this demo");
 });
 

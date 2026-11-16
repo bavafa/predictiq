@@ -76,7 +76,7 @@ export function NoModelData() {
       <p className="mt-2 mb-0">
         You can still read what the sample data is and what this demo does not do on{" "}
         <Link href="/about-data" className="inline-flex min-h-11 items-center text-link underline">
-          About &amp; Data
+          About this demo
         </Link>
         .
       </p>
